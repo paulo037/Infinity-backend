@@ -2,13 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.seed = void 0;
 async function seed(knex) {
-    // Deletes ALL existing entries
-    await knex("e").del();
-    // Inserts seed entries
-    await knex("table_name").insert([
-        { id: 1, colName: "rowValue1" },
-        { id: 2, colName: "rowValue2" },
-        { id: 3, colName: "rowValue3" }
+    await knex("user").insert([
+        { user_id: 1,
+            name: "paulo",
+            image: "ww.exemple",
+            password: "11225221",
+            email: "paulo@gmail.com",
+            admin: true,
+            cpf: "1231231233" },
     ]);
 }
 exports.seed = seed;

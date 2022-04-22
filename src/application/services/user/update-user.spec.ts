@@ -19,7 +19,8 @@ describe('Update User', () => {
             email: "exemple@gmail.com",
             cpf: "13210829675",
             admin: false,
-        },1);
+            id: 1,
+        });
 
 
         UserRepository.items.push(u)

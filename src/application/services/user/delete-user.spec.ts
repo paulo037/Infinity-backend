@@ -14,7 +14,8 @@ describe('Delete User', () => {
             email: "exemple@gmail.com.br",
             cpf: "13210829675",
             admin: false,
-        },1);
+            id: 1
+        });
 
         userRepository.items.push(user);
 
@@ -36,7 +37,8 @@ describe('Delete User', () => {
             email: "exemple@gmail.com.br",
             cpf: "13210829675",
             admin: false,
-        },1);
+            id: 1
+        });
  
         UserRepository.items.push(user);
     

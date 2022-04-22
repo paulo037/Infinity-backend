@@ -100,7 +100,7 @@
     "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */
     "outDir": "./dist",
   },
-  "include": ["src/**/*", "knexfile.ts"],
+  "include": ["src/**/*", "knexfile.ts", "app.ts"],
   "exclude": ["node_modules"]  
 
 }

@@ -1,9 +1,22 @@
 "use strict";
-// import { app } from "./app"
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const create_product_1 = require("./application/services/product/create-product");
+const product_controller_1 = __importDefault(require("./database/constrollers/product-controller"));
+const user_controller_1 = __importDefault(require("./database/constrollers/user-controller"));
+const router = express_1.default.Router();
+const userController = new user_controller_1.default();
+const productController = new product_controller_1.default();
 // const multer = require("multer")
-// app.route('/user')
-//     .post(app.api.user.save)
-//     .get(app.api.user.get)
+router.route('/user')
+    .get(async (request, response) => {
+    const user = await userController.findById(1);
+    console.log(user);
+    response.json(user);
+});
 // app.route('/user/:id')
 //     .put(app.api.user.save)
 //     .get(app.api.user.getById)
@@ -20,9 +33,24 @@
 //     .put(app.api.size.save)
 //     .get(app.api.size.getById)
 //     .delete(app.api.size.deleteSize)
-// app.route('/product')
-//     .get(app.api.product.get)
-//     .post(app.api.product.save)
+router.route('/product')
+    .get(async (request, response) => {
+    const products = await productController.getByCategory(request.body.id);
+    response.json(products);
+});
+router.route('/product')
+    .post(async (request, response) => {
+    try {
+        console.log(Object.assign({}, request.body));
+        await new create_product_1.CreateProduct(productController).execute(Object.assign({}, request.body));
+    }
+    catch (e) {
+        console.log(e);
+        response.status(400).send(e);
+    }
+    response.status(201).send();
+});
+// .post(app.api.product.save)
 // app.route('/product/category')
 //     .get(app.api.product.getProductByCategory)
 // app.route('/product/:id')
@@ -38,3 +66,4 @@
 //     .delete(app.api.category.deleteCategory)
 // app.route("/image")
 //     .post(multer(app.config.multer).single("file"), app.config.firebase.uploadImage)
+exports.default = router;

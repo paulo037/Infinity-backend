@@ -12,18 +12,18 @@ describe('Update Product', () => {
         const productRepository = new InMemoryProductRepository;
         const categoryRepository = new InMemoryCategoryRepository;
         
-        const category = Category.create({ name: 'Blusa', image: 'www.exemple.com' }, 1)
+        const category = Category.create({ name: 'Blusa', image: 'www.exemple.com' , id:1})
 
         const p = Product.create({
             name: "Camisa",
             price: 20.5,
-            category_id: 1
-        }, 1);
+            id: 1
+        });
 
         productRepository.items.push(p)
 
         categoryRepository.items.push(category);
-        const sut = new UpdateProduct(productRepository, categoryRepository);
+        const sut = new UpdateProduct(productRepository);
 
 
 
@@ -31,7 +31,6 @@ describe('Update Product', () => {
             name: "Cam",
             id: 1,
             price: 2.5,
-            category_id: 1
         });
 
         expect(response).toBeFalsy();
@@ -43,18 +42,18 @@ describe('Update Product', () => {
         const productRepository = new InMemoryProductRepository;
         const categoryRepository = new InMemoryCategoryRepository;
         
-        const category = Category.create({ name: 'Blusa', image: 'www.exemple.com' }, 1)
+        const category = Category.create({ name: 'Blusa', image: 'www.exemple.com' ,id: 1})
 
         const p = Product.create({
             name: "Camisa",
             price: 20.5,
-            category_id: 1
-        } ,1);
+            id: 1,
+        });
 
         productRepository.items.push(p)
 
         categoryRepository.items.push(category);
-        const sut = new UpdateProduct(productRepository, categoryRepository);
+        const sut = new UpdateProduct(productRepository);
 
 
         try {
@@ -62,7 +61,6 @@ describe('Update Product', () => {
                 name: "Camisa",
                 id: 1,
                 price: 20.5,
-                category_id: 2
             });
 
         } catch(e) {

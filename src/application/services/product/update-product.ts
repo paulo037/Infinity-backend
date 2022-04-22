@@ -11,7 +11,6 @@ type UpdateProductRequest = {
     height?: number;
     width?: number;
     length?: number;
-    category_id: number;
 }
 
 
@@ -19,7 +18,6 @@ export class UpdateProduct {
 
     constructor(
         private productRepository: ProductRepository,
-        private categoryRepository: CategoryRepository,
     ) { }
 
 
@@ -31,19 +29,16 @@ export class UpdateProduct {
         price,
         height,
         width,
-        length,
-        category_id }: UpdateProductRequest) {
+        length }: UpdateProductRequest) {
 
 
-        const category = await this.categoryRepository.findById(category_id);
+
         const product = await this.productRepository.findById(id);
         
 
-        Validation.existOrError(category, "Categoria selecionada não existe.");
         Validation.validPriceOrError(price, "Preço invalido!")
         Validation.existOrError(product, "Produto não encontrado.");
         
-
      
         const productUpdate = Product.create({
             name,
@@ -52,10 +47,10 @@ export class UpdateProduct {
             height,
             width,
             length,
-            category_id
-        },id);
+            id,
+        });
 
-        this.productRepository.update(productUpdate);
+        return this.productRepository.update(productUpdate);
 
     }
 }

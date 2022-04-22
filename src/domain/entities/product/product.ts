@@ -7,12 +7,13 @@ type ProductProps = {
     height?: number;
     width?: number;
     length?: number;
+    id?: number;
 }
 export class Product extends Entity<ProductProps>{
 
     
-    private constructor(props: ProductProps, id?: number) {
-        super(props, id);
+    private constructor(props: ProductProps) {
+        super(props);
     }
     
     public get name() : string {
@@ -20,12 +21,12 @@ export class Product extends Entity<ProductProps>{
     }
 
     public get id() {
-        return this._id;
+        return this.props.id;
     }
 
 
-    static create(props: ProductProps, id?: number) {
-        const product = new Product(props, id);
+    static create(props: ProductProps) {
+        const product = new Product(props);
 
         return product;
     }

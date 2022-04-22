@@ -12,15 +12,15 @@ describe('Delete Product', () => {
 
         const category = Category.create({
             name: 'Blusa',
-            image: 'www.exemple.com'
-        }, 1);
+            image: 'www.exemple.com',
+            id: 1,
+        });
 
         const product = Product.create({
             name: "Paulo",
             price: 20.5,
-            category_id: 1,
-          
-        } , 1);
+            id: 1,
+        });
 
         categoryRepository.items.push(category);
         productRepository.items.push(product);
@@ -39,15 +39,15 @@ describe('Delete Product', () => {
     
         const category = Category.create({
             name: 'Blusa',
-            image: 'www.exemple.com'
-        }, 1);
+            image: 'www.exemple.com',
+            id: 1,
+        });
     
         const product = Product.create({
             name: "Paulo",
             price: 20.5,
-            category_id: 1,
-          
-        } , 2);
+            id: 1,
+        });
     
         categoryRepository.items.push(category);
         productRepository.items.push(product);

@@ -1,11 +1,9 @@
-import type { Knex } from "knex";
-import path from "path";
+const dotenv = require('dotenv')
+dotenv.config()
 
 
-const config: { [key: string]: Knex.Config } = {
-
-    production: {
-        client: process.env.BD_CLIENT,
+module.exports = {
+        client: process.env.BD_CLIENT ,
         connection: {
             user: process.env.BD_USER,
             password: process.env.PASSWORD,
@@ -22,9 +20,6 @@ const config: { [key: string]: Knex.Config } = {
         seeds: {
             directory: process.env.SEEDS
         },
-    }
-
-
+    
 };
 
-export default config;

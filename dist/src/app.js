@@ -6,11 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
+const routes_1 = __importDefault(require("./routes"));
+const body_parser_1 = __importDefault(require("body-parser"));
 const app = (0, express_1.default)();
 exports.app = app;
-app.use(express_1.default.json());
 app.use((0, cors_1.default)());
-// app.use(morgan('dev'))
-app.use(express_1.default.urlencoded({ extended: true }));
-app.post('/user', (req, res) => {
-});
+app.use(express_1.default.json());
+app.use(routes_1.default);
+app.use(body_parser_1.default.json());

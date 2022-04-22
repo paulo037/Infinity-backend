@@ -13,7 +13,7 @@ export class Validation {
         } catch (msg) {
             return
         }
-        throw new Error(msg)
+        throw new Error(msg) 
     }
 
     static equalsOrError(valueA: any, valueB: any, msg: string) {

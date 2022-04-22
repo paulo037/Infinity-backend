@@ -8,11 +8,12 @@ type UserProps = {
     email: string;
     cpf: string;
     admin?: boolean;
+    id?: number;
 }
 
 export class User extends Entity<UserProps>{
-    private constructor(props: UserProps, id?: number) {
-        super(props, id);
+    private constructor(props: UserProps) {
+        super(props);
     }
 
     public get email() : string {
@@ -20,12 +21,12 @@ export class User extends Entity<UserProps>{
     }
 
     public get id() {
-        return this._id;
+        return this.props.id;
     }
 
-    static create(props: UserProps, id?: number) {
+    static create(props: UserProps) {
     
-        const user = new User(props, id)
+        const user = new User(props)
 
         return user;
     }

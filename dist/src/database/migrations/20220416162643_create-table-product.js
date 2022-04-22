@@ -7,9 +7,9 @@ async function up(knex) {
         table.string('name', 120).notNullable();
         table.decimal('price').notNullable();
         table.text('description');
-        table.integer('height').notNullable();
-        table.integer('width').notNullable();
-        table.integer('length').notNullable();
+        table.integer('height');
+        table.integer('width');
+        table.integer('length');
     });
 }
 exports.up = up;
