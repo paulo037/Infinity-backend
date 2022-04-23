@@ -1,28 +1,67 @@
 import knex from "../connection";
 import { ProductRepository } from "../../../application/repositories/ProductRepository";
 import { Product } from "../../../domain/entities/product/product";
+import { Size } from "../../../domain/entities/product/size";
+import { ProductHasSize } from "../../../domain/entities/product/product_has_size";
+import e from "express";
+import { Image } from "../../../domain/entities/product/image";
 
 
 export class ProductRepositoryMsql implements ProductRepository {
     async getAll(): Promise<Product[]> {
         const products = await knex('product as p')
-        .join('image as i', 'p.id', 'i.product_id')
-        .select('i.url as image', 'p.name as name', 'p.id  as id', 'p.price as price' )
-        .where('i.primary', true)
-
-            
+            .leftJoin('image as i', 'p.id', 'i.product_id')
+            .select('i.url as image', 'p.name as name', 'p.id  as id', 'p.price as price')
+            .where('i.primary', true)
+            .orWhere('i.url', null)
         return products;
     }
+
+
     async create(product: Product): Promise<null> {
         await knex('product').insert({ ...product.props });
         return null;
     }
     async update(product: Product): Promise<null> {
-        await knex('product')
+        await knex('product as p')
             .update({ ...product.props })
-            .where('id', product.props.id);
+            .where('p.id', product.props.id);
         return null;
     }
+
+    async updateSize(sizes: ProductHasSize[], product_id: number): Promise<null> {
+        await knex('product_has_size as phc')
+            .where('phc.product_id', product_id)
+            .del();
+
+        if (sizes.length > 0) {
+            await knex.insert(sizes).into('product_has_size')
+        }
+
+        return null;
+    }
+
+    async updateImages(images: any[], product_id: number): Promise<null> {
+        console.log(images)
+        console.log(product_id)
+        try {
+            await knex('image')
+            .where('image.product_id', product_id)
+            .del()
+
+        if (images.length > 0) {
+            await knex.insert(images).into('image')
+        }
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+       
+
+        return null;
+    }
+
+
     async delete(id: number): Promise<null> {
         throw new Error("Method not implemented.");
     }
@@ -36,7 +75,7 @@ export class ProductRepositoryMsql implements ProductRepository {
             .where('phs.product_id', id);
 
         product.sizes = sizes.map(size => {
-            return { "size": size.value, "quantity": size.quantity }
+            return { "size": size.value, "quantity": size.quantity, "id": size.size_id, }
         })
 
         let categories = await knex('category as c')
@@ -53,7 +92,7 @@ export class ProductRepositoryMsql implements ProductRepository {
 
 
         product.images = images.map(image => {
-            return {"id" : image.id, "name": image.name, "url": image.url, "primary": image.primary }
+            return { "id": image.id, "name": image.name, "url": image.url, "primary": image.primary, "key": image.key }
         })
 
 

@@ -5,6 +5,11 @@ import { UpdateProduct } from "../../../application/services/product/update-prod
 import { ProductRepositoryMsql } from "../model/product-repository";
 import formidable from 'formidable'
 import multer from 'multer'
+import { Image } from "../../../domain/entities/product/image";
+import { CreateSize } from "../../../application/services/product/create-size";
+import { SizeRepositoryMsql } from "../model/size-repository";
+import { CreateProductHasSize } from "../../../application/services/product/create-product-has-size";
+import { ProductHasSize } from "../../../domain/entities/product/product_has_size";
 
 
 export class ProductController {
@@ -12,7 +17,9 @@ export class ProductController {
 
     constructor(
         private repository = new ProductRepositoryMsql(),
+        private sizerepository = new SizeRepositoryMsql(),
         private create = new CreateProduct(repository),
+        private createProductHasSize = new CreateProductHasSize(sizerepository, repository),
         private update = new UpdateProduct(repository),
         private getProductId = new GetProductById(repository),
 
@@ -29,13 +36,43 @@ export class ProductController {
 
     public updateProduct = async (request: Request, response: Response) => {
         let product = request.body.product;
-        product.id = request.params.id
-        console.log('ok')
+        let sizes = product.sizes;
+        let categories = product.categories;
+        let images = product.images;
+        // delete product.sizes;
+        // delete product.categories;
+        // delete product.images;
+
+        const addProductId = images.map((img: any) => {
+            img.product_id = product.id
+            return img;
+        });
+
+        images = addProductId;
+        console.log("aqui \n"+ JSON.stringify(images))
+        
+
         try {
+            for await (const [index, size] of sizes.entries()) {
+                const s = await this.createProductHasSize.execute({
+                    size_value: size.size,
+                    product_id: product.id,
+                    quantity: size.quantity
+                });
+
+                sizes[index] = { ...s.props };
+            }
+
+
+            await this.repository.updateSize(sizes, product.id);
+            await this.repository.updateImages(images, product.id);
+
             await this.update.execute(product);
+
         } catch (error) {
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
+        console.log("update")
         response.status(201).send();
     }
 
@@ -59,9 +96,10 @@ export class ProductController {
     }
 
     public uploadImage = async (request: Request, response: Response) => {
-       console.log()
-       console.log(response.locals.images)
-       response.json(response.locals.images)
+
+        const image = request.body.stillRemain
+        console.log(image)
+        return response.json(image)
     }
 }
 

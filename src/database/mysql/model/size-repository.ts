@@ -13,19 +13,25 @@ export class SizeRepositoryMsql implements SizeRepository {
     delete(id: number): Promise<null> {
         throw new Error("Method not implemented.");
     }
-    findById(id: number): Promise<Size | null> {
-        throw new Error("Method not implemented.");
+    async findById(id: number): Promise<Size | null> {
+        const size = await knex('size')
+            .where('size.id', id)
+            .first();
+        return size;
     }
-    findByValue(value: string): Promise<Size | null> {
-        throw new Error("Method not implemented.");
+    async findByValue(value: string): Promise<Size | null> {
+        const size = await knex('size')
+            .where('size.value', value)
+            .first();
+        return size;
     }
     async getAll(): Promise<String[]> {
         const sizes = await knex('size').select('value')
-        let sizesArray : string[]
+        let sizesArray: string[]
         sizesArray = []
         sizes.forEach((v, index) => sizesArray.push(v.value))
         return sizesArray;
     }
-    
+
 
 }

@@ -22,20 +22,21 @@ router.route('/user')
     })
 
 
+router.route("/product/image")
+    .post(multer(multerConfig).array('uploadImages', 10), uploadImage, productController.uploadImage);
 
 router.route('/product/:id')
-    .get(productController.getProductById);
-
+    .get(productController.getProductById)
+    .put(productController.updateProduct);
 
 router.route('/product')
     .post(productController.createProduct)
     .get(productController.getAll)
+   
 
 router.route('/size')
     .get(sizeController.getAll)
 
-router.route("/product/:id/image")
-    .post(multer(multerConfig).array('uploadImages', 10), uploadImage, productController.uploadImage);
 
 
 export default router;

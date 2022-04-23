@@ -53,6 +53,11 @@ export class Validation {
            
     }
 
+    static validPositiveOrError(price: number, msg: string){
+        if(price < 1)  throw new Error(msg)
+           
+    }
+
     static validEmailOrError(email: string, msg: string){
         const regexValidation = new RegExp(/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi);
         if(!regexValidation.test(email))  throw new Error(msg)
