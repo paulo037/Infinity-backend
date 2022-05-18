@@ -38,7 +38,8 @@ export const multerConfig = {
             "image/jpeg",
             "image/pjpeg",
             "image/png",
-            "image/gif"
+            "image/gif",
+            "image/webp",
         ];
 
         if (allowedMimes.includes(file.mimetype)) {

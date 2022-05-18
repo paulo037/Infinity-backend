@@ -10,15 +10,13 @@ export async function up(knex: Knex): Promise<void> {
         table.string('city',100).notNullable();
         table.string('district',100).notNullable();
         table.string('street',100).notNullable();
-        table.integer('telephone',20).notNullable();
+        table.string('telephone',20).notNullable();
         table.integer('number').unsigned();
         table.integer('user_id')
                     .notNullable()
                     .unsigned()
                     .references('id')
                     .inTable('user')
-                    .onDelete('CASCADE')
-                    .onUpdate('CASCADE');
     })
 }
 

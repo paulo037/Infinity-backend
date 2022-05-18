@@ -15,6 +15,10 @@ export class Category extends Entity<CategoryProps>{
         return this.props.name;
     }
 
+    public get id() : number {
+        return this.props.id;
+    }
+
     static create(props: CategoryProps){
         const category = new Category(props);
         return category;

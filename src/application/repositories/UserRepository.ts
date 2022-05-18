@@ -7,4 +7,5 @@ export interface UserRepository{
     findById(id: number): Promise<User | null>
     findByEmail(email: string): Promise<User | null>
     getAllUsers():Promise<User[]>
+    changeAdminPermission(id: number, adminPermission: Boolean):Promise<null>
 }

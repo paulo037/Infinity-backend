@@ -8,5 +8,5 @@ export interface SizeRepository{
     delete(id: number):Promise<null>
     findById(id: number): Promise<Size | null>
     findByValue(value : string): Promise<Size | null>
-    getAll():Promise<String[]>
+    getAll():Promise<Size[]>
 }

@@ -1,26 +1,37 @@
 import knex from "../connection";
 import { ProductRepository } from "../../../application/repositories/ProductRepository";
 import { Product } from "../../../domain/entities/product/product";
-import { Size } from "../../../domain/entities/product/size";
-import { ProductHasSize } from "../../../domain/entities/product/product_has_size";
-import e from "express";
-import { Image } from "../../../domain/entities/product/image";
+import { ProductHasColor } from "../../../domain/entities/product/product_has_color";
+import { ProductHasCategory } from "../../../domain/entities/product/product_has_category";
+
+
 
 
 export class ProductRepositoryMsql implements ProductRepository {
-    async getAll(): Promise<Product[]> {
+
+    async getLenght(): Promise<number> {
+        const count = await knex('product').count('* as count').first() as unknown as number;
+        return count;
+    }
+
+    async getAll(page: number, limit: number): Promise<Product[]> {
+
         const products = await knex('product as p')
             .leftJoin('image as i', 'p.id', 'i.product_id')
             .select('i.url as image', 'p.name as name', 'p.id  as id', 'p.price as price')
             .where('i.primary', true)
             .orWhere('i.url', null)
+            .limit(limit).offset(page * limit - limit)
+
+
         return products;
     }
 
 
-    async create(product: Product): Promise<null> {
-        await knex('product').insert({ ...product.props });
-        return null;
+    async create(product: Product): Promise<number> {
+        let response = await knex('product').insert({ ...product.props });
+
+        return response[0];
     }
     async update(product: Product): Promise<null> {
         await knex('product as p')
@@ -29,53 +40,93 @@ export class ProductRepositoryMsql implements ProductRepository {
         return null;
     }
 
-    async updateSize(sizes: ProductHasSize[], product_id: number): Promise<null> {
-        await knex('product_has_size as phc')
+    async updateColor(colors: ProductHasColor[], product_id: number): Promise<null> {
+        console.log(JSON.stringify(colors))
+        await knex('product_has_color as phc')
             .where('phc.product_id', product_id)
             .del();
 
-        if (sizes.length > 0) {
-            await knex.insert(sizes).into('product_has_size')
+        if (colors.length > 0) {
+            await knex.insert(colors.map(c => c.props)).into('product_has_color')
         }
 
         return null;
     }
 
+    async updateCategories(categories: ProductHasCategory[], product_id: number): Promise<null> {
+        await knex('product_has_category as phc')
+            .where('phc.product_id', product_id)
+            .del();
+
+        if (categories.length > 0) {
+            await knex.insert(categories.map(c => c.props)).into('product_has_category')
+        }
+
+
+        return null;
+    }
+
     async updateImages(images: any[], product_id: number): Promise<null> {
-        console.log(images)
-        console.log(product_id)
+
         try {
             await knex('image')
-            .where('image.product_id', product_id)
-            .del()
+                .where('image.product_id', product_id)
+                .del()
 
-        if (images.length > 0) {
-            await knex.insert(images).into('image')
-        }
+            if (images.length > 0) {
+                await knex.insert(images).into('image')
+            }
         } catch (error) {
-            console.log(error)
             throw error
         }
-       
+
 
         return null;
     }
 
 
     async delete(id: number): Promise<null> {
-        throw new Error("Method not implemented.");
+        await knex('product')
+            .where('product.id', id)
+            .delete();
+        return null;
     }
     async findById(id: number): Promise<Product | null> {
-        let product = await knex('product')
-            .select('*')
-            .where('id', id)
+        console.log("id ===" + id)
+        let product = await knex('product as p')
+            .select('p.name as name',
+                'p.price as price',
+                'p.description as description',
+                'p.height as height',
+                'p.length as length',
+                'p.id as id')
+            .avg('ohp.rating as rating')
+            .sum('ohp.quantity as sold')
+            .leftJoin('order_has_product as ohp', 'p.id', 'ohp.product_id')
+            .where('p.id', id)
             .first();
-        let sizes = await knex('size as s')
-            .join('product_has_size as phs', 'phs.size_id', 's.id')
-            .where('phs.product_id', id);
 
-        product.sizes = sizes.map(size => {
-            return { "size": size.value, "quantity": size.quantity, "id": size.size_id, }
+
+        product = product as unknown as Product;
+        let colors = await knex('color as c')
+            .select(
+                'c.value as color',
+                'c.id as color_id',
+                's.value as size',
+                's.id as size_id',
+                'phc.quantity as quantity')
+            .join('product_has_color as phc', 'phc.color_id', ' c.id')
+            .join('size as s', 'phc.size_id', ' s.id')
+            .where('phc.product_id', id);
+
+        product.colors = colors.map(color => {
+            return {
+                "size_id": color.size_id,
+                "size": color.size,
+                "color_id": color.color_id,
+                "color": color.color,
+                "quantity": color.quantity
+            }
         })
 
         let categories = await knex('category as c')
@@ -84,7 +135,7 @@ export class ProductRepositoryMsql implements ProductRepository {
 
 
         product.categories = categories.map(category => {
-            return { "name": category.name }
+            return { "name": category.name, "image": category.image, "id": category.id }
         })
 
         let images = await knex('image as i')
@@ -95,8 +146,10 @@ export class ProductRepositoryMsql implements ProductRepository {
             return { "id": image.id, "name": image.name, "url": image.url, "primary": image.primary, "key": image.key }
         })
 
+        console.log(product)
 
-        return product;
+
+        return product as Product;
     }
     async findByName(name: string): Promise<Product | null> {
         console.log(name)
@@ -107,16 +160,18 @@ export class ProductRepositoryMsql implements ProductRepository {
         return product;
     }
     async getByCategory(id: number): Promise<Product[]> {
-        let products = await knex.select('p.id as Id', 'p.name as Nome', 'p.price as Preço')
+        let products = await knex.select('p.id as id', 'p.name as name', 'p.price as price', 'i.url as image')
+            .avg('ohp.rating as rating')
+            .sum('ohp.quantity as sold')
             .from('product as p')
             .join('product_has_category as phc', 'p.id', 'phc.product_id')
-            .where('phc.product_id', id);
+            .join('image as i', 'p.id', 'i.product_id')
+            .leftJoin('order_has_product as ohp', 'p.id', 'ohp.product_id')
+            .where('phc.category_id', id)
+            .andWhere('i.primary', true)
+            .groupBy('p.id');
 
-        const numVendas = await knex('product').count("*", { as: "numVendas" }).first();
-        products.forEach((e, index) => {
-            products[index].numVendas = numVendas?.numVendas
-        });
-        return products;
+        return products as Product[];
 
     }
     async getAllNames(): Promise<string[]> {

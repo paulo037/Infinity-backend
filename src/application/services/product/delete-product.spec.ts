@@ -2,7 +2,7 @@ import { InMemoryCategoryRepository } from "../../../../tests/respositories/in-m
 import { InMemoryProductRepository } from "../../../../tests/respositories/in-momory-product-repository";
 import { Category } from "../../../domain/entities/product/category";
 import { Product } from "../../../domain/entities/product/product";
-import { DeleteProduct } from "./dalete-product";
+import { DeleteProduct } from "./delete-product";
 
 describe('Delete Product', () => {
     it('should be able to delete product from database ', async () => {

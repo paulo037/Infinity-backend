@@ -32,7 +32,6 @@ export class UpdateProduct {
         length }: UpdateProductRequest) {
 
 
-
         const product = await this.productRepository.findById(id);
         
 

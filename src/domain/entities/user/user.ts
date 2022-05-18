@@ -2,7 +2,8 @@ import { Entity } from "../../../core/domain/entities";
 
 
 type UserProps = {
-    name: string;
+    frst_name: string;
+    last_name: string;
     image: string;
     password: string;
     email: string;

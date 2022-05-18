@@ -1,4 +1,3 @@
-import { Product } from "../../../domain/entities/product/product"
 import { Validation } from "../../../domain/validation/validation";
 import { ProductRepository } from "../../repositories/ProductRepository";
 

@@ -29,7 +29,7 @@ export class CreateProduct {
         const productExist = await this.productRepository.findByName(name);
 
         Validation.validPriceOrError(price, "Preço invalido!");
-        Validation.notExistOrError(productExist, "Um Produto com esse nome já existe");
+        Validation.notExistOrError(productExist, "<span>Um<wbr> Produto<wbr> com<wbr> esse<wbr> nome<wbr> já<wbr> existe</span>");
         const product = Product.create({
             name,
             description,
@@ -39,7 +39,8 @@ export class CreateProduct {
             length,
         });
 
-        this.productRepository.create(product);
+        let id = await this.productRepository.create(product);
+        return id;
     }
 }
 

@@ -1,17 +1,18 @@
-import { ProductHasSize } from "../../../domain/entities/product/product_has_size";
+import { ProductHasColor} from "../../../domain/entities/product/product_has_color";
 import { Size } from "../../../domain/entities/product/size";
 import { Validation } from "../../../domain/validation/validation";
 import { ProductRepository } from "../../repositories/ProductRepository";
 import { SizeRepository } from "../../repositories/SizeRepository";
 
-type CreateProductHasSizeRequest = {
-    size_value: string;
+type CreateProductHasColorRequest = {
+    size_id: number;
+    color_id: number;
     product_id: number;
     quantity: number;
 }
 
 
-export class CreateProductHasSize {
+export class CreateProductHasColor {
 
     constructor(
         private SizeRepository: SizeRepository,
@@ -21,11 +22,12 @@ export class CreateProductHasSize {
 
 
     async execute({
-        size_value,
+        size_id,
+        color_id,
         product_id,
-        quantity }: CreateProductHasSizeRequest) {
+        quantity }: CreateProductHasColorRequest) {
 
-        let SizeExist = await this.SizeRepository.findByValue(size_value)
+        let SizeExist = await this.SizeRepository.findById(size_id)
         const ProductExist = await this.ProductRepository.findById(product_id)
 
 
@@ -35,8 +37,9 @@ export class CreateProductHasSize {
 
         SizeExist = SizeExist as Size
 
-        const size = ProductHasSize.create({
-            size_id: SizeExist.id as unknown as number,
+        const size = ProductHasColor.create({
+            size_id,
+            color_id,
             product_id,
             quantity
         });

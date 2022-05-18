@@ -5,7 +5,8 @@ export async function seed(knex: Knex): Promise<void> {
     await knex("user").insert([
         {
             id: 1,
-            name: "paulo",
+            first_name: "paulo",
+            last_name: "silva",
             image: "ww.exemple",
             password: "07182500",
             email: "paulo@gmail.com",
@@ -15,7 +16,8 @@ export async function seed(knex: Knex): Promise<void> {
 
         {
             id: 2,
-            name: "ingred",
+            first_name: "ingred",
+            last_name: "almeida",
             image: "ww.exemple",
             password: "12345678",
             email: "ingred@gmail.com",
@@ -25,11 +27,52 @@ export async function seed(knex: Knex): Promise<void> {
 
     ]);
 
+    await knex("address").insert([
+        {
+            name: 'Casa',
+            cep: '35695000',
+            estate: 'Minas Gerais',
+            city: 'Igaratinga',
+            district: 'Centro',
+            street: 'Sitio',
+            telephone: '998713736',
+            number: 1,
+            user_id: 1,
+        },
+        {
+            name: 'Casa',
+            cep: '35695000',
+            estate: 'Minas Gerais',
+            city: 'Igaratinga',
+            district: 'Centro',
+            street: 'Sitio',
+            telephone: '998713736',
+            number: 22,
+            user_id: 1,
+        },
+
+        {
+            name: 'Casa',
+            cep: '35695000',
+            estate: 'Minas Gerais',
+            city: 'Igaratinga',
+            district: 'Centro',
+            street: 'Sitio',
+            telephone: '998713736',
+            number: 2,
+            user_id: 2,
+        },
+
+    ]);
+
+
+
+
 
     await knex("product").insert([
         {
             name: "Bulsa Flamengo",
-            description: "Blusa de time do flamento",
+            description: "Blusa de time do flamengo",
             price: 120,
             height: 2,
             width: 2,
@@ -90,52 +133,70 @@ export async function seed(knex: Knex): Promise<void> {
 
     await knex("size").insert([
         {
-            id: 1,
             value: 'P',
         },
         {
-            id: 2,
             value: 'M',
         },
         {
-            id: 3,
             value: 'G',
         },
         {
-            id: 4,
             value: 'GG',
         }
 
     ]);
 
-    await knex("product_has_size").insert([
+    await knex("color").insert([
         {
-            size_id: 1,
+            value: 'Branco',
+        },
+        {
+            value: 'Rosa',
+        },
+        {
+            value: 'Preto',
+        },
+        {
+            value: 'Amarela',
+        }
+
+    ]);
+
+    await knex("product_has_color").insert([
+        {
+            size_id: 3,
+            color_id: 1,
             product_id: 1,
             quantity: 2,
         },
         {
-            size_id: 2,
+            size_id: 1,
+            color_id: 2,
             product_id: 1,
             quantity: 1,
         },
         {
-            size_id: 4,
+            size_id: 2,
+            color_id: 1,
             product_id: 1,
             quantity: 10,
         },
         {
             size_id: 1,
+            color_id: 1,
             product_id: 2,
             quantity: 1,
         },
         {
-            size_id: 2,
+            size_id: 3,
+            color_id: 3,
             product_id: 2,
             quantity: 10,
         },
         {
-            size_id: 3,
+            size_id: 1,
+            color_id: 3,
             product_id: 2,
             quantity: 1,
         },
@@ -148,25 +209,111 @@ export async function seed(knex: Knex): Promise<void> {
             name: "Frente",
             key: "f.d",
             primary: true,
-            product_id:1,
+            product_id: 1,
         },
         {
             url: "https://static.netshoes.com.br/produtos/camisa-flamengo-i-2021-sn-torcedor-adidas-masculina/02/NQQ-1178-002/NQQ-1178-002_zoom2.jpg?ts=1599854677&?ims=1088x",
             name: "Atrás",
             key: "f2.d",
             primary: false,
-            product_id:1,
+            product_id: 1,
         },
         {
             url: "https://a-static.mlcdn.com.br/618x463/camisa-social-ml-slim-masculina-tam-3-alfaiataria/lotustrajes/0193f6ce302311eca2074201ac185049/8fa1100a833e11d9b9f0852f59f0b2d8.jpg",
             name: "Frente",
             key: "f55.d",
             primary: true,
-            product_id:2,
+            product_id: 2,
         },
 
 
     ]);
+
+    await knex("order").insert([
+        {
+            price: 440,
+            status: 5,
+            name_address: 'casa',
+            cep: '35695000',
+            estate: 'Minas Gerais',
+            city: 'Igaratinga',
+            district: 'Centro',
+            street: 'Sitio',
+            telephone: '998713736',
+            number_address: 22,
+            user_id: 1,
+        },
+        {
+            price: 120,
+            status: 5,
+            name_address: 'casa',
+            cep: '35695000',
+            estate: 'Minas Gerais',
+            city: 'Igaratinga',
+            district: 'Centro',
+            street: 'Sitio',
+            telephone: '998713736',
+            number_address: 22,
+            user_id: 1,
+        },
+
+
+    ]);
+
+    await knex("order_has_product").insert([
+        {
+
+            order_id: 1,
+
+            product_id: 1,
+
+            color:'Branco',
+
+            size: 'G',
+
+            rating: 4.6,
+
+            quantity: 2,
+            product_name: 'blusa flamengo',
+
+        },
+        {
+
+            order_id: 1,
+
+            product_id: 2,
+
+            color:'Branco',
+
+            size: 'G',
+
+            rating: 4.6,
+
+            quantity: 1,
+            product_name: 'blusa social',
+
+        },
+
+        {
+
+            order_id: 1,
+
+            product_id: 1,
+
+            color:'Branco',
+
+            size: 'M',
+
+            rating: 3,
+
+            quantity: 1,
+            product_name: 'blusa flamengo',
+
+        },
+
+
+    ]);
+
 
 
 

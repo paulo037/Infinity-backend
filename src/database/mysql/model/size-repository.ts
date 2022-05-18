@@ -25,12 +25,9 @@ export class SizeRepositoryMsql implements SizeRepository {
             .first();
         return size;
     }
-    async getAll(): Promise<String[]> {
-        const sizes = await knex('size').select('value')
-        let sizesArray: string[]
-        sizesArray = []
-        sizes.forEach((v, index) => sizesArray.push(v.value))
-        return sizesArray;
+    async getAll(): Promise<Size[]> {
+        const sizes = await knex('size')
+       return sizes;
     }
 
 

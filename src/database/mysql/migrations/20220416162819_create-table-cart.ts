@@ -19,11 +19,18 @@ export async function up(knex: Knex): Promise<void> {
 
         table.integer('size_id')
             .primary()
-            .notNullable()
             .unsigned()
+            .notNullable()
             .references('id')
             .inTable('size');
-            
+
+        table.integer('color_id')
+            .unsigned()
+            .primary()
+            .notNullable()
+            .references('id')
+            .inTable('color');
+
         table.integer('quantity').unsigned();
     })
 }
