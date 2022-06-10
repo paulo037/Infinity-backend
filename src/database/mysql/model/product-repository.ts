@@ -3,6 +3,7 @@ import { ProductRepository } from "../../../application/repositories/ProductRepo
 import { Product } from "../../../domain/entities/product/product";
 import { ProductHasColor } from "../../../domain/entities/product/product_has_color";
 import { ProductHasCategory } from "../../../domain/entities/product/product_has_category";
+import { format } from "path";
 
 
 
@@ -165,17 +166,54 @@ export class ProductRepositoryMsql implements ProductRepository {
             .sum('ohp.quantity as sold')
             .from('product as p')
             .join('product_has_category as phc', 'p.id', 'phc.product_id')
-            .join('image as i', 'p.id', 'i.product_id')
+            .leftJoin('image as i', 'p.id', 'i.product_id')
             .leftJoin('order_has_product as ohp', 'p.id', 'ohp.product_id')
             .where('phc.category_id', id)
-            .andWhere('i.primary', true)
+            .andWhere(function () {
+                this.where('i.primary', true)
+                this.orWhere('i.primary', null)
+            })
             .groupBy('p.id');
 
         return products as Product[];
 
     }
+
+    async search(search: string): Promise<Product[]> {
+        let products = await knex.select('p.id as id',
+            'p.name as name',
+            'p.price as price',
+            'i.url as image')
+            .avg('ohp.rating as rating')
+            .sum('ohp.quantity as sold')
+            .from('product as p')
+            .leftJoin('image as i', 'p.id', 'i.product_id')
+            .leftJoin('order_has_product as ohp', 'p.id', 'ohp.product_id')
+            .where('p.name', 'LIKE', `%${search}%`)
+            .andWhere(function () {
+                this.where('i.primary', true)
+                this.orWhere('i.primary', null)
+            })
+            .groupBy('p.id')
+            .orderBy([{ column: 'sold', order: 'desc' }, 'rating', { column: 'i.url', nulls: 'last' }]);
+
+        for await (const [index, product] of products.entries()) {
+            let categories = await knex.select('c.name as category', 'c.id as id')
+                .from('category as c')
+                .join('product_has_category as phc', 'phc.category_id', 'c.id')
+                .where('phc.product_id', product.id);
+            product.categories = categories;
+           
+        }
+        
+        return products as Product[];
+
+    }
     async getAllNames(): Promise<string[]> {
-        throw new Error("Method not implemented.");
+        let products = await knex.select('p.name as name')
+            .from('product as p')
+        products = products.map(p => p.name)
+        return products;
     }
 
 }

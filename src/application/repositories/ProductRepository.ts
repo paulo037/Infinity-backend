@@ -8,6 +8,7 @@ export interface ProductRepository{
     findById(id: number): Promise<Product | null>
     findByName(name: string): Promise<Product | null>
     getByCategory(id: number):Promise<Product[]>
+    search(term: string):Promise<Product[]>
     getAllNames():Promise<string[]>
     getAll(page: number, limit: number):Promise<Product[]>
     getLenght():Promise<number>

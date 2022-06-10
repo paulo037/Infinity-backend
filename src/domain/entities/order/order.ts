@@ -1,7 +1,7 @@
 import { Entity } from "../../../core/domain/entities";
 
 type OrderProps = {
-    price: string;
+    price: number;
     estate: string;
     date: Date;
     status: number;

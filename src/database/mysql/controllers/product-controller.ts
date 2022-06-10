@@ -150,10 +150,8 @@ export class ProductController {
 
     public getProductByCategoryId = async (request: Request, response: Response) => {
         let id = parseInt(request.params.id);
-        console.log('chegou' + id)
         try {
             const products = await this.getProductByCategory.execute({ id })
-            console.log(products)
             return response.json(products);
         } catch (error) {
             console.log(error)
@@ -174,10 +172,31 @@ export class ProductController {
         }
     }
 
-    public uploadImage = async (request: Request, response: Response) => {
+    public search = async (request: Request, response: Response) => {
+        let search = request.params.term;
 
+        try {
+            const products = await this.repository.search(search)
+            console.log(products)
+            return response.json(products);
+        } catch (error) {
+            console.log(error)
+            return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+        }
+    }
+
+    public autoComplete = async (request: Request, response: Response) => {
+        try {
+            const products = await this.repository.getAllNames()
+            return response.json(products);
+        } catch (error) {
+            console.log(error)
+            return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+        }
+    }
+
+    public uploadImage = async (request: Request, response: Response) => {
         const image = request.body.stillRemain
-        console.log(image)
         return response.json(image)
     }
 }
