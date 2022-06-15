@@ -62,5 +62,7 @@ router.route('/category')
 router.route('/order')
     .get(orderController.getAll)
 
+router.route('/test')
+    .get((request, response)=> response.send('ok'))
 
 export default router;
