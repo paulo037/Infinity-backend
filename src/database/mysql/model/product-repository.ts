@@ -3,7 +3,7 @@ import { ProductRepository } from "../../../application/repositories/ProductRepo
 import { Product } from "../../../domain/entities/product/product";
 import { ProductHasColor } from "../../../domain/entities/product/product_has_color";
 import { ProductHasCategory } from "../../../domain/entities/product/product_has_category";
-import { format } from "path";
+
 
 
 
@@ -161,11 +161,12 @@ export class ProductRepositoryMsql implements ProductRepository {
         return product;
     }
     async getByCategory(id: number): Promise<Product[]> {
-        let products = await knex.select('p.id as id', 'p.name as name', 'p.price as price', 'i.url as image')
+        let products = await knex.select('p.id as id', 'p.name as name', 'p.price as price', 'i.url as image', 'c.name as category' )
             .avg('ohp.rating as rating')
             .sum('ohp.quantity as sold')
             .from('product as p')
             .join('product_has_category as phc', 'p.id', 'phc.product_id')
+            .join('category as c', 'c.id', 'phc.category_id')
             .leftJoin('image as i', 'p.id', 'i.product_id')
             .leftJoin('order_has_product as ohp', 'p.id', 'ohp.product_id')
             .where('phc.category_id', id)
