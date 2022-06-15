@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "start": "npm run build && node dist/src/server.js",
+    "start": "node dist/src/server.js",
     "dev": "ts-node-dev --respawn src/server.ts",
     "knex": "knex --knexfile src/database/knexfile.ts",
     "knex:migrate": "knex --knexfile knexfile.ts migrate:latest",
