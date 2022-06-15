@@ -2,6 +2,9 @@ import { UserRepository } from "../../src/application/repositories/UserRepositor
 import { User } from "../../src/domain/entities/user/user";
 
 export class InMemoryUserRepository implements UserRepository {
+    changeAdminPermission(id: number, adminPermission: Boolean): Promise<null> {
+        throw new Error("Method not implemented.");
+    }
     public items: User[] = []
     
     async create(user: User): Promise<null> {

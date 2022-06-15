@@ -34,7 +34,7 @@ export class CreateProductHasCategory {
 
         categoryExist = categoryExist as Category
         const phc = ProductHasCategory.create({
-            category_id: categoryExist.id,
+            category_id: categoryExist.id as number,
             product_id: product_id,
         });
 

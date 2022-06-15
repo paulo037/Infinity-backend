@@ -3,14 +3,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Category = void 0;
 const entities_1 = require("../../../core/domain/entities");
 class Category extends entities_1.Entity {
-    constructor(props, id) {
-        super(props, id);
+    constructor(props) {
+        super(props);
     }
     get name() {
         return this.props.name;
     }
-    static create(props, id) {
-        const category = new Category(props, id);
+    get id() {
+        return this.props.id;
+    }
+    static create(props) {
+        const category = new Category(props);
         return category;
     }
 }

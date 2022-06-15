@@ -3,7 +3,8 @@ import { User } from "../../../domain/entities/user/user"
 import { UserRepository } from "../../repositories/UserRepository";
 
 type CreateUserRequest = {
-    name: string;
+    first_name: string;
+    last_name: string;
     image: string;
     password: string;
     confirmPassword: string;
@@ -21,7 +22,8 @@ export class CreateUser {
 
 
 
-    async execute({ name,
+    async execute({ first_name,
+        last_name,
         image,
         password,
         confirmPassword,
@@ -33,7 +35,8 @@ export class CreateUser {
 
         Validation.existOrError(email, "E-mail não informado");
         Validation.validEmailOrError(email, "Email mal formatado");
-        Validation.existOrError(name, "Nome não informado");
+        Validation.existOrError(first_name, "Primeiro nome não informado");
+        Validation.existOrError(last_name, "Ultimo nome não informado");
         Validation.existOrError(password, "Senha não informada");
         Validation.existOrError(confirmPassword, "Confirmação de senha não informada");
         Validation.existOrError(cpf, "CPF não informado");
@@ -44,7 +47,8 @@ export class CreateUser {
        
         const user = User.create(
             {
-                name,
+                first_name,
+                last_name,
                 image,
                 password,
                 email,

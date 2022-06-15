@@ -134,15 +134,19 @@ export async function seed(knex: Knex): Promise<void> {
     await knex("size").insert([
         {
             value: 'P',
+            id: 1,
         },
         {
             value: 'M',
+            id: 2,
         },
         {
             value: 'G',
+            id: 3,
         },
         {
             value: 'GG',
+            id: 4,
         }
 
     ]);
@@ -150,15 +154,19 @@ export async function seed(knex: Knex): Promise<void> {
     await knex("color").insert([
         {
             value: 'Branco',
+            id: 1,
         },
         {
             value: 'Rosa',
+            id: 2,
         },
         {
             value: 'Preto',
+            id: 3,
         },
         {
             value: 'Amarela',
+            id: 4,
         }
 
     ]);
@@ -166,7 +174,7 @@ export async function seed(knex: Knex): Promise<void> {
     await knex("product_has_color").insert([
         {
             size_id: 3,
-            color_id: 1,
+            color_id: 4,
             product_id: 1,
             quantity: 2,
         },
@@ -230,7 +238,8 @@ export async function seed(knex: Knex): Promise<void> {
     ]);
 
     await knex("order").insert([
-        {
+        {   
+            id: 1,
             price: 440,
             status: 5,
             name_address: 'casa',
@@ -244,6 +253,7 @@ export async function seed(knex: Knex): Promise<void> {
             user_id: 1,
         },
         {
+            id: 2,
             price: 120,
             status: 5,
             name_address: 'casa',

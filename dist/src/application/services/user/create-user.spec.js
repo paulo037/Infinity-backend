@@ -7,7 +7,8 @@ describe('Create User', () => {
         const UserRepository = new in_momory_user_repository_1.InMemoryUserRepository;
         const sut = new create_user_1.CreateUser(UserRepository);
         const response = await sut.execute({
-            name: "Paulo",
+            first_name: "Paulo",
+            last_name: "Silva",
             image: "ww.exemple.com",
             password: "12345678",
             confirmPassword: "12345678",
@@ -21,7 +22,8 @@ describe('Create User', () => {
         const UserRepository = new in_momory_user_repository_1.InMemoryUserRepository;
         const sut = new create_user_1.CreateUser(UserRepository);
         const response = await sut.execute({
-            name: "Paulo",
+            first_name: "Paulo",
+            last_name: "Silva",
             image: "ww.exemple.com",
             password: "12345678",
             confirmPassword: "12345678",
@@ -31,7 +33,8 @@ describe('Create User', () => {
         });
         try {
             const response = await sut.execute({
-                name: "José",
+                first_name: "José",
+                last_name: "Silva",
                 image: "ww.exemple.com",
                 password: "12345678",
                 confirmPassword: "12345678",
@@ -49,7 +52,8 @@ describe('Create User', () => {
         const sut = new create_user_1.CreateUser(UserRepository);
         try {
             const response = await sut.execute({
-                name: "José",
+                first_name: "Paulo",
+                last_name: "Silva",
                 image: "ww.exemple",
                 password: "12345678",
                 confirmPassword: "12345678",

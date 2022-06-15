@@ -7,7 +7,7 @@ class UpdateUser {
     constructor(userRepository) {
         this.userRepository = userRepository;
     }
-    async execute({ name, id, image, password, confirmPassword, email, cpf, admin, }) {
+    async execute({ first_name, last_name, id, image, password, confirmPassword, email, cpf, admin, }) {
         const user = await this.userRepository.findById(id);
         validation_1.Validation.existOrError(user, "Produto não encontrado.");
         validation_1.Validation.existOrError(email, "E-mail não informado");
@@ -18,13 +18,15 @@ class UpdateUser {
         validation_1.Validation.existOrError(cpf, "CPF não informado");
         validation_1.Validation.equalsOrError(password, confirmPassword, "Senhas não conferem");
         const userUpdate = user_1.User.create({
-            name,
+            first_name,
+            last_name,
             image,
             password,
             email,
             cpf,
             admin,
-        }, id);
+            id
+        });
         this.userRepository.update(userUpdate);
     }
 }

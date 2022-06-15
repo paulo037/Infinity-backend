@@ -8,7 +8,8 @@ describe('Delete User', () => {
         const userRepository = new InMemoryUserRepository;
 
         const user = User.create({
-            name: "Paulo",
+            first_name: "Paulo",
+            last_name: "Silva",
             image: "ww.exemple.com",
             password: "12345678",
             email: "exemple@gmail.com.br",
@@ -31,13 +32,14 @@ describe('Delete User', () => {
         const UserRepository = new InMemoryUserRepository;
     
         const user = User.create({
-            name: "Paulo",
+            first_name: "Paulo",
             image: "ww.exemple.com",
             password: "12345678",
             email: "exemple@gmail.com.br",
             cpf: "13210829675",
             admin: false,
-            id: 1
+            id: 1,
+            last_name: "Silva"
         });
  
         UserRepository.items.push(user);

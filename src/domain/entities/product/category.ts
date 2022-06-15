@@ -3,7 +3,7 @@ import { Entity } from "../../../core/domain/entities";
 type CategoryProps = {
     name: string;
     image:string;
-    id: number;
+    id?: number;
 }
 
 export class Category extends Entity<CategoryProps>{
@@ -15,7 +15,7 @@ export class Category extends Entity<CategoryProps>{
         return this.props.name;
     }
 
-    public get id() : number {
+    public get id() : number| undefined {
         return this.props.id;
     }
 

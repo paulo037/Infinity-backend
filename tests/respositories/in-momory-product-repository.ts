@@ -3,15 +3,25 @@ import { Product } from "../../src/domain/entities/product/product";
 
 
 export class InMemoryProductRepository implements ProductRepository {
+    create(product: Product): Promise<number> {
+        throw new Error("Method not implemented.");
+    }
+    
+    search(term: string): Promise<Product[]> {
+        throw new Error("Method not implemented.");
+    }
+ 
+    getAll(page: number, limit: number): Promise<Product[]> {
+        throw new Error("Method not implemented.");
+    }
+    getLenght(): Promise<number> {
+        throw new Error("Method not implemented.");
+    }
    
 
     public items: Product[] = []
 
 
-    async create(product: Product): Promise<null> {
-        this.items.push(product);
-        return null;
-    }
     
     async update(product: Product): Promise<null> {
         this.items.forEach((p, index) => {

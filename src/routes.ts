@@ -8,6 +8,7 @@ import { UserController } from "./database/mysql/controllers/user-controller";
 import { ColorController } from "./database/mysql/controllers/color-controller";
 import { OrderController } from "./database/mysql/controllers/order-controller";
 
+
 const router = express.Router()
 const userController = new UserController()
 const productController = new ProductController()
@@ -60,5 +61,6 @@ router.route('/category')
 
 router.route('/order')
     .get(orderController.getAll)
+
 
 export default router;

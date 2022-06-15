@@ -3,7 +3,8 @@ import { Validation } from "../../../domain/validation/validation";
 import { UserRepository } from "../../repositories/UserRepository";
 
 type UpdateUserRequest = {
-    name: string;
+    first_name: string;
+    last_name: string;
     id: number;
     image: string;
     password: string;
@@ -23,7 +24,8 @@ export class UpdateUser {
 
 
     async execute({ 
-        name,
+        first_name,
+        last_name,
         id,
         image,
         password,
@@ -38,7 +40,8 @@ export class UpdateUser {
         
         Validation.existOrError(email, "E-mail não informado");
         Validation.validEmailOrError(email, "Email mal formatado");
-        Validation.existOrError(name, "Nome não informado");
+        Validation.existOrError(first_name, "Primeiro nome não informado");
+        Validation.existOrError(last_name, "Ultimo nome não informado");
         Validation.existOrError(password, "Senha não informada");
         Validation.existOrError(confirmPassword, "Confirmação de senha não informada");
         Validation.existOrError(cpf, "CPF não informado");
@@ -46,13 +49,15 @@ export class UpdateUser {
 
 
         const userUpdate = User.create({
-            name,
+            first_name,
+            last_name,
             image,
             password,
             email,
             cpf,
             admin,
-        },id);
+            id
+        });
 
         this.userRepository.update(userUpdate);
 

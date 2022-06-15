@@ -4,66 +4,47 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const create_product_1 = require("./application/services/product/create-product");
-const product_controller_1 = __importDefault(require("./database/constrollers/product-controller"));
-const user_controller_1 = __importDefault(require("./database/constrollers/user-controller"));
+const product_controller_1 = require("./database/mysql/controllers/product-controller");
+const size_controller_1 = __importDefault(require("./database/mysql/controllers/size-controller"));
+const multer_1 = require("./application/config/multer");
+const firebase_1 = require("./database/firebase/firebase");
+const category_controller_1 = require("./database/mysql/controllers/category-controller");
+const user_controller_1 = require("./database/mysql/controllers/user-controller");
+const color_controller_1 = require("./database/mysql/controllers/color-controller");
+const order_controller_1 = require("./database/mysql/controllers/order-controller");
 const router = express_1.default.Router();
-const userController = new user_controller_1.default();
-const productController = new product_controller_1.default();
-// const multer = require("multer")
+const userController = new user_controller_1.UserController();
+const productController = new product_controller_1.ProductController();
+const sizeController = new size_controller_1.default();
+const colorController = new color_controller_1.ColorController();
+const categoryController = new category_controller_1.CategoryController();
+const orderController = new order_controller_1.OrderController();
+const multer = require("multer");
 router.route('/user')
-    .get(async (request, response) => {
-    const user = await userController.findById(1);
-    console.log(user);
-    response.json(user);
-});
-// app.route('/user/:id')
-//     .put(app.api.user.save)
-//     .get(app.api.user.getById)
-// app.route('/address')
-//     .post(app.api.address.save)
-// app.route('/address/:id')
-//     .put(app.api.address.save)
-//     .get(app.api.address.getByUserId)
-//     .delete(app.api.address.deleteAddress)
-// app.route('/size')
-//     .get(app.api.size.get)
-//     .post(app.api.size.save)
-// app.route('/size/:id')
-//     .put(app.api.size.save)
-//     .get(app.api.size.getById)
-//     .delete(app.api.size.deleteSize)
+    .get(userController.getAll);
+router.route('/admin/user/:id')
+    .put(userController.changeAdminPermission);
+router.route('/search/')
+    .get(productController.autoComplete);
+router.route("/product/image")
+    .post(multer(multer_1.multerConfig).array('uploadImages', 10), firebase_1.uploadImage, productController.uploadImage);
+router.route('/product/:id')
+    .get(productController.getProductById)
+    .put(productController.updateProduct)
+    .delete(productController.delete);
 router.route('/product')
-    .get(async (request, response) => {
-    const products = await productController.getByCategory(request.body.id);
-    response.json(products);
-});
-router.route('/product')
-    .post(async (request, response) => {
-    try {
-        console.log(Object.assign({}, request.body));
-        await new create_product_1.CreateProduct(productController).execute(Object.assign({}, request.body));
-    }
-    catch (e) {
-        console.log(e);
-        response.status(400).send(e);
-    }
-    response.status(201).send();
-});
-// .post(app.api.product.save)
-// app.route('/product/category')
-//     .get(app.api.product.getProductByCategory)
-// app.route('/product/:id')
-//     .put(app.api.product.save)
-//     .get(app.api.product.getById)
-//     .delete(app.api.product.deleteProduct)
-// app.route('/category')
-//     .get(app.api.category.get)
-//     .post(app.api.category.save)
-// app.route('/category/:id')
-//     .put(app.api.category.save)
-//     .get(app.api.category.getById)
-//     .delete(app.api.category.deleteCategory)
-// app.route("/image")
-//     .post(multer(app.config.multer).single("file"), app.config.firebase.uploadImage)
+    .post(productController.createProduct)
+    .get(productController.getAll);
+router.route('/product/category/:id')
+    .get(productController.getProductByCategoryId);
+router.route('/product/search/:term')
+    .get(productController.search);
+router.route('/size')
+    .get(sizeController.getAll);
+router.route('/color')
+    .get(colorController.getAll);
+router.route('/category')
+    .get(categoryController.getAll);
+router.route('/order')
+    .get(orderController.getAll);
 exports.default = router;

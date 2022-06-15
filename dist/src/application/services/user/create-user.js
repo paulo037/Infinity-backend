@@ -7,7 +7,7 @@ class CreateUser {
     constructor(userRepository) {
         this.userRepository = userRepository;
     }
-    async execute({ name, image, password, confirmPassword, email, cpf, admin }) {
+    async execute({ first_name, last_name, image, password, confirmPassword, email, cpf, admin }) {
         validation_1.Validation.existOrError(email, "E-mail não informado");
         validation_1.Validation.validEmailOrError(email, "Email mal formatado");
         validation_1.Validation.existOrError(name, "Nome não informado");
@@ -18,7 +18,8 @@ class CreateUser {
         const userWithEmailExist = await this.userRepository.findByEmail(email);
         validation_1.Validation.notExistOrError(userWithEmailExist, "Já existe uma conta vinculada há esse email");
         const user = user_1.User.create({
-            name,
+            first_name,
+            last_name,
             image,
             password,
             email,

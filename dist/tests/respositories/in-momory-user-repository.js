@@ -5,6 +5,9 @@ class InMemoryUserRepository {
     constructor() {
         this.items = [];
     }
+    changeAdminPermission(id, adminPermission) {
+        throw new Error("Method not implemented.");
+    }
     async create(user) {
         this.items.push(user);
         return null;

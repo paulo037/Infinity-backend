@@ -13,7 +13,8 @@ describe('Update User', () => {
         
 
         const u =  User.create({
-            name: "Paulo",
+            first_name: "Paulo",
+            last_name: "Silva",
             image: "ww.exemple.com",
             password: "12345678",
             email: "exemple@gmail.com",
@@ -31,7 +32,8 @@ describe('Update User', () => {
 
 
         const response = await sut.execute({
-            name: "Paulo",
+            first_name: "Paulo",
+            last_name: "silva",
             image: "ww.exemple.com",
             password: "12345678",
             confirmPassword: "12345678",

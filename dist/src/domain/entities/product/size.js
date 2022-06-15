@@ -9,6 +9,9 @@ class Size extends entities_1.Entity {
     get value() {
         return this.props.value;
     }
+    get id() {
+        return this.id;
+    }
     static create(props) {
         const size = new Size(props);
         return size;
