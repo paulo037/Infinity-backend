@@ -6,12 +6,11 @@ module.exports = {
     client: process.env.BD_CLIENT,
     connection: {
         host: process.env.HOST,
-        port: process.env.PORT,
+        port: process.env.PORT_BD,
         user: process.env.BD_USER,
         password: process.env.PASSWORD,
         database: process.env.DATABASE
     },
-    pool: { min: 0, max: 7 },
 
     migrations: {
         directory: process.env.MIGRATIONS
