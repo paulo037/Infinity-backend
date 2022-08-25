@@ -32,6 +32,7 @@ export class Auth {
 
 
     public signin = async (request: Request, response: Response) => {
+        console.log("aqui \n\n")
         if (!request.body.email || !request.body.password) {
             return response.status(400).send("Informe o email e a senha !");
         }
@@ -57,7 +58,7 @@ export class Auth {
             admin: user.props.admin,
             iat: now,
             exp: now + (60 * 60 * 24)
-          
+
         } as JwtPayload
 
         response.json({
@@ -70,24 +71,23 @@ export class Auth {
 
 
     public validateToken = async (request: Request, response: Response) => {
-        console.log("\n\n\nValidando ...\n\n\n")
+
         debugger
-        const token = request.headers.authorization ? request.headers.authorization.split(' ')[1]: null
-        
+        const token = request.headers.authorization ? request.headers.authorization.split(' ')[1] : null
+
         try {
             if (token) {
                 const user = jwt.decode(token, AUTH_SECRET as string)
                 if (new Date(user.exp * 1000) > new Date()) {
-                    return response.json({user:user})
+                    return response.json({ user: user })
                 }
             }
         } catch (e) {
-            console.log(e)
         }
-        
+
         response.send(false)
-        
+
     }
 
-  
+
 }

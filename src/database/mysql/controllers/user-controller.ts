@@ -25,16 +25,15 @@ export class UserController {
             await this.createUser.execute(user as CreateUserRequest)
             return response.status(201).send();
         } catch (error) {
-            error instanceof Error ? console.log("\n\n", error.message) : console.log("\n\n", error)
-            
+
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
-    
+
     public getUser = async (request: Request, response: Response) => {
 
         const userLog = request.user as JwtPayload
-      
+
         if (userLog == undefined) return response.status(401).send();
 
         try {
@@ -60,7 +59,6 @@ export class UserController {
             this.updateUser.execute(user as UpdateUserRequest)
             response.status(201).send();
         } catch (error) {
-            console.log(error);
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
@@ -91,7 +89,6 @@ export class UserController {
             await this.repository.changeAdminPermission(id, admin)
             response.status(201).send();
         } catch (error) {
-            console.log(error);
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }

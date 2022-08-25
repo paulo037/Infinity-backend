@@ -10,10 +10,10 @@ export class ColorController{
     public getAll = async (request: Request, response: Response) => {
         try {
             let colors = await this.repository.getAll()
-            console.log("colors = "+ JSON.stringify(colors));
+           
             response.status(200).json(colors)
         } catch (error) {
-            console.log(error)
+ 
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
         

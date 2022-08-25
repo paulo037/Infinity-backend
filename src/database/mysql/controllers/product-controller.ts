@@ -103,7 +103,7 @@ export class ProductController {
             await this.repository.updateCategories(categories, product.id);
 
         } catch (error) {
-            console.log(error)
+
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
         response.status(201).send();
@@ -123,7 +123,7 @@ export class ProductController {
             await this.repository.updateCategories(categories, product.id);
 
         } catch (error) {
-            console.log(error)
+
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
         response.status(200).send();
@@ -150,14 +150,14 @@ export class ProductController {
     }
 
     public getProductByName = async (request: Request, response: Response) => {
-        let name =  request.params.name;
-        console.log("name:", name);
+        let name = request.params.name;
+
         try {
             const id = await this.repository.findByName(name)
-            console.log("id:", id);
+
             return response.json(id);
         } catch (error) {
-            return response.status(404  ).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+            return response.status(404).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
 
@@ -165,10 +165,10 @@ export class ProductController {
         let id = parseInt(request.params.id);
         try {
             const products = await this.getProductByCategory.execute({ id })
-            console.log(products)
+
             return response.json(products);
         } catch (error) {
-            console.log(error)
+
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
@@ -191,10 +191,10 @@ export class ProductController {
 
         try {
             const products = await this.repository.search(search)
-            console.log(products)
+
             return response.json(products);
         } catch (error) {
-            console.log(error)
+
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
@@ -204,7 +204,7 @@ export class ProductController {
             const products = await this.repository.getAllNames()
             return response.json(products);
         } catch (error) {
-            console.log(error)
+
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
@@ -215,6 +215,6 @@ export class ProductController {
     }
 
 
-   
+
 }
 

@@ -20,7 +20,6 @@ export class CartRepositoryMysql implements CartRepository {
 
 
             if (cart.props.quantity > product.quantity || cart.props.quantity <= 0) {
-                console.log("Quantidade máxima do estoque já selecionada!");
                 throw new Error("Quantidade máxima já selecionada!");
             }
 
@@ -32,7 +31,6 @@ export class CartRepositoryMysql implements CartRepository {
 
             return null;
         } catch (error) {
-            console.log(error)
             throw new Error("Quantidade máxima já selecionada!");
 
         }
@@ -48,7 +46,6 @@ export class CartRepositoryMysql implements CartRepository {
 
             return null;
         } catch (error) {
-            console.log(error)
             throw new Error("Não foi possível remover o item!");
 
         }
@@ -84,7 +81,6 @@ export class CartRepositoryMysql implements CartRepository {
 
             return products
         } catch (e) {
-            console.log(e)
             throw new Error("Não foi possível encontrar o carrinho!")
         }
     }
@@ -96,7 +92,6 @@ export class CartRepositoryMysql implements CartRepository {
 
             return null
         } catch (e) {
-            console.log(e)
             throw new Error("Produto já está presente no carrinho!")
         }
 

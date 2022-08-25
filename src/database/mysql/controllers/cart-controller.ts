@@ -13,17 +13,16 @@ export class CartController {
 
         const userLog = request.user as JwtPayload
 
-        console.log(userLog)
 
         if (userLog == undefined) return response.status(401).send('unauthorized')
 
         let id = parseInt(request.params.id);
-        console.log(request.params)
+
         if (userLog.id != id) return response.status(401).send('unauthorized')
 
         try {
             const products = await this.repository.getCart(id)
-            console.log(products)
+
             return response.json(products);
         } catch (error) {
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -40,7 +39,7 @@ export class CartController {
         
         try {
             const newCart = Cart.create(request.body.cart)
-            console.log("new-cart", newCart)
+     
             await this.repository.create(newCart)
 
 
@@ -62,7 +61,7 @@ export class CartController {
         try {
    
             const newCart = Cart.create(request.body.cart)
-            console.log(request.body)
+         
             await this.repository.update(newCart)
 
 
@@ -84,7 +83,7 @@ export class CartController {
 
         try {
             const newCart = Cart.create(request.body.cart)
-            console.log(request.body)
+     
             await this.repository.delete(newCart)
 
 

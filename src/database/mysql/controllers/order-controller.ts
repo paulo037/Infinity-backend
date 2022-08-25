@@ -13,7 +13,7 @@ export class OrderController{
             
             response.status(200).json(orders)
         } catch (error) {
-            console.log(error)
+   
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
         
