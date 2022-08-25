@@ -3,13 +3,13 @@ dotenv.config()
 
 
 const local = {
-    client: process.env.BD_CLIENT,
+    client: process.env.BD_CLIENT_LOCAL,
     connection: {
-        host: process.env.HOST,
-        port: process.env.PORT_BD,
-        user: process.env.BD_USER,
-        password: process.env.PASSWORD,
-        database: process.env.DATABASE
+        host: process.env.HOST_LOCAL,
+        port: process.env.PORT_BD_LOCAL,
+        user: process.env.BD_USER_LOCAL,
+        password: process.env.PASSWORD_LOCAL,
+        database: process.env.DATABASE_LOCAL
     },
 
     migrations: {
@@ -24,13 +24,13 @@ const local = {
 
 
 const production = {
-    client: process.env.BD_CLIENT_PRODUCTION,
+    client: process.env.BD_CLIENT,
     connection: {
-        host: process.env.HOST_PRODUCTION,
-        port: process.env.PORT_BD_PRODUCTION,
-        user: process.env.BD_USER_PRODUCTION,
-        password: process.env.PASSWORD_PRODUCTION,
-        database: process.env.DATABASE_PRODUCTION
+        host: process.env.HOST,
+        port: process.env.PORT_BD,
+        user: process.env.BD_USER,
+        password: process.env.PASSWORD,
+        database: process.env.DATABASE
     },
 
     migrations: {
