@@ -18,20 +18,29 @@ export class CartRepositoryMysql implements CartRepository {
                 .andWhere('size_id', cart.props.size_id)
                 .first();
 
-
-            if (cart.props.quantity > product.quantity || cart.props.quantity <= 0) {
+            if (cart.props.quantity > product.quantity) {
+                console.log("aqui")
                 throw new Error("Quantidade máxima já selecionada!");
+
             }
+            if (cart.props.quantity < 1) {
+                console.log("aqui2")
+                throw new Error("Quantidade mínima já selecionada!");
+            }
+
+
 
             await knex('cart').update({ ...cart.props })
                 .where('product_id', cart.props.product_id)
                 .where('user_id', cart.props.user_id)
+
                 .andWhere('color_id', cart.props.color_id)
                 .andWhere('size_id', cart.props.size_id)
 
             return null;
         } catch (error) {
-            throw new Error("Quantidade máxima já selecionada!");
+            
+            throw error;
 
         }
     }
