@@ -7,7 +7,10 @@ import { CategoryController } from "./database/mysql/controllers/category-contro
 import { UserController } from "./database/mysql/controllers/user-controller";
 import { ColorController } from "./database/mysql/controllers/color-controller";
 import { OrderController } from "./database/mysql/controllers/order-controller";
-
+import { Auth } from "./application/config/auth";
+import { Passport } from "./application/config/passport";
+import admin from "./application/config/admin";
+import { CartController } from "./database/mysql/controllers/cart-controller";
 
 const router = express.Router()
 const userController = new UserController()
@@ -16,32 +19,61 @@ const sizeController = new SizeController()
 const colorController = new ColorController()
 const categoryController = new CategoryController()
 const orderController = new OrderController()
+const cartController = new CartController()
+const auth = new Auth()
+const passport = new Passport()
 
 const multer = require("multer")
 
 
+router.post('/signin', auth.signin)
+
+router.post('/signup', userController.create)
+
+
+router.post('/validateToken', passport.authenticate, auth.validateToken)
 
 router.route('/user')
-    .get(userController.getAll)
+    .get(passport.authenticate)
+    .put(passport.authenticate)
+    .get(userController.getUser)
+    .put(userController.update)
+
+router.route('/users')
+    .get(passport.authenticate)
+    .get(admin(userController.getAll))
+
+// router.route('/user/google')
+//     .post(userController.google)
 
 router.route('/admin/user/:id')
-    .put(userController.changeAdminPermission)
+    .all(passport.authenticate)
+    .put(admin(userController.changeAdminPermission))
 
 router.route('/search/')
-        .get(productController.autoComplete)
+    .get(productController.autoComplete)
 
 router.route("/product/image")
-    .post(multer(multerConfig).array('uploadImages', 10), uploadImage, productController.uploadImage);
+    .all(passport.authenticate)
+    .post(admin(multer(multerConfig).array('uploadImages', 10)), uploadImage, productController.uploadImage);
+
+
 
 
 router.route('/product/:id')
+    .put(passport.authenticate)
+    .delete(passport.authenticate)
     .get(productController.getProductById)
-    .put(productController.updateProduct)
-    .delete(productController.delete);
+    .put(admin(productController.updateProduct))
+    .delete(admin(productController.delete));
+
+router.route('/product-id/:name')
+    .get(productController.getProductByName)
 
 router.route('/product')
-    .post(productController.createProduct)
-    .get(productController.getAll)
+    .all(passport.authenticate)
+    .post(admin(productController.createProduct))
+    .get(admin(productController.getAll));
 
 router.route('/product/category/:id')
     .get(productController.getProductByCategoryId)
@@ -60,9 +92,17 @@ router.route('/category')
     .get(categoryController.getAll)
 
 router.route('/order')
-    .get(orderController.getAll)
+    .all(passport.authenticate)
+    .get(admin(orderController.getAll))
 
-router.route('/test')
-    .get((request, response)=> response.send('ok'))
+router.route('/cart/:id')
+    .all(passport.authenticate)
+    .get(cartController.getCart)
+
+
+
+router.route('/new-cart')
+    .all(passport.authenticate)
+    .post(cartController.postCart)
 
 export default router;

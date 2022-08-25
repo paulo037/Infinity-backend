@@ -4,7 +4,6 @@ import { Knex } from "knex";
 export async function up(knex: Knex): Promise<void> {
     return knex.schema.createTable('cart', table => {
         table.integer('user_id')
-            .primary()
             .notNullable()
             .unsigned()
             .references('id')
@@ -31,7 +30,8 @@ export async function up(knex: Knex): Promise<void> {
             .references('id')
             .inTable('color');
 
-        table.integer('quantity').unsigned();
+        table.integer('quantity').unsigned()
+            .notNullable();
     })
 }
 

@@ -14,20 +14,39 @@ export class SizeRepositoryMsql implements SizeRepository {
         throw new Error("Method not implemented.");
     }
     async findById(id: number): Promise<Size | null> {
-        const size = await knex('size')
-            .where('size.id', id)
-            .first();
-        return size;
+
+        try {
+          
+            const size = await knex('size')
+                .where('size.id', id)
+                .first();
+            return size;
+
+        } catch (e) {
+            throw new Error("Não foi possível realizar a busca!")
+        }
+
     }
     async findByValue(value: string): Promise<Size | null> {
-        const size = await knex('size')
-            .where('size.value', value)
-            .first();
-        return size;
+        try {
+            const size = await knex('size')
+                .where('size.value', value)
+                .first();
+            return size; 
+
+        } catch (e) {
+            throw new Error("Não foi possível realizar a busca!")
+        }
     }
     async getAll(): Promise<Size[]> {
-        const sizes = await knex('size')
-       return sizes;
+        try {
+          
+            const sizes = await knex('size')
+            return sizes;
+
+        } catch (e) {
+            throw new Error("Não foi possível realizar a busca!")
+        }
     }
 
 

@@ -21,7 +21,7 @@ const storageTypes = {
     }),
 
 
-    firebase: memoryStorage(),
+    production: memoryStorage(),
 
 }  as {[key:string] : StorageEngine}
 
@@ -32,7 +32,7 @@ const storageTypes = {
 export const multerConfig = {
 
     dest: resolve(__dirname, '..', 'tmp', 'uploads'),
-    storage: storageTypes[process.env.STORAGE_TYPE as string],
+    storage: storageTypes[process.env.ENVIRONMENT_TYPE as string],
     fileFilter: (req, file, cb) => {
         const allowedMimes = [
             "image/jpeg",

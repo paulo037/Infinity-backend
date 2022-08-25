@@ -1,6 +1,11 @@
 import { Knex } from "knex";
 
+import bcrypt from "bcrypt"
+
 export async function seed(knex: Knex): Promise<void> {
+
+    const salt = bcrypt.genSaltSync(10)
+
 
     await knex("user").insert([
         {
@@ -8,7 +13,7 @@ export async function seed(knex: Knex): Promise<void> {
             first_name: "paulo",
             last_name: "silva",
             image: "ww.exemple",
-            password: "07182500",
+            password: bcrypt.hashSync("07182500", salt),
             email: "paulo@gmail.com",
             admin: true,
             cpf: "1231231233"
@@ -19,7 +24,7 @@ export async function seed(knex: Knex): Promise<void> {
             first_name: "ingred",
             last_name: "almeida",
             image: "ww.exemple",
-            password: "12345678",
+            password: bcrypt.hashSync("12345678", salt),
             email: "ingred@gmail.com",
             admin: false,
             cpf: "1231231555"

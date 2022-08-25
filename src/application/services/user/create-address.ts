@@ -52,7 +52,7 @@ export class CreateAddress {
                 user_id,
             });
 
-        this.AddressRepository.create(address)
+        await this.AddressRepository.create(address)
 
     }
 }

@@ -15,20 +15,38 @@ export class ColorRepositoryMsql implements ColorRepository {
         throw new Error("Method not implemented.");
     }
     async findById(id: number): Promise<Color | null> {
-        const color = await knex('Ccolor')
-            .where('color.id', id)
-            .first();
-        return color;
+        try {
+            const color = await knex('color')
+                .where('color.id', id)
+                .first();
+            return color;
+
+        } catch (e) {
+            throw new Error("Não foi possível realizar a busca!")
+        }
     }
     async findByValue(value: string): Promise<Color | null> {
-        const color = await knex('color')
-            .where('color.value', value)
-            .first();
-        return color;
+        try {
+
+            const color = await knex('color')
+                .where('color.value', value)
+                .first();
+            return color;
+
+        } catch (e) {
+            throw new Error("Não foi possível realizar a busca!")
+        }
+
     }
     async getAll(): Promise<Color[]> {
-        const colors = await knex('color')
-       return colors;
+        try {
+            const colors = await knex('color')
+            return colors;
+
+
+        } catch (e) {
+            throw new Error("Não foi possível realizar a busca!")
+        }
     }
 
 

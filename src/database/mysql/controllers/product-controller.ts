@@ -14,6 +14,7 @@ import { Category } from "../../../domain/entities/product/category";
 import { ProductHasCategory } from "../../../domain/entities/product/product_has_category";
 import { Color } from "../../../domain/entities/product/color";
 import { ProductHasColor } from "../../../domain/entities/product/product_has_color";
+import { JwtPayload } from "../../../application/config/auth";
 
 export class ProductController {
 
@@ -96,7 +97,7 @@ export class ProductController {
             let images = this.createImages(product.images, product.id);
             let categories = await this.createCategories(product.categories, product.id);
             let colors = await this.createColor(product.colors, product.id)
-           
+
             await this.repository.updateImages(images, product.id);
             await this.repository.updateColor(colors, product.id);
             await this.repository.updateCategories(categories, product.id);
@@ -110,12 +111,12 @@ export class ProductController {
 
     public updateProduct = async (request: Request, response: Response) => {
         let product = request.body.product;
- 
+
         try {
             let images = this.createImages(product.images, product.id);
             let categories = await this.createCategories(product.categories, product.id);
             let colors = await this.createColor(product.colors, product.id)
-            
+
             await this.update.execute(product);
             await this.repository.updateImages(images, product.id);
             await this.repository.updateColor(colors, product.id);
@@ -148,7 +149,19 @@ export class ProductController {
         }
     }
 
-    public  getProductByCategoryId = async (request: Request, response: Response) => {
+    public getProductByName = async (request: Request, response: Response) => {
+        let name =  request.params.name;
+        console.log("name:", name);
+        try {
+            const id = await this.repository.findByName(name)
+            console.log("id:", id);
+            return response.json(id);
+        } catch (error) {
+            return response.status(404  ).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+        }
+    }
+
+    public getProductByCategoryId = async (request: Request, response: Response) => {
         let id = parseInt(request.params.id);
         try {
             const products = await this.getProductByCategory.execute({ id })
@@ -200,5 +213,8 @@ export class ProductController {
         const image = request.body.stillRemain
         return response.json(image)
     }
+
+
+   
 }
 

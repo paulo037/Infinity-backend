@@ -6,6 +6,7 @@ export interface UserRepository{
     delete(id: number):Promise<null>
     findById(id: number): Promise<User | null>
     findByEmail(email: string): Promise<User | null>
+    findByCPF(cpf: string): Promise<User | null>
     getAllUsers():Promise<User[]>
     changeAdminPermission(id: number, adminPermission: Boolean):Promise<null>
 }

@@ -5,7 +5,7 @@ import { Size } from "../../../domain/entities/product/size";
 import knex from "../connection";
 
 
-export class CategoryRepositoryMsql implements CategoryRepository{
+export class CategoryRepositoryMsql implements CategoryRepository {
     create(category: Category): Promise<null> {
         throw new Error("Method not implemented.");
     }
@@ -16,21 +16,40 @@ export class CategoryRepositoryMsql implements CategoryRepository{
         throw new Error("Method not implemented.");
     }
     async findById(id: number): Promise<Category | null> {
-        const category = await knex('category')
-            .where('category.id', id)
-            .first();
-        return category;
+
+        try {
+
+            const category = await knex('category')
+                .where('category.id', id)
+                .first();
+            return category;
+
+        } catch (e) {
+            throw new Error("Não foi possível realizar a busca!")
+        }
     }
     async findByName(name: string): Promise<Category | null> {
-        const category = await knex('category')
-        .where('category.name', name)
-        .first();
-    return category;
+        try {
+
+            const category = await knex('category')
+                .where('category.name', name)
+                .first();
+            return category;
+
+        } catch (e) {
+            throw new Error("Não foi possível realizar a busca!")
+        }
     }
 
     async getAll(): Promise<String[]> {
-        let categories = await knex('category').select('*')
-        return categories;
+        try {
+
+            let categories = await knex('category').select('*')
+            return categories;
+
+        } catch (e) {
+            throw new Error("Não foi possível realizar a busca!")
+        }
     }
 
 }

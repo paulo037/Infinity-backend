@@ -1,6 +1,6 @@
 import { Entity } from "../../../core/domain/entities";
 
-type CartProps = {
+export type CartProps = {
     user_id: number;
     product_id: number; 
     size_id : number; 
