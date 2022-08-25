@@ -10,14 +10,12 @@ export async function up(knex: Knex): Promise<void> {
             .inTable('user');
 
         table.integer('product_id')
-            .primary()
             .notNullable()
             .unsigned()
             .references('id')
             .inTable('product');
 
         table.integer('size_id')
-            .primary()
             .unsigned()
             .notNullable()
             .references('id')
@@ -25,11 +23,11 @@ export async function up(knex: Knex): Promise<void> {
 
         table.integer('color_id')
             .unsigned()
-            .primary()
             .notNullable()
             .references('id')
             .inTable('color');
 
+        table.primary(['user_id','product_id', 'size_id', 'color_id'])
         table.integer('quantity').unsigned()
             .notNullable();
     })
