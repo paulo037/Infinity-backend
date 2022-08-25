@@ -36,7 +36,7 @@ describe('Update User', () => {
             last_name: "silva",
             image: "ww.exemple.com",
             password: "12345678",
-            confirmPassword: "12345678",
+            confirm_password: "12345678",
             email: "exemple@gmail.com",
             cpf: "13210829675",
             admin: false,

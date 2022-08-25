@@ -2,6 +2,12 @@ import { UserRepository } from "../../src/application/repositories/UserRepositor
 import { User } from "../../src/domain/entities/user/user";
 
 export class InMemoryUserRepository implements UserRepository {
+
+    async findByCPF(cpf: string): Promise<User | null>  {
+        const user = this.items.find(user => user.props.cpf === cpf);
+        return user ?? null;
+    }
+    
     changeAdminPermission(id: number, adminPermission: Boolean): Promise<null> {
         throw new Error("Method not implemented.");
     }

@@ -11,6 +11,7 @@ type AddressProps = {
     telephone: number;
     number: number;
     user_id: number;
+    id?: number;
 
 }
 export class Address extends Entity<AddressProps>{

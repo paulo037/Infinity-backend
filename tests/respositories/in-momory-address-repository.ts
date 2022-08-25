@@ -13,7 +13,7 @@ export class InMemoryAddressRepository implements AddressRepository{
 
     async update(address: Address): Promise<null> {
         this.items.forEach((p, index) => {
-            if(p.id === address.id)this.items[index] = address;
+            if(p.props.id === address.props.id)this.items[index] = address;
         });
         return null
     }
@@ -22,7 +22,7 @@ export class InMemoryAddressRepository implements AddressRepository{
         let address;
 
         this.items.forEach(element => {
-            if (element.id === id) {
+            if (element.props.id === id) {
                 address = this.items.splice(this.items.indexOf(element), 1)
             }
 

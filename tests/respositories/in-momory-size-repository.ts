@@ -2,6 +2,9 @@ import { SizeRepository } from "../../src/application/repositories/SizeRepositor
 import { Size } from "../../src/domain/entities/product/size";
 
 export class InMemorySizeRepository implements SizeRepository{
+    getAll(): Promise<Size[]> {
+        throw new Error("Method not implemented.");
+    }
 
     public items: Size[] = [];
 
@@ -22,7 +25,7 @@ export class InMemorySizeRepository implements SizeRepository{
         let size;
 
         this.items.forEach(element => {
-            if (element.id === id) {
+            if (parseInt(element.id) === id) {
                 size = this.items.splice(this.items.indexOf(element), 1)
             }
 
@@ -37,7 +40,7 @@ export class InMemorySizeRepository implements SizeRepository{
 
 
     async findById(id: number): Promise<Size | null> {
-        const Size =  this.items.find(Size => Size.id === id);
+        const Size =  this.items.find(Size => parseInt(Size.id) === id);
 
         if(!Size){
             return null;

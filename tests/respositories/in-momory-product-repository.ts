@@ -46,10 +46,10 @@ export class InMemoryProductRepository implements ProductRepository {
 
     }
     
-    async findByName(name: string): Promise<Product | null> {
+    async findByName(name: string): Promise<Number | null> {
         const product = this.items.find(Product => Product.name === name);
 
-        return product ?? null;
+        return product?.id ?? null;
     }
 
 
