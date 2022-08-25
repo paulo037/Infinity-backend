@@ -4,6 +4,7 @@ export type CartProps = {
     user_id: number;
     product_id: number; 
     size_id : number; 
+    color_id : number; 
     quantity: number; 
 }
 export class Cart extends Entity<CartProps>{

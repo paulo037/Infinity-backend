@@ -1,6 +1,7 @@
 import { JwtPayload } from "../../../application/config/auth";
 import { Response, Request } from "express";
 import { CartRepositoryMysql } from "../model/cart-repository";
+import { Cart } from "../../../domain/entities/user/cart";
 
 export class CartController {
     constructor(
@@ -28,19 +29,19 @@ export class CartController {
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
-
-
+    
+    
     public postCart = async (request: Request, response: Response) => {
-
+        
         const userLog = request.user as JwtPayload
-
-
+        
+        
         if (userLog == undefined) return response.status(401).send('unauthorized')
-
+        
         try {
-            const newCart = request.body.newCart
-            console.log("new-cart",newCart)
-            await this.repository.postCart(newCart)
+            const newCart = Cart.create(request.body.cart)
+            console.log("new-cart", newCart)
+            await this.repository.create(newCart)
 
 
             return response.status(201).send("Produto Adicionado !")
@@ -50,6 +51,49 @@ export class CartController {
         }
     }
 
+
+    public updateCart = async (request: Request, response: Response) => {
+
+        const userLog = request.user as JwtPayload
+
+
+        if (userLog == undefined) return response.status(401).send('unauthorized')
+
+        try {
+   
+            const newCart = Cart.create(request.body.cart)
+            console.log(request.body)
+            await this.repository.update(newCart)
+
+
+            return response.status(201).send("Produto atualizado !")
+        } catch (error) {
+
+            return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+        }
+    }
+
+
+
+    public deleteCart = async (request: Request, response: Response) => {
+
+        const userLog = request.user as JwtPayload
+
+
+        if (userLog == undefined) return response.status(401).send('Não autorizado!')
+
+        try {
+            const newCart = Cart.create(request.body.cart)
+            console.log(request.body)
+            await this.repository.delete(newCart)
+
+
+            return response.status(200).send("Produto excluído !")
+        } catch (error) {
+
+            return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+        }
+    }
 
 
 }

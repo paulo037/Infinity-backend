@@ -6,15 +6,55 @@ import knex from "../connection";
 
 
 export class CartRepositoryMysql implements CartRepository {
-    
-    create(cart: Cart): Promise<null> {
-        throw new Error("Method not implemented.");
+
+
+    async update(cart: Cart): Promise<null> {
+        try {
+
+            const product = await knex('product_has_color')
+                .select('quantity')
+                .where('product_id', cart.props.product_id)
+                .andWhere('color_id', cart.props.color_id)
+                .andWhere('size_id', cart.props.size_id)
+                .first();
+
+
+            if (cart.props.quantity > product.quantity || cart.props.quantity <= 0) {
+                console.log("Quantidade máxima do estoque já selecionada!");
+                throw new Error("Quantidade máxima já selecionada!");
+            }
+
+            await knex('cart').update({ ...cart.props })
+                .where('product_id', cart.props.product_id)
+                .where('user_id', cart.props.user_id)
+                .andWhere('color_id', cart.props.color_id)
+                .andWhere('size_id', cart.props.size_id)
+
+            return null;
+        } catch (error) {
+            console.log(error)
+            throw new Error("Quantidade máxima já selecionada!");
+
+        }
     }
-    update(cart: Cart): Promise<null> {
-        throw new Error("Method not implemented.");
-    }
-    delete(user_id: number): Promise<null> {
-        throw new Error("Method not implemented.");
+    async delete(cart: Cart): Promise<null> {
+        try {
+
+            await knex('cart').delete()
+                .where('product_id', cart.props.product_id)
+                .where('user_id', cart.props.user_id)
+                .andWhere('color_id', cart.props.color_id)
+                .andWhere('size_id', cart.props.size_id)
+
+            return null;
+        } catch (error) {
+            console.log(error)
+            throw new Error("Não foi possível remover o item!");
+
+        }
+
+
+
     }
     findByUserId(user_id: number): Promise<Cart | null> {
         throw new Error("Method not implemented.");
@@ -34,7 +74,8 @@ export class CartRepositoryMysql implements CartRepository {
                     "c.id as color_id",
                     "cart.quantity as quantity",
                     "i.url as image",
-                    "p.price as price")
+                    "p.price as price",
+                    "p.id as product_id")
                 .where("cart.user_id", id)
                 .andWhere(function () {
                     this.where('i.primary', true)
@@ -48,10 +89,10 @@ export class CartRepositoryMysql implements CartRepository {
         }
     }
 
-    async postCart(newCart: CartProps): Promise<null> {
+    async create(newCart: Cart): Promise<null> {
         try {
             await knex('cart')
-                .insert(newCart)
+                .insert({ ...newCart.props })
 
             return null
         } catch (e) {

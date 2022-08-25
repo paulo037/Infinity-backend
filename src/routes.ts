@@ -95,14 +95,16 @@ router.route('/order')
     .all(passport.authenticate)
     .get(admin(orderController.getAll))
 
+router.route('/cart')
+    .all(passport.authenticate)
+    .post(cartController.postCart)
+    .delete(cartController.deleteCart)
+    .put(cartController.updateCart)
+
 router.route('/cart/:id')
     .all(passport.authenticate)
     .get(cartController.getCart)
 
 
-
-router.route('/new-cart')
-    .all(passport.authenticate)
-    .post(cartController.postCart)
 
 export default router;
