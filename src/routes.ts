@@ -1,4 +1,4 @@
-import express, { request, response } from "express";
+import express, { request, Response } from "express";
 import { ProductController } from "./database/mysql/controllers/product-controller";
 import SizeController from "./database/mysql/controllers/size-controller";
 import { multerConfig } from "./application/config/multer";
@@ -11,6 +11,7 @@ import { Auth } from "./application/config/auth";
 import { Passport } from "./application/config/passport";
 import admin from "./application/config/admin";
 import { CartController } from "./database/mysql/controllers/cart-controller";
+import { mercadopago } from "./application/config/mercadopago";
 
 const router = express.Router()
 const userController = new UserController()
@@ -30,6 +31,7 @@ router.post('/signin', auth.signin)
 
 router.post('/signup', userController.create)
 
+router.get('/admin', passport.authenticate, admin(auth.admin))
 
 router.post('/validateToken', passport.authenticate, auth.validateToken)
 
@@ -105,6 +107,31 @@ router.route('/cart/:id')
     .all(passport.authenticate)
     .get(cartController.getCart)
 
+router.route('/preference')
+    .post(productController.createPreference)
 
+
+
+
+// .get(async (async) => {
+//     // Cria um objeto de preferência
+//     let preference = {
+//         items: [
+//             {
+//                 title: 'Meu produto',
+//                 unit_price: 100,
+//                 quantity: 1,
+//             }
+//         ],
+
+//     };
+
+//     const  p  = await mercadopago.preferences.create(preference)
+
+//     console.log(p)
+
+
+
+// })
 
 export default router;

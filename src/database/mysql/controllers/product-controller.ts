@@ -15,6 +15,7 @@ import { ProductHasCategory } from "../../../domain/entities/product/product_has
 import { Color } from "../../../domain/entities/product/color";
 import { ProductHasColor } from "../../../domain/entities/product/product_has_color";
 import { JwtPayload } from "../../../application/config/auth";
+import { mercadopago } from "../../../application/config/mercadopago";
 
 export class ProductController {
 
@@ -214,6 +215,24 @@ export class ProductController {
         return response.json(image)
     }
 
+
+
+    public createPreference = async (request: Request, response: Response) => {
+        try {
+            const items = request.body.items;
+
+            let preference = {
+                items: items,
+            }
+
+            const id = await mercadopago.preferences.create(preference)
+            console.log("id: \n\n",id)
+            return response.json({ id: id.body.id });
+        } catch (error) {
+            console.log(error)
+            return response.status(204).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+        }
+    }
 
 
 }

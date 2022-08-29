@@ -37,7 +37,7 @@ export class UpdateUser {
 
         const user = await this.userRepository.findById(id);
 
-        Validation.existOrError(user, "Usuário não encontrado.");
+        Validation.existOrError(user, "Usuário não existe !");
         
         Validation.existOrError(email, "E-mail não informado");
         Validation.validEmailOrError(email, "Email mal formatado");

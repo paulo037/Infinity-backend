@@ -4,24 +4,29 @@ import { User } from "../../../domain/entities/user/user";
 import { CreateUser, CreateUserRequest } from "../../../application/services/user/create-user";
 import { JwtPayload } from "../../../application/config/auth";
 import { UpdateUser, UpdateUserRequest } from "../../../application/services/user/update-user";
+import { FindUserByEmail } from "../../../application/services/user/find-user-by-email ";
+import { GetAllUsers } from "../../../application/services/user/get-all-users";
+import { ChangeAdminPermission } from "../../../application/services/user/change-admin-permission";
 export class UserController {
     constructor(
         private repository = new UserRepositoryMysql(),
         private createUser = new CreateUser(repository),
-        private updateUser = new UpdateUser(repository)
-
+        private updateUser = new UpdateUser(repository),
+        private findByEmail = new FindUserByEmail(repository),
+        private getAllUsers = new GetAllUsers(repository),
+        private changeUserPermission = new ChangeAdminPermission(repository),
     ) { }
 
     public create = async (request: Request, response: Response) => {
 
-        const userLog = request.user as JwtPayload
-
-        let user = request.body.user
-
-        if (userLog == undefined) user.admin = false
-        else if (userLog.admin == false) user.admin = false
-
         try {
+            const userLog = request.user as JwtPayload
+
+            let user = request.body.user
+
+            if (userLog == undefined) user.admin = false
+            else if (userLog.admin == false) user.admin = false
+
             await this.createUser.execute(user as CreateUserRequest)
             return response.status(201).send();
         } catch (error) {
@@ -32,13 +37,13 @@ export class UserController {
 
     public getUser = async (request: Request, response: Response) => {
 
-        const userLog = request.user as JwtPayload
-
-        if (userLog == undefined) return response.status(401).send();
-
         try {
-            const user = await this.repository.findByEmail(userLog.email);
-            response.json(user).status(200);
+            const userLog = request.user as JwtPayload
+
+            if (userLog == undefined) return response.status(401).send();
+
+            const user = await this.findByEmail.execute(userLog.email);
+            response.json( user ? {...user.props} : null).status(200);
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
@@ -47,16 +52,16 @@ export class UserController {
 
     public update = async (request: Request, response: Response) => {
 
-        const userLog = request.user as JwtPayload
-
-        let user = request.body.user
-
-        if (userLog == undefined) user.admin = false
-        else if (userLog.admin == false) user.admin = false
-
-
         try {
-            this.updateUser.execute(user as UpdateUserRequest)
+            const userLog = request.user as JwtPayload
+
+            let user = request.body.user as UpdateUserRequest
+
+            if (userLog == undefined) user.admin = false
+            else if (userLog.admin == false) user.admin = false
+
+
+            this.updateUser.execute(user)
             response.status(201).send();
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -67,7 +72,7 @@ export class UserController {
 
     public getAll = async (request: Request, response: Response) => {
         try {
-            const users = await this.repository.getAllUsers();
+            const users = await this.getAllUsers.execute();
             response.json(users);
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -86,7 +91,7 @@ export class UserController {
         if (userLog.admin == false) response.status(401).send("Usuário não é um administrador !")
 
         try {
-            await this.repository.changeAdminPermission(id, admin)
+            await this.changeUserPermission.execute(id, admin)
             response.status(201).send();
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");

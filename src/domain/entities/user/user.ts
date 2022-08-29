@@ -13,11 +13,13 @@ type UserProps = {
 }
 
 export class User extends Entity<UserProps>{
+
+ 
     private constructor(props: UserProps) {
         super(props);
     }
 
-    public get email() : string {
+    public get email(): string {
         return this.props.email;
     }
 
@@ -26,7 +28,7 @@ export class User extends Entity<UserProps>{
     }
 
     static create(props: UserProps) {
-    
+
         const user = new User(props)
 
         return user;

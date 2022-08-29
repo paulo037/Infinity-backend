@@ -23,12 +23,12 @@ const params = {
 
 
 
-passport.use( new Strategy(params, async function (payload, done){
+passport.use(new Strategy(params, async function (payload, done) {
     const user = await repository.findById(payload.id)
-    
-    if(user){
-        return done (undefined, {...payload})
-    }else{
+
+    if (user) {
+        return done(undefined, { ...payload })
+    } else {
         return done(undefined, false)
     }
 
@@ -36,19 +36,27 @@ passport.use( new Strategy(params, async function (payload, done){
 
 
 export class Passport {
-    public authenticate(request: Request, response: Response, next: NextFunction) {
 
-      passport.authenticate('jwt', function (err, user, info) {
-        if (err) {
-          return response.status(401).send('unauthorized')
+
+
+    public authenticate = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            passport.authenticate('jwt', function (err, user, info) {
+                if (err) {
+                    return response.status(401).send('unauthorized')
+                }
+                if (!user) {
+                    return response.status(401).send('unauthorized')
+                } else {
+                    request.user = user as JwtPayload
+                    return next()
+                }
+            })(request, response, next)
+
+        } catch (error) {
+            return response.status(401).send('unauthorized')
+
         }
-        if (!user) {
-          return response.status(401).send('unauthorized')
-        } else {
-            request.user = user as JwtPayload
-          return next()
-        }
-      })(request, response, next)
     }
 
 

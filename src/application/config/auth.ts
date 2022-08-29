@@ -32,7 +32,7 @@ export class Auth {
 
 
     public signin = async (request: Request, response: Response) => {
-        console.log("aqui \n\n")
+
         if (!request.body.email || !request.body.password) {
             return response.status(400).send("Informe o email e a senha !");
         }
@@ -72,7 +72,6 @@ export class Auth {
 
     public validateToken = async (request: Request, response: Response) => {
 
-        debugger
         const token = request.headers.authorization ? request.headers.authorization.split(' ')[1] : null
 
         try {
@@ -83,9 +82,17 @@ export class Auth {
                 }
             }
         } catch (e) {
+            return response.send(false)
         }
 
         response.send(false)
+
+    }
+
+
+    public admin = async (request: Request, response: Response) => {
+
+        return response.status(200).json({ admin: true })
 
     }
 

@@ -3,24 +3,37 @@ import { User } from "../../src/domain/entities/user/user";
 
 export class InMemoryUserRepository implements UserRepository {
 
-    async findByCPF(cpf: string): Promise<User | null>  {
+    async findByCPF(cpf: string): Promise<User | null> {
         const user = this.items.find(user => user.props.cpf === cpf);
         return user ?? null;
     }
-    
-    changeAdminPermission(id: number, adminPermission: Boolean): Promise<null> {
-        throw new Error("Method not implemented.");
+
+    async changeAdminPermission(id: number, adminPermission: Boolean): Promise<null> {
+
+        const user = this.items.find(user => user.id === id);
+
+        if (!user){
+            throw new Error("usuário não encontrado");
+        }
+
+        this.items.forEach((p, index) => {
+            if (p.id === user.id) this.items[index] = user;
+        });
+
+        return null;
+
+
     }
     public items: User[] = []
-    
+
     async create(user: User): Promise<null> {
         this.items.push(user);
         return null;
     }
-    
+
     async update(user: User): Promise<null> {
         this.items.forEach((p, index) => {
-            if(p.id === user.id)this.items[index] = user;
+            if (p.id === user.id) this.items[index] = user;
         });
         return null
     }
@@ -55,6 +68,6 @@ export class InMemoryUserRepository implements UserRepository {
         return this.items;
     }
 
-   
+
 
 }
