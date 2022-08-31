@@ -1,7 +1,6 @@
 import { Validation } from "../../../domain/validation/validation";
 import { User } from "../../../domain/entities/user/user"
 import { UserRepository } from "../../repositories/UserRepository";
-import bcrypt from "bcrypt"
 
 
 export class FindUserByEmail {
@@ -13,6 +12,7 @@ export class FindUserByEmail {
 
 
     async execute(email: string) : Promise<User | null> {
+
 
 
         Validation.existOrError(email, "E-mail não informado");

@@ -210,10 +210,15 @@ export class ProductRepositoryMsql implements ProductRepository {
                 .select('id')
                 .where('name', name)
                 .first();
-            return product.id;
 
-            
-        } catch (e) {   
+            if (product) {
+                return product.id
+            }
+            throw new Error("Não foi possível encontrar um produto com esse nome!")
+           
+
+
+        } catch (e) {
             throw new Error("Não foi possível encontrar um produto com esse nome!")
         }
 

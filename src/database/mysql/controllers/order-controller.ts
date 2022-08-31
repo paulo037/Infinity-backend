@@ -19,4 +19,14 @@ export class OrderController{
         
     }
 
+    public webhook = async (request: Request, response: Response) => {
+
+        console.log(request.body)
+
+
+        return response.status(200).send()
+    }
+
+
+
 }

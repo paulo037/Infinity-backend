@@ -35,6 +35,8 @@ router.get('/admin', passport.authenticate, admin(auth.admin))
 
 router.post('/validateToken', passport.authenticate, auth.validateToken)
 
+router.post('/refreshToken', auth.refreshToken)
+
 router.route('/user')
     .get(passport.authenticate)
     .put(passport.authenticate)
@@ -45,8 +47,6 @@ router.route('/users')
     .get(passport.authenticate)
     .get(admin(userController.getAll))
 
-// router.route('/user/google')
-//     .post(userController.google)
 
 router.route('/admin/user/:id')
     .all(passport.authenticate)
@@ -108,30 +108,11 @@ router.route('/cart/:id')
     .get(cartController.getCart)
 
 router.route('/preference')
+    .all(passport.authenticate)
     .post(productController.createPreference)
 
 
+router.post('/webhooks/payment', orderController.webhook)
 
-
-// .get(async (async) => {
-//     // Cria um objeto de preferência
-//     let preference = {
-//         items: [
-//             {
-//                 title: 'Meu produto',
-//                 unit_price: 100,
-//                 quantity: 1,
-//             }
-//         ],
-
-//     };
-
-//     const  p  = await mercadopago.preferences.create(preference)
-
-//     console.log(p)
-
-
-
-// })
 
 export default router;

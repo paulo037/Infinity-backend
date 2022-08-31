@@ -1,8 +1,8 @@
-import jwt from "jwt-simple"
+import { sign, verify } from "jsonwebtoken"
 import bcrypt from "bcrypt"
 import { UserRepositoryMysql } from "../../database/mysql/model/user-repository"
-import { Validation } from "../../domain/validation/validation"
 import { Request, Response } from "express"
+import { FindUserByEmail } from "../services/user/find-user-by-email "
 
 const dotenv = require('dotenv')
 dotenv.config()
@@ -13,9 +13,16 @@ const AUTH_SECRET = process.env.AUTH_SECRET
 
 export type JwtPayload = {
     id: number,
-    name: string,
+    first_name: string,
+    last_name: string,
     email: string,
     admin: boolean,
+    iat: number,
+    exp: number
+}
+
+export type JwtRefresh = {
+    user_email: string,
     iat: number,
     exp: number
 }
@@ -27,67 +34,144 @@ export class Auth {
 
     constructor(
         private repository = new UserRepositoryMysql(),
+        private findUserByEmail = new FindUserByEmail(repository),
 
     ) { }
 
 
     public signin = async (request: Request, response: Response) => {
+     
+        try {
 
-        if (!request.body.email || !request.body.password) {
-            return response.status(400).send("Informe o email e a senha !");
+            if (!request.body.email || !request.body.password) {
+                return response.status(400).send("Informe o email e a senha !");
+            }
+
+
+            const user = await this.findUserByEmail.execute(request.body.email);
+
+            if (!user) {
+                return response.status(400).send("Usuário não encontrado !");
+            }
+
+            const isMatch = bcrypt.compareSync(request.body.password, user.props.password);
+            if (!isMatch) {
+                return response.status(401).send("Email/Senha Inválidos!");
+
+            }
+
+            const now = Math.floor(Date.now() / 1000);
+
+            const payload = {
+                id: user.props.id,
+                first_name: user.props.first_name,
+                last_name: user.props.last_name,
+                email: user.props.email,
+                iat: now,
+                exp: now + (60 * 60 * 3)
+            } as JwtPayload
+
+            const refresh_payload = {
+                user_email: user.props.email,
+                iat: now,
+                exp: now + (60 * 60 * 24)
+            } as JwtRefresh
+
+            response.json({
+
+                access_token: sign(payload, AUTH_SECRET as string),
+                refresh_token: sign(refresh_payload, AUTH_SECRET as string)
+
+            })
+        } catch (error) {
+            return response.status(204).send(error)
         }
-
-        const user = await this.repository.findByEmail(request.body.email);
-
-        if (!user) {
-            return response.status(400).send("Usuário não encontrado !");
-        }
-
-        const isMatch = bcrypt.compareSync(request.body.password, user.props.password);
-        if (!isMatch) {
-            return response.status(401).send("Email/Senha Inválidos!");
-
-        }
-
-        const now = Math.floor(Date.now() / 1000);
-
-        const payload = {
-            id: user.id,
-            name: user.props.first_name,
-            email: user.props.email,
-            admin: user.props.admin,
-            iat: now,
-            exp: now + (60 * 60 * 24)
-
-        } as JwtPayload
-
-        response.json({
-            ...payload,
-            token: jwt.encode(payload, AUTH_SECRET as string)
-
-        })
     }
 
 
 
     public validateToken = async (request: Request, response: Response) => {
 
-        const token = request.headers.authorization ? request.headers.authorization.split(' ')[1] : null
 
         try {
+
+            const token = request.headers.authorization ? request.headers.authorization.split(' ')[1] : null
             if (token) {
-                const user = jwt.decode(token, AUTH_SECRET as string)
+                const user = verify(token, AUTH_SECRET as string) as JwtPayload
                 if (new Date(user.exp * 1000) > new Date()) {
-                    return response.json({ user: user })
+                    return response.json({ user: user }).status(200)
                 }
             }
         } catch (e) {
-            return response.send(false)
+            return response.send(false).status(401)
         }
 
-        response.send(false)
+        return response.send(false).status(401)
 
     }
+
+
+
+    public refreshToken = async (request: Request, response: Response) => {
+
+
+        try {
+
+            const token = request.body.refresh_token
+
+
+
+            const userLog = token ? verify(token, AUTH_SECRET as string) as JwtRefresh : null
+
+            if (!userLog) {
+                return response.status(400).send("Token expirou !");
+            }
+
+
+            if (new Date(userLog.exp * 1000) < new Date()) {
+                return response.status(400).send("Token expirou !");
+            }
+
+
+            const user = await this.findUserByEmail.execute(userLog.user_email);
+
+            if (!user) {
+                return response.status(400).send("Usuário não encontrado !");
+            }
+
+
+            const now = Math.floor(Date.now() / 1000);
+
+            const payload = {
+                id: user.props.id,
+                first_name: user.props.first_name,
+                last_name: user.props.last_name,
+                email: user.props.email,
+                iat: now,
+                exp: now + (60 * 60 * 3)
+
+
+            } as JwtPayload
+
+            const refresh_payload = {
+                user_email: user.props.email,
+                iat: now,
+                exp: now + (60 * 60 * 24)
+            } as JwtRefresh
+
+            response.json({
+                access_token: sign(payload, AUTH_SECRET as string),
+                refresh_token: sign(refresh_payload, AUTH_SECRET as string)
+            })
+
+
+
+        } catch (error) {
+            return response.status(401).send(error)
+        }
+
+    }
+
 
 
     public admin = async (request: Request, response: Response) => {

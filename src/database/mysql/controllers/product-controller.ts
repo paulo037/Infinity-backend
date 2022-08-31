@@ -156,9 +156,9 @@ export class ProductController {
         try {
             const id = await this.repository.findByName(name)
 
-            return response.json(id);
+            return response.json({id: id});
         } catch (error) {
-            return response.status(404).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+            return response.status(204).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
 
@@ -169,7 +169,6 @@ export class ProductController {
 
             return response.json(products);
         } catch (error) {
-
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
@@ -220,16 +219,53 @@ export class ProductController {
     public createPreference = async (request: Request, response: Response) => {
         try {
             const items = request.body.items;
+            const userLog = request.user as JwtPayload
 
+            console.log(request.user)
+            if (userLog == undefined) return response.status(401).send('unauthorized')
+
+            console.log(userLog)
             let preference = {
                 items: items,
+
+                back_urls: {
+                    success: "http://localhost:3000/cart",
+                    failure: "http://localhost:3000/"
+                },
+                auto_return: "approved",
+                binary_mode: true,
+                payment_methods: {
+
+                    excluded_payment_types: [
+                        {
+                            id: "ticket"
+                        }
+                    ],
+
+                },
+
+                payer: {
+                    name: userLog.first_name,
+                    surname: userLog.last_name,
+                    email: userLog.email,
+                    identification: {
+                        type: "CPF",
+                        number: "13210829675"
+                    },
+
+                },
             }
 
-            const id = await mercadopago.preferences.create(preference)
-            console.log("id: \n\n",id)
-            return response.json({ id: id.body.id });
+            try {
+                const id = await mercadopago.preferences.create(preference)
+                return response.json({ id: id.body.id });
+            } catch (error) {
+                console.log(error)
+                return response.status(204).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+            }
+
         } catch (error) {
-            console.log(error)
+
             return response.status(204).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
