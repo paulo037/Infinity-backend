@@ -103,13 +103,18 @@ router.route('/cart')
     .delete(cartController.deleteCart)
     .put(cartController.updateCart)
 
+router.route('/cart/products-number')
+    .all(passport.authenticate)
+    .get(cartController.getNumberofProducts)
+
 router.route('/cart/:id')
     .all(passport.authenticate)
     .get(cartController.getCart)
 
+
 router.route('/preference')
     .all(passport.authenticate)
-    .post(productController.createPreference)
+    .post(orderController.createPreference)
 
 
 router.post('/webhooks/payment', orderController.webhook)

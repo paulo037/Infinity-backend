@@ -189,11 +189,17 @@ export class ProductRepositoryMsql implements ProductRepository {
             let images = await knex('image as i')
                 .where('i.product_id', id);
 
-
+            
             product.images = images.map(image => {
                 return { "id": image.id, "name": image.name, "url": image.url, "primary": image.primary, "key": image.key }
             })
 
+            try {
+                
+                product.images.sort( (a: any, b: any) => a.primary - b.primary).reverse();
+            } catch (error) {
+                product.images = []
+            }
 
             return product as Product;
 

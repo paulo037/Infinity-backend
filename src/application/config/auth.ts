@@ -16,7 +16,7 @@ export type JwtPayload = {
     first_name: string,
     last_name: string,
     email: string,
-    admin: boolean,
+    ad: boolean,
     iat: number,
     exp: number
 }
@@ -40,7 +40,7 @@ export class Auth {
 
 
     public signin = async (request: Request, response: Response) => {
-     
+
         try {
 
             if (!request.body.email || !request.body.password) {
@@ -67,6 +67,7 @@ export class Auth {
                 first_name: user.props.first_name,
                 last_name: user.props.last_name,
                 email: user.props.email,
+                ad: user.props.admin,
                 iat: now,
                 exp: now + (60 * 60 * 3)
             } as JwtPayload
@@ -82,9 +83,9 @@ export class Auth {
                 access_token: sign(payload, AUTH_SECRET as string),
                 refresh_token: sign(refresh_payload, AUTH_SECRET as string)
 
-            })
+            }).status(200)
         } catch (error) {
-            return response.status(204).send(error)
+            return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
 
@@ -146,6 +147,7 @@ export class Auth {
                 id: user.props.id,
                 first_name: user.props.first_name,
                 last_name: user.props.last_name,
+                ad: user.props.admin,
                 email: user.props.email,
                 iat: now,
                 exp: now + (60 * 60 * 3)

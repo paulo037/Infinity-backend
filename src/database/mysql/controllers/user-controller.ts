@@ -24,8 +24,8 @@ export class UserController {
 
             let user = request.body.user
 
-            if (userLog == undefined) user.admin = false
-            else if (userLog.admin == false) user.admin = false
+            if (userLog == undefined) user.ad = false
+            else if (userLog.ad == false) user.ad = false
 
             await this.createUser.execute(user as CreateUserRequest)
             return response.status(201).send();
@@ -43,7 +43,7 @@ export class UserController {
             if (userLog == undefined) return response.status(401).send();
 
             const user = await this.findByEmail.execute(userLog.email);
-            response.json( user ? {...user.props} : null).status(200);
+            response.json(user ? { ...user.props } : null).status(200);
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
@@ -58,7 +58,7 @@ export class UserController {
             let user = request.body.user as UpdateUserRequest
 
             if (userLog == undefined) user.admin = false
-            else if (userLog.admin == false) user.admin = false
+            else if (userLog.ad == false) user.admin = false
 
 
             this.updateUser.execute(user)
@@ -88,7 +88,7 @@ export class UserController {
         const userLog = request.user as JwtPayload
 
         if (userLog == undefined) response.status(401).send("Usuário não é um administrador !")
-        if (userLog.admin == false) response.status(401).send("Usuário não é um administrador !")
+        if (userLog.ad == false) response.status(401).send("Usuário não é um administrador !")
 
         try {
             await this.changeUserPermission.execute(id, admin)

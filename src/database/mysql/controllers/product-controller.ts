@@ -16,6 +16,7 @@ import { Color } from "../../../domain/entities/product/color";
 import { ProductHasColor } from "../../../domain/entities/product/product_has_color";
 import { JwtPayload } from "../../../application/config/auth";
 import { mercadopago } from "../../../application/config/mercadopago";
+import { FindUserByEmail } from "../../../application/services/user/find-user-by-email ";
 
 export class ProductController {
 
@@ -214,61 +215,6 @@ export class ProductController {
         return response.json(image)
     }
 
-
-
-    public createPreference = async (request: Request, response: Response) => {
-        try {
-            const items = request.body.items;
-            const userLog = request.user as JwtPayload
-
-            console.log(request.user)
-            if (userLog == undefined) return response.status(401).send('unauthorized')
-
-            console.log(userLog)
-            let preference = {
-                items: items,
-
-                back_urls: {
-                    success: "http://localhost:3000/cart",
-                    failure: "http://localhost:3000/"
-                },
-                auto_return: "approved",
-                binary_mode: true,
-                payment_methods: {
-
-                    excluded_payment_types: [
-                        {
-                            id: "ticket"
-                        }
-                    ],
-
-                },
-
-                payer: {
-                    name: userLog.first_name,
-                    surname: userLog.last_name,
-                    email: userLog.email,
-                    identification: {
-                        type: "CPF",
-                        number: "13210829675"
-                    },
-
-                },
-            }
-
-            try {
-                const id = await mercadopago.preferences.create(preference)
-                return response.json({ id: id.body.id });
-            } catch (error) {
-                console.log(error)
-                return response.status(204).send(error instanceof Error ? error.message : "Houve um erro inesperado");
-            }
-
-        } catch (error) {
-
-            return response.status(204).send(error instanceof Error ? error.message : "Houve um erro inesperado");
-        }
-    }
 
 
 }

@@ -19,12 +19,12 @@ export class CartRepositoryMysql implements CartRepository {
                 .first();
 
             if (cart.props.quantity > product.quantity) {
-                console.log("aqui")
+
                 throw new Error("Quantidade máxima já selecionada!");
 
             }
             if (cart.props.quantity < 1) {
-                console.log("aqui2")
+
                 throw new Error("Quantidade mínima já selecionada!");
             }
 
@@ -39,7 +39,7 @@ export class CartRepositoryMysql implements CartRepository {
 
             return null;
         } catch (error) {
-            
+
             throw error;
 
         }
@@ -105,6 +105,23 @@ export class CartRepositoryMysql implements CartRepository {
         }
 
     }
+
+    async numberOfProducts(user_id: Number): Promise<Number> {
+        try {
+            const number = await knex('cart')
+                .count("* as value")
+                .where("cart.user_id", user_id)
+                .first()
+
+
+            return number ? number.value as number : 0
+        } catch (e) {
+            throw new Error("Produto já está presente no carrinho!")
+        }
+
+    }
+
+
 
 
 

@@ -8,4 +8,5 @@ export interface CartRepository{
     update(cart: Cart):Promise<null>
     delete(cart: Cart):Promise<null>
     findByUserId(user_id: number): Promise<Cart | null>
+    numberOfProducts(user_id: Number): Promise<Number>
 }
