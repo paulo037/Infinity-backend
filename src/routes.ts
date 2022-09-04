@@ -1,4 +1,4 @@
-import express, { request, Response } from "express";
+import express, { Request, Response } from "express";
 import { ProductController } from "./database/mysql/controllers/product-controller";
 import SizeController from "./database/mysql/controllers/size-controller";
 import { multerConfig } from "./application/config/multer";
@@ -11,7 +11,7 @@ import { Auth } from "./application/config/auth";
 import { Passport } from "./application/config/passport";
 import admin from "./application/config/admin";
 import { CartController } from "./database/mysql/controllers/cart-controller";
-import { mercadopago } from "./application/config/mercadopago";
+import axios from "axios";
 
 const router = express.Router()
 const userController = new UserController()
@@ -35,7 +35,7 @@ router.get('/admin', passport.authenticate, admin(auth.admin))
 
 router.post('/validateToken', passport.authenticate, auth.validateToken)
 
-router.post('/refreshToken', auth.refreshToken)
+router.post('/refreshToken',     auth.refreshToken)
 
 router.route('/user')
     .get(passport.authenticate)
@@ -44,8 +44,7 @@ router.route('/user')
     .put(userController.update)
 
 router.route('/users')
-    .get(passport.authenticate)
-    .get(admin(userController.getAll))
+    .get(passport.authenticate, admin(userController.getAll))
 
 
 router.route('/admin/user/:id')
@@ -60,14 +59,11 @@ router.route("/product/image")
     .post(admin(multer(multerConfig).array('uploadImages', 10)), uploadImage, productController.uploadImage);
 
 
-
-
 router.route('/product/:id')
-    .put(passport.authenticate)
-    .delete(passport.authenticate)
+    .put(passport.authenticate, admin(productController.updateProduct))
+    .delete(passport.authenticate, admin(productController.delete))
     .get(productController.getProductById)
-    .put(admin(productController.updateProduct))
-    .delete(admin(productController.delete));
+
 
 router.route('/product-id/:name')
     .get(productController.getProductByName)
@@ -85,10 +81,12 @@ router.route('/product/search/:term')
 
 
 router.route('/size')
-    .get(sizeController.getAll)
+    .all(passport.authenticate)
+    .get(admin(sizeController.getAll))
 
 router.route('/color')
-    .get(colorController.getAll)
+    .all(passport.authenticate)
+    .get(admin((colorController.getAll)))
 
 router.route('/category')
     .get(categoryController.getAll)
@@ -112,12 +110,31 @@ router.route('/cart/:id')
     .get(cartController.getCart)
 
 
+router.route('/address')
+    .all(passport.authenticate)
+    .get(userController.getAdresses)
+
+
 router.route('/preference')
     .all(passport.authenticate)
-    .post(orderController.createPreference)
+    .post(orderController.newOrder)
 
 
 router.post('/webhooks/payment', orderController.webhook)
 
+router.get('/address/cep/:cep', async (request: Request, response: Response) => {
+    const cep = request.params.cep
 
+    try {
+        const resp = await axios.get(`http://viacep.com.br/ws/${cep}/json/`)
+        if (resp.data.erro) {
+            response.status(400).send(`Não foi possível encontrar o cep: ${cep}`)
+
+        }
+        response.json(resp.data).status(200)
+    } catch (error) {
+        response.status(400).send(`Não foi possível encontrar o cep: ${cep}`)
+
+    }
+})
 export default router;

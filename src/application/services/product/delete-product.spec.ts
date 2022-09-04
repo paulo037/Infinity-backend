@@ -13,20 +13,20 @@ describe('Delete Product', () => {
         const category = Category.create({
             name: 'Blusa',
             image: 'www.exemple.com',
-            id: 1,
+            id: "1",
         });
 
         const product = Product.create({
             name: "Paulo",
             price: 20.5,
-            id: 1,
+            id: "1",
         });
 
         categoryRepository.items.push(category);
         productRepository.items.push(product);
 
         const sut = new DeleteProduct(productRepository);
-        let response = await sut.execute({ id: 1 })
+        let response = await sut.execute({ id: "1" })
        
 
         expect(response).toBeNull()
@@ -40,13 +40,13 @@ describe('Delete Product', () => {
         const category = Category.create({
             name: 'Blusa',
             image: 'www.exemple.com',
-            id: 1,
+            id: "1",
         });
     
         const product = Product.create({
             name: "Paulo",
             price: 20.5,
-            id: 1,
+            id: "1",
         });
     
         categoryRepository.items.push(category);
@@ -54,7 +54,7 @@ describe('Delete Product', () => {
     
         const sut = new DeleteProduct(productRepository);
         try{
-            await sut.execute({ id: 1 })
+            await sut.execute({ id: "1" })
     
         }catch(e){
             expect(e).toBeTruthy()

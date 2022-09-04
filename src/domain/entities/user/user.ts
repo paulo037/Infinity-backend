@@ -1,3 +1,4 @@
+import { v4 } from "uuid";
 import { Entity } from "../../../core/domain/entities";
 
 
@@ -9,12 +10,12 @@ type UserProps = {
     email: string;
     cpf: string;
     admin?: boolean;
-    id?: number;
+    id?: string;
 }
 
 export class User extends Entity<UserProps>{
 
- 
+
     private constructor(props: UserProps) {
         super(props);
     }
@@ -28,6 +29,7 @@ export class User extends Entity<UserProps>{
     }
 
     static create(props: UserProps) {
+        props.id = props.id ? props.id : v4()
 
         const user = new User(props)
 

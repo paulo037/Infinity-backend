@@ -16,7 +16,7 @@ export class CartController {
 
         if (userLog == undefined) return response.status(401).send('unauthorized')
 
-        let id = parseInt(request.params.id);
+        let id = request.params.id;
 
         if (userLog.id != id) return response.status(401).send('unauthorized')
 
@@ -43,7 +43,7 @@ export class CartController {
             await this.repository.create(newCart)
 
 
-            return response.status(201).send("Produto Adicionado !")
+            return response.status(201).send("Produto Adicionado!")
         } catch (error) {
 
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -65,7 +65,7 @@ export class CartController {
             await this.repository.update(newCart)
 
 
-            return response.status(201).send("Produto atualizado !")
+            return response.status(201).send("Produto atualizado!")
         } catch (error) {
 
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -87,7 +87,7 @@ export class CartController {
             await this.repository.delete(newCart)
 
 
-            return response.status(200).send("Produto excluído !")
+            return response.status(200).send("Produto excluído!")
         } catch (error) {
 
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");

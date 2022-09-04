@@ -2,9 +2,6 @@ import { Product } from "../../../domain/entities/product/product"
 import { Validation } from "../../../domain/validation/validation";
 import { ProductRepository } from "../../repositories/ProductRepository";
 
-type GetProductByIdRequest = {
-    id: number
-}
 
 
 export class GetProductById {
@@ -13,12 +10,11 @@ export class GetProductById {
         private productRepository: ProductRepository,
     ) { }
 
-    async execute({ id }: GetProductByIdRequest) {
+    async execute(id : string) {
 
 
-        const product = await this.productRepository.findById(id);
+        const product = await this.productRepository.findById(id) as Product
         Validation.existOrError(product, "Produto não encontrado");
-        
         return product;
 
         

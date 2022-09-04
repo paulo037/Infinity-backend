@@ -3,31 +3,33 @@ import { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
     return knex.schema.createTable('cart', table => {
-        table.integer('user_id')
+        table.string('user_id', 36)
             .notNullable()
-            .unsigned()
             .references('id')
-            .inTable('user');
+            .inTable('user')
+            .onDelete('CASCADE')
+            .onUpdate('CASCADE');
 
-        table.integer('product_id')
+
+        table.string('product_id', 36)
             .notNullable()
-            .unsigned()
             .references('id')
-            .inTable('product');
+            .inTable('product')
+            .onDelete('CASCADE')
+            .onUpdate('CASCADE');
 
-        table.integer('size_id')
-            .unsigned()
+        table.string('size_id', 36)
             .notNullable()
             .references('id')
             .inTable('size');
 
-        table.integer('color_id')
-            .unsigned()
+
+        table.string('color_id', 36)
             .notNullable()
             .references('id')
             .inTable('color');
 
-        table.primary(['user_id','product_id', 'size_id', 'color_id'])
+        table.primary(['user_id', 'product_id', 'size_id', 'color_id'])
         table.integer('quantity').unsigned()
             .notNullable();
     })

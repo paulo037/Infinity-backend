@@ -82,19 +82,36 @@ export class UserController {
 
 
     public changeAdminPermission = async (request: Request, response: Response) => {
-        let id = request.params.id as unknown as number
+        let id = request.params.id
         let { admin } = request.body
 
         const userLog = request.user as JwtPayload
 
-        if (userLog == undefined) response.status(401).send("Usuário não é um administrador !")
-        if (userLog.ad == false) response.status(401).send("Usuário não é um administrador !")
+        if (userLog == undefined) response.status(401).send("Usuário não é um administrador!")
+        if (userLog.ad == false) response.status(401).send("Usuário não é um administrador!")
 
         try {
             await this.changeUserPermission.execute(id, admin)
             response.status(201).send();
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+        }
+    }
+
+
+    public getAdresses = async (request: Request, response: Response) => {
+
+        const userLog = request.user as JwtPayload
+
+        if (userLog == undefined) response.status(401).send("Sem permissão!")
+
+
+        try {
+            const address = await this.repository.getAddresses(userLog.id);
+            response.json(address).status(200);
+        } catch (error) {
+            return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+
         }
     }
 

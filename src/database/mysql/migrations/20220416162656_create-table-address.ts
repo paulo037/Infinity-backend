@@ -3,18 +3,17 @@ import { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
     return knex.schema.createTable('address', table => {
-        table.increments('id').primary();
-        table.string('name',120).notNullable();
+        table.string('id', 36).primary();
+        table.string('user_name',120).notNullable();
         table.string('cep',8).notNullable();
-        table.string('estate',100).notNullable();
+        table.string('state',20).notNullable();
         table.string('city',100).notNullable();
         table.string('district',100).notNullable();
         table.string('street',100).notNullable();
         table.string('telephone',20).notNullable();
         table.integer('number').unsigned();
-        table.integer('user_id')
+        table.string('user_id', 36)
                     .notNullable()
-                    .unsigned()
                     .references('id')
                     .inTable('user')
     })

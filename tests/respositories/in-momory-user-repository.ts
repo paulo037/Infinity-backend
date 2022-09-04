@@ -8,7 +8,7 @@ export class InMemoryUserRepository implements UserRepository {
         return user ?? null;
     }
 
-    async changeAdminPermission(id: number, adminPermission: Boolean): Promise<null> {
+    async changeAdminPermission(id: string, adminPermission: Boolean): Promise<null> {
 
         const user = this.items.find(user => user.id === id);
 
@@ -38,7 +38,7 @@ export class InMemoryUserRepository implements UserRepository {
         return null
     }
 
-    async delete(id: number): Promise<null> {
+    async delete(id: string): Promise<null> {
         let user;
 
         this.items.forEach(element => {
@@ -53,7 +53,7 @@ export class InMemoryUserRepository implements UserRepository {
         throw new Error("produto não encontrado");
     }
 
-    async findById(id: number): Promise<User | null> {
+    async findById(id: string): Promise<User | null> {
         const user = this.items.find(user => user.id === id);
         return user ?? null;
     }

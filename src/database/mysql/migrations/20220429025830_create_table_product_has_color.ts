@@ -5,29 +5,22 @@ export async function up(knex: Knex): Promise<void> {
     return knex.schema.createTable('product_has_color', table => {
 
 
-        table.integer('product_id')
+        table.string('product_id', 36)
             .notNullable()
-            .unsigned()
             .references('id')
             .inTable('product')
             .onDelete('CASCADE')
             .onUpdate('CASCADE');
 
-        table.integer('color_id')
+        table.string('color_id', 36)
             .notNullable()
-            .unsigned()
             .references('id')
-            .inTable('color')
-            .onDelete('CASCADE')
-            .onUpdate('CASCADE');
+            .inTable('color');
 
-        table.integer('size_id')
+        table.string('size_id', 36)
             .notNullable()
-            .unsigned()
             .references('id')
-            .inTable('size')
-            .onDelete('CASCADE')
-            .onUpdate('CASCADE');
+            .inTable('size');
 
         table.integer('quantity')
             .notNullable()

@@ -13,13 +13,13 @@ describe('Get Product', () => {
         const category = Category.create({
             name: 'Blusa',
             image: 'www.exemple.com',
-            id: 1
+            id: "1"
         });
 
         const product = Product.create({
             name: "Paulo",
             price: 20.5,
-            id: 1
+            id: "1"
           
         });
 
@@ -28,7 +28,7 @@ describe('Get Product', () => {
 
         const sut = new GetProductById(productRepository)
 
-        let response = await sut.execute({ id: 1 })
+        let response = await sut.execute({ id: "1" })
        
 
         expect(response).toBeTruthy()
@@ -42,13 +42,13 @@ describe('Get Product', () => {
         const category = Category.create({
             name: 'Blusa',
             image: 'www.exemple.com',
-            id: 1,
+            id: "1",
         });
     
         const product = Product.create({
             name: "Paulo",
             price: 20.5,
-            id: 2,
+            id: "2",
           
         });
     
@@ -57,7 +57,7 @@ describe('Get Product', () => {
     
         const sut = new GetProductById(productRepository);
         try{
-            await sut.execute({ id: 1 })
+            await sut.execute({ id: "1" })
     
         }catch(e){
             expect(e).toBeTruthy()

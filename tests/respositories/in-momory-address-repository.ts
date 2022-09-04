@@ -18,7 +18,7 @@ export class InMemoryAddressRepository implements AddressRepository{
         return null
     }
 
-    async delete(id: number): Promise<null> {
+    async delete(id: string): Promise<null> {
         let address;
 
         this.items.forEach(element => {
@@ -35,7 +35,7 @@ export class InMemoryAddressRepository implements AddressRepository{
     }
     
 
-    async findByUserId(user_id: number): Promise<Address[] | null> {
+    async findByUserId(user_id: string): Promise<Address[] | null> {
         let addresses: Address[] = []
 
         this.items.map(address => {

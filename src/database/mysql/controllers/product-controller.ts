@@ -34,7 +34,7 @@ export class ProductController {
         private getProductByCategory = new GetProductByCategory(repository, categoryrepository)
     ) { }
 
-    private createImages = (images: Image[] | undefined, product_id: number) => {
+    private createImages = (images: Image[] | undefined, product_id: string) => {
 
         if (images) {
             const addProductId = images.map((img: any) => {
@@ -48,7 +48,7 @@ export class ProductController {
         return [];
     }
 
-    private createCategories = async (categories: Category[] | undefined, product_id: number)
+    private createCategories = async (categories: Category[] | undefined, product_id: string)
         : Promise<ProductHasCategory[]> => {
         let productHasCategory = []
         if (categories) {
@@ -68,10 +68,10 @@ export class ProductController {
 
 
     private createColor = async (colors: {
-        color_id: number,
+        color_id: string,
         quantity: number,
-        size_id: number
-    }[] | undefined, product_id: number)
+        size_id: string
+    }[] | undefined, product_id: string)
         : Promise<ProductHasColor[]> => {
         let productHasColor = []
         if (colors) {
@@ -113,7 +113,7 @@ export class ProductController {
 
     public updateProduct = async (request: Request, response: Response) => {
         let product = request.body.product;
-
+       
         try {
             let images = this.createImages(product.images, product.id);
             let categories = await this.createCategories(product.categories, product.id);
@@ -132,7 +132,7 @@ export class ProductController {
     }
 
     public delete = async (request: Request, response: Response) => {
-        let id = parseInt(request.params.id);
+        let id = request.params.id;
         try {
             this.deleteProduct.execute({ id })
         } catch (error) {
@@ -142,11 +142,12 @@ export class ProductController {
     }
 
     public getProductById = async (request: Request, response: Response) => {
-        let id = parseInt(request.params.id);
+        let id =request.params.id;
         try {
-            const product = await this.getProductId.execute({ id })
+            const product = await this.getProductId.execute(id)
             return response.json(product);
         } catch (error) {
+            
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
@@ -159,17 +160,19 @@ export class ProductController {
 
             return response.json({id: id});
         } catch (error) {
-            return response.status(204).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+            return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
 
     public getProductByCategoryId = async (request: Request, response: Response) => {
-        let id = parseInt(request.params.id);
+        let id =request.params.id;
         try {
             const products = await this.getProductByCategory.execute({ id })
 
             return response.json(products);
         } catch (error) {
+            console.log(error)
+           
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }

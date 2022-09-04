@@ -21,6 +21,7 @@ describe('Create User', () => {
             email: "exemple@gmail.com.br",
             cpf: "13210829675",
             admin: false,
+            id: "1",
         });
 
         expect(response).toBeFalsy();
@@ -48,6 +49,7 @@ describe('Create User', () => {
             email: "exemple@gmail.com",
             cpf: "13210829675",
             admin: false,
+            id: "1",
         });
 
 
@@ -61,6 +63,7 @@ describe('Create User', () => {
                 email: "exemple@gmail.com",
                 cpf: "13210829675",
                 admin: false,
+                id: "2",
             });
 
         } catch(e) {
@@ -85,6 +88,7 @@ describe('Create User', () => {
                 email: "exemple@gmail.com",
                 cpf: "13210829675",
                 admin: false,
+                id: "1",
             });
 
         } catch (e) {

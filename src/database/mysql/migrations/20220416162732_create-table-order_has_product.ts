@@ -3,22 +3,22 @@ import { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
     return knex.schema.createTable('order_has_product', table => {
-        table.increments('id').primary();
+        table.string('id', 36).primary();
 
-        table.integer('order_id')
+        table.string('order_id', 36)
             .notNullable()
-            .unsigned()
             .references('id')
             .inTable('order');
 
-        table.integer('product_id')
+        table.string('product_id', 36)
             .notNullable()
-            .unsigned()
             .references('id')
             .inTable('product');
 
         table.string('product_name', 50)
             .notNullable()
+
+        table.decimal('product_price').notNullable();
 
         table.string('color', 50)
             .notNullable()

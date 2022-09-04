@@ -2,7 +2,8 @@ import knex from "../connection";
 import { UserRepository } from "../../../application/repositories/UserRepository";
 import { User } from "../../../domain/entities/user/user";
 import { Validation } from "../../../domain/validation/validation";
-
+import { v4 as uuidv4 } from "uuid"
+import { Address } from "../../../domain/entities/user/address";
 
 export class UserRepositoryMysql implements UserRepository {
 
@@ -29,7 +30,7 @@ export class UserRepositoryMysql implements UserRepository {
 
     }
 
-    async changeAdminPermission(id: number, adminPermission: Boolean): Promise<null> {
+    async changeAdminPermission(id: string, adminPermission: Boolean): Promise<null> {
         try {
 
             await knex('user')
@@ -47,7 +48,7 @@ export class UserRepositoryMysql implements UserRepository {
     async create(user: User): Promise<null> {
 
         try {
-            await knex('user').insert({ ...user.props });
+            await knex('user').insert({ id: uuidv4(), ...user.props });
         } catch (e) {
             throw new Error("Não foi possível criar o usuário!")
         }
@@ -71,11 +72,11 @@ export class UserRepositoryMysql implements UserRepository {
     }
 
 
-    delete(id: number): Promise<null> {
+    delete(id: string): Promise<null> {
         throw new Error("Method not implemented.");
     }
 
-    async findById(id: number): Promise<User | null> {
+    async findById(id: string): Promise<User | null> {
         try {
 
             let user = await knex('*')
@@ -94,6 +95,7 @@ export class UserRepositoryMysql implements UserRepository {
         }
 
     }
+
     async findByEmail(email: string): Promise<User | null> {
         try {
 
@@ -126,6 +128,19 @@ export class UserRepositoryMysql implements UserRepository {
             throw new Error("Não foi possível realizar a busca!")
         }
 
+
+    }
+
+
+    async getAddresses(user_id: string): Promise<Address[]> {
+        try {
+
+            let address = await knex('address')
+                .where("address.user_id", user_id);
+            return address;
+        } catch (e) {
+            throw new Error("Não encontrar nenhum endereço!")
+        }
 
     }
 

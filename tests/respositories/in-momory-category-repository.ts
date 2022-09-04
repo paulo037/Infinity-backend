@@ -17,7 +17,7 @@ export class InMemoryCategoryRepository implements CategoryRepository{
         return null
     }
 
-    async delete(id: number): Promise<null> {
+    async delete(id: string): Promise<null> {
         let category;
 
         this.items.forEach(element => {
@@ -35,7 +35,7 @@ export class InMemoryCategoryRepository implements CategoryRepository{
     
 
 
-    async findById(id: number): Promise<Category | null> {
+    async findById(id: string): Promise<Category | null> {
         const category =  this.items.find(category => category.id === id);
 
         if(!category){

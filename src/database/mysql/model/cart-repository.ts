@@ -2,6 +2,7 @@
 import { CartRepository } from "../../../application/repositories/CartRepository";
 import { Product } from "../../../domain/entities/product/product";
 import { Cart, CartProps } from "../../../domain/entities/user/cart";
+import { v4 as uuidv4 } from 'uuid';
 import knex from "../connection";
 
 
@@ -40,10 +41,11 @@ export class CartRepositoryMysql implements CartRepository {
             return null;
         } catch (error) {
 
-            throw error;
+            throw new Error("Não foi possível atualizar o item!");
 
         }
     }
+
     async delete(cart: Cart): Promise<null> {
         try {
 
@@ -62,11 +64,12 @@ export class CartRepositoryMysql implements CartRepository {
 
 
     }
-    findByUserId(user_id: number): Promise<Cart | null> {
+
+    findByUserId(user_id: string): Promise<Cart | null> {
         throw new Error("Method not implemented.");
     }
 
-    async getCart(id: number): Promise<Product[]> {
+    async getCart(id: string): Promise<Product[]> {
         try {
             const products = await knex('cart')
                 .join('product as p', 'p.id', 'cart.product_id')
@@ -101,12 +104,13 @@ export class CartRepositoryMysql implements CartRepository {
 
             return null
         } catch (e) {
+            console.log(e)
             throw new Error("Produto já está presente no carrinho!")
         }
 
     }
 
-    async numberOfProducts(user_id: Number): Promise<Number> {
+    async numberOfProducts(user_id: string): Promise<Number> {
         try {
             const number = await knex('cart')
                 .count("* as value")
@@ -120,8 +124,6 @@ export class CartRepositoryMysql implements CartRepository {
         }
 
     }
-
-
 
 
 

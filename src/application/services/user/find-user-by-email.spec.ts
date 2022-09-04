@@ -18,7 +18,7 @@ describe('Find User by email', () => {
             email: "exemple@gmail.com",
             cpf: "13210829675",
             admin: false,
-            id: 1,
+            id: "1",
         });
 
 
@@ -52,7 +52,7 @@ describe('Find User by email', () => {
             email: "exemple@gmail.com",
             cpf: "13210829675",
             admin: false,
-            id: 1,
+            id: "1",
         });
 
 
@@ -92,7 +92,7 @@ describe('Find User by email', () => {
             email: "exemple@gmail.com",
             cpf: "13210829675",
             admin: false,
-            id: 1,
+            id: "1",
         });
 
 

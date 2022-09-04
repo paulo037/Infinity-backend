@@ -4,7 +4,7 @@ import { CategoryRepository } from "../../repositories/CategoryRepository";
 import { ProductRepository } from "../../repositories/ProductRepository";
 
 type GetProductByCategoryRequest = {
-    id: number;
+    id: string;
 }
 
 

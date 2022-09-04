@@ -3,7 +3,8 @@ import { ProductRepository } from "../../../application/repositories/ProductRepo
 import { Product } from "../../../domain/entities/product/product";
 import { ProductHasColor } from "../../../domain/entities/product/product_has_color";
 import { ProductHasCategory } from "../../../domain/entities/product/product_has_category";
-
+import { Image } from "../../../domain/entities/product/image";
+import { v4 as uuidv4 } from "uuid"
 
 
 
@@ -41,17 +42,21 @@ export class ProductRepositoryMsql implements ProductRepository {
     }
 
 
-    async create(product: Product): Promise<number> {
+    async create(product: Product): Promise<string> {
         try {
 
-            let response = await knex('product').insert({ ...product.props });
+            const id =  uuidv4()
 
-            return response[0];
+            await knex('product').insert({ id:id , ...product.props });
+
+          
+            return id;
 
         } catch (e) {
             throw new Error("Não foi possível criar o produto!")
         }
     }
+
     async update(product: Product): Promise<null> {
         try {
 
@@ -65,7 +70,7 @@ export class ProductRepositoryMsql implements ProductRepository {
 
     }
 
-    async updateColor(colors: ProductHasColor[], product_id: number): Promise<null> {
+    async updateColor(colors: ProductHasColor[], product_id: string): Promise<null> {
         try {
             await knex('product_has_color as phc')
                 .where('phc.product_id', product_id)
@@ -82,7 +87,7 @@ export class ProductRepositoryMsql implements ProductRepository {
 
     }
 
-    async updateCategories(categories: ProductHasCategory[], product_id: number): Promise<null> {
+    async updateCategories(categories: ProductHasCategory[], product_id: string): Promise<null> {
         try {
 
             await knex('product_has_category as phc')
@@ -101,7 +106,7 @@ export class ProductRepositoryMsql implements ProductRepository {
         }
     }
 
-    async updateImages(images: any[], product_id: number): Promise<null> {
+    async updateImages(images: Image[], product_id: string): Promise<null> {
         try {
 
             try {
@@ -109,10 +114,19 @@ export class ProductRepositoryMsql implements ProductRepository {
                     .where('image.product_id', product_id)
                     .del()
 
+
                 if (images.length > 0) {
+
+                    images = images.map((i) => {
+                        return { ...i, id: uuidv4() }
+                    }
+                    )
+
+
                     await knex.insert(images).into('image')
                 }
             } catch (error) {
+                console.log(error)
                 throw error
             }
 
@@ -126,7 +140,7 @@ export class ProductRepositoryMsql implements ProductRepository {
     }
 
 
-    async delete(id: number): Promise<null> {
+    async delete(id: string): Promise<null> {
         try {
 
             await knex('product')
@@ -139,7 +153,8 @@ export class ProductRepositoryMsql implements ProductRepository {
         }
 
     }
-    async findById(id: number): Promise<Product | null> {
+
+    async findById(id: string): Promise<Product | null> {
         try {
             let product = await knex('product as p')
                 .select('p.name as name',
@@ -189,14 +204,14 @@ export class ProductRepositoryMsql implements ProductRepository {
             let images = await knex('image as i')
                 .where('i.product_id', id);
 
-            
+
             product.images = images.map(image => {
                 return { "id": image.id, "name": image.name, "url": image.url, "primary": image.primary, "key": image.key }
             })
 
             try {
-                
-                product.images.sort( (a: any, b: any) => a.primary - b.primary).reverse();
+
+                product.images.sort((a: any, b: any) => a.primary - b.primary).reverse();
             } catch (error) {
                 product.images = []
             }
@@ -210,7 +225,7 @@ export class ProductRepositoryMsql implements ProductRepository {
 
 
     }
-    async findByName(name: string): Promise<Number | null> {
+    async findByName(name: string): Promise<string | null> {
         try {
             let product = await knex('product')
                 .select('id')
@@ -221,7 +236,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                 return product.id
             }
             throw new Error("Não foi possível encontrar um produto com esse nome!")
-           
+
 
 
         } catch (e) {
@@ -229,7 +244,7 @@ export class ProductRepositoryMsql implements ProductRepository {
         }
 
     }
-    async getByCategory(id: number): Promise<Product[]> {
+    async getByCategory(id: string): Promise<Product[]> {
         try {
 
             let products = await knex.select('p.id as id', 'p.name as name', 'p.price as price', 'i.url as image', 'c.name as category')
@@ -250,7 +265,7 @@ export class ProductRepositoryMsql implements ProductRepository {
             return products as Product[];
 
         } catch (e) {
-            throw new Error("Não foi possível encontrar um produto com essa categoria !")
+            throw new Error("Não foi possível encontrar um produto com essa categoria!")
         }
 
 

@@ -1,8 +1,8 @@
 import { Entity } from "../../../core/domain/entities";
 
 type ProductHasCategoryProps = {
-    category_id: number;
-    product_id: number; 
+    category_id: string;
+    product_id: string; 
 }
 
 export class ProductHasCategory extends Entity<ProductHasCategoryProps>{

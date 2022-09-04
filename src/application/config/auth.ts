@@ -12,7 +12,7 @@ const AUTH_SECRET = process.env.AUTH_SECRET
 
 
 export type JwtPayload = {
-    id: number,
+    id: string,
     first_name: string,
     last_name: string,
     email: string,
@@ -44,14 +44,14 @@ export class Auth {
         try {
 
             if (!request.body.email || !request.body.password) {
-                return response.status(400).send("Informe o email e a senha !");
+                return response.status(400).send("Informe o email e a senha!");
             }
 
 
             const user = await this.findUserByEmail.execute(request.body.email);
 
             if (!user) {
-                return response.status(400).send("Usuário não encontrado !");
+                return response.status(400).send("Usuário não encontrado!");
             }
 
             const isMatch = bcrypt.compareSync(request.body.password, user.props.password);
@@ -125,19 +125,19 @@ export class Auth {
             const userLog = token ? verify(token, AUTH_SECRET as string) as JwtRefresh : null
 
             if (!userLog) {
-                return response.status(400).send("Token expirou !");
+                return response.status(400).send("Token expirou!");
             }
 
 
             if (new Date(userLog.exp * 1000) < new Date()) {
-                return response.status(400).send("Token expirou !");
+                return response.status(400).send("Token expirou!");
             }
 
 
             const user = await this.findUserByEmail.execute(userLog.user_email);
 
             if (!user) {
-                return response.status(400).send("Usuário não encontrado !");
+                return response.status(400).send("Usuário não encontrado!");
             }
 
 
@@ -169,7 +169,7 @@ export class Auth {
 
 
         } catch (error) {
-            return response.status(401).send(error)
+            return response.status(401).send(error instanceof Error ? error.message : "Houve um erro inesperado")
         }
 
     }

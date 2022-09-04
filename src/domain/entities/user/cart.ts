@@ -1,10 +1,10 @@
 import { Entity } from "../../../core/domain/entities";
 
 export type CartProps = {
-    user_id: number;
-    product_id: number; 
-    size_id : number; 
-    color_id : number; 
+    user_id: string;
+    product_id: string; 
+    size_id : string; 
+    color_id : string; 
     quantity: number; 
 }
 export class Cart extends Entity<CartProps>{

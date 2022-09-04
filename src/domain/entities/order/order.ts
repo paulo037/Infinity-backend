@@ -1,19 +1,23 @@
 import { Entity } from "../../../core/domain/entities";
+import { v4 } from "uuid";
 
-type OrderProps = {
+export type OrderProps = {
+    id?: string
     price: number;
-    estate: string;
-    date: Date;
+    state: string;
+    created_at?: Date;
     status: number;
-    address_name: string;
+    user_name: string;
     city: string;
     district: string;
     street: string;
     cep: number;
     telephone: number;
-    address_number: number;
-    user_id: number;
+    number: number;
+    user_id: string;
 }
+
+
 export class Order extends Entity<OrderProps>{
     private constructor(props: OrderProps) {
         super(props);
@@ -21,6 +25,9 @@ export class Order extends Entity<OrderProps>{
 
 
     static create(props: OrderProps) {
+
+        props.id = props.id ? props.id : v4()
+
         const order = new Order(props)
 
         return order;

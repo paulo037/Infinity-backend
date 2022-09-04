@@ -6,7 +6,7 @@ import bcrypt from "bcrypt"
 export type UpdateUserRequest = {
     first_name: string;
     last_name: string;
-    id: number;
+    id: string;
     image: string;
     password: string;
     confirm_password: string;
@@ -37,7 +37,7 @@ export class UpdateUser {
 
         const user = await this.userRepository.findById(id);
 
-        Validation.existOrError(user, "Usuário não existe !");
+        Validation.existOrError(user, "Usuário não existe!");
         
         Validation.existOrError(email, "E-mail não informado");
         Validation.validEmailOrError(email, "Email mal formatado");

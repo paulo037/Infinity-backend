@@ -6,7 +6,7 @@ import { ProductRepository } from "../../repositories/ProductRepository";
 
 type CreateProductHasCategoryRequest = {
     category_name: string;
-    product_id: number;
+    product_id: string;
 }
 
 
@@ -34,7 +34,7 @@ export class CreateProductHasCategory {
 
         categoryExist = categoryExist as Category
         const phc = ProductHasCategory.create({
-            category_id: categoryExist.id as number,
+            category_id: categoryExist.id as string,
             product_id: product_id,
         });
 

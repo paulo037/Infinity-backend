@@ -1,30 +1,30 @@
 import { Address } from "../../../domain/entities/user/address";
 import { Validation } from "../../../domain/validation/validation";
-import { AddressRepository } from "../../repositories/AddressRepository";
+import { UserRepository } from "../../repositories/UserRepository";
 
 type CreateAddressRequest = {
-    name: string;
-    estate: string;
+    user_name: string;
+    state: string;
     city: string;
     district: string;
     street: string;
     cep: number;
     telephone: number;
     number: number;
-    user_id: number;
+    user_id: string;
 }
 
 
 export class CreateAddress {
 
     constructor(
-        private AddressRepository: AddressRepository,
+        private userRepository: UserRepository,
     ) { }
 
 
 
-    async execute({ name,
-        estate,
+    async execute({ user_name,
+        state,
         city,
         district,
         street,
@@ -36,13 +36,13 @@ export class CreateAddress {
 
 
 
-        const AddressWithUserIdExist = await this.AddressRepository.findByUserId(user_id);
-        Validation.notExistOrError(AddressWithUserIdExist, "O usuário para qual o endereço está sendo crido não foi encontrado");
+        const AddressWithUserIdExist = await this.userRepository.getAddresses(user_id);
+        Validation.existOrError(AddressWithUserIdExist, "O usuário para qual o endereço está sendo crido não foi encontrado!");
 
         const address = Address.create(
             {
-                name,
-                estate,
+                user_name,
+                state,
                 city,
                 district,
                 street,
@@ -52,7 +52,7 @@ export class CreateAddress {
                 user_id,
             });
 
-        await this.AddressRepository.create(address)
-
+       
+        return address;
     }
 }

@@ -11,7 +11,7 @@ export class FindUserByEmail {
 
 
 
-    async execute(email: string) : Promise<User | null> {
+    async execute(email: string) : Promise<User> {
 
 
 
@@ -22,6 +22,7 @@ export class FindUserByEmail {
         const userWithEmailExist = await this.userRepository.findByEmail(email);
         Validation.existOrError(userWithEmailExist, "Não existe uma conta vinculada há esse email");
 
+        if (userWithEmailExist == null) throw new Error("Não existe uma conta vinculada há esse email") 
 
         return userWithEmailExist;
             

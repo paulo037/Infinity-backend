@@ -12,12 +12,12 @@ describe('Update Product', () => {
         const productRepository = new InMemoryProductRepository;
         const categoryRepository = new InMemoryCategoryRepository;
         
-        const category = Category.create({ name: 'Blusa', image: 'www.exemple.com' , id:1})
+        const category = Category.create({ name: 'Blusa', image: 'www.exemple.com' , id:"1"})
 
         const p = Product.create({
             name: "Camisa",
             price: 20.5,
-            id: 1
+            id: "1"
         });
 
         productRepository.items.push(p)
@@ -29,7 +29,7 @@ describe('Update Product', () => {
 
         const response = await sut.execute({
             name: "Cam",
-            id: 1,
+            id: "1",
             price: 2.5,
         });
 
@@ -42,12 +42,12 @@ describe('Update Product', () => {
         const productRepository = new InMemoryProductRepository;
         const categoryRepository = new InMemoryCategoryRepository;
         
-        const category = Category.create({ name: 'Blusa', image: 'www.exemple.com' ,id: 1})
+        const category = Category.create({ name: 'Blusa', image: 'www.exemple.com' ,id: "1"})
 
         const p = Product.create({
             name: "Camisa",
             price: 20.5,
-            id: 1,
+            id: "1",
         });
 
         productRepository.items.push(p)
@@ -59,7 +59,7 @@ describe('Update Product', () => {
         try {
             await sut.execute({
                 name: "Camisa",
-                id: 1,
+                id: "1",
                 price: 20.5,
             });
 

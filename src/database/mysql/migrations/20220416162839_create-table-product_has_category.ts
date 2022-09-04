@@ -4,17 +4,15 @@ import { Knex } from "knex";
 export async function up(knex: Knex): Promise<void> {
     return knex.schema.createTable('product_has_category', table => {
 
-        table.integer('category_id')
+        table.string('category_id', 36)
             .notNullable()
-            .unsigned()
             .references('id')
             .inTable('category')
             .onDelete('CASCADE')
             .onUpdate('CASCADE');
 
-        table.integer('product_id')
+        table.string('product_id', 36)
             .notNullable()
-            .unsigned()
             .references('id')
             .inTable('product')
             .onDelete('CASCADE')

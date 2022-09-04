@@ -19,7 +19,7 @@ describe('Update User', () => {
             email: "exemple@gmail.com",
             cpf: "13210829675",
             admin: false,
-            id: 1,
+            id: "1",
         });
 
 
@@ -39,7 +39,7 @@ describe('Update User', () => {
             email: "exemple@gmail.com",
             cpf: "13210829675",
             admin: false,
-            id: 1
+            id: "1"
         });
 
         expect(response).toBeFalsy();
@@ -60,7 +60,7 @@ describe('Update User', () => {
             email: "exemple@gmail.com",
             cpf: "13210829675",
             admin: false,
-            id: 1,
+            id: "1",
         });
 
 
@@ -79,7 +79,7 @@ describe('Update User', () => {
                 email: "exemple@gmail.com",
                 cpf: "13210829675",
                 admin: false,
-                id: 2
+                id: "2"
             });
 
         } catch (error) {
@@ -106,7 +106,7 @@ describe('Update User', () => {
             email: "exemple@gmail.com",
             cpf: "13210829675",
             admin: false,
-            id: 1,
+            id: "1",
         });
 
 
@@ -125,7 +125,7 @@ describe('Update User', () => {
                 email: "exemple@gmail.com",
                 cpf: "13210829675",
                 admin: false,
-                id: 2
+                id: "2"
             });
 
         } catch (error) {

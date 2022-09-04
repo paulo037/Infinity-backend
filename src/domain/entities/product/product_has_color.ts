@@ -1,9 +1,9 @@
 import { Entity } from "../../../core/domain/entities";
 
 type ProductHasColorProps = {
-    size_id: number;
-    color_id: number;
-    product_id: number;
+    size_id: string;
+    color_id: string;
+    product_id: string;
     quantity: number; 
   
 }

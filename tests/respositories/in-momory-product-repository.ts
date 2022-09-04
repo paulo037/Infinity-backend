@@ -1,9 +1,23 @@
 import { ProductRepository } from "../../src/application/repositories/ProductRepository";
+import { Image } from "../../src/domain/entities/product/image";
 import { Product } from "../../src/domain/entities/product/product";
+import { ProductHasCategory } from "../../src/domain/entities/product/product_has_category";
+import { ProductHasColor } from "../../src/domain/entities/product/product_has_color";
 
 
 export class InMemoryProductRepository implements ProductRepository {
-    create(product: Product): Promise<number> {
+
+    
+    updateColor(colors: ProductHasColor[], product_id: string): Promise<null> {
+        throw new Error("Method not implemented.");
+    }
+    updateCategories(categories: ProductHasCategory[], product_id: string): Promise<null> {
+        throw new Error("Method not implemented.");
+    }
+    updateImages(images: Image[], product_id: string): Promise<null> {
+        throw new Error("Method not implemented.");
+    }
+    create(product: Product): Promise<string> {
         throw new Error("Method not implemented.");
     }
     
@@ -30,7 +44,7 @@ export class InMemoryProductRepository implements ProductRepository {
         return null
     }
     
-    async delete(id: number): Promise<null> {
+    async delete(id: string): Promise<null> {
         let product;
 
         this.items.forEach(element => {
@@ -46,14 +60,14 @@ export class InMemoryProductRepository implements ProductRepository {
 
     }
     
-    async findByName(name: string): Promise<Number | null> {
+    async findByName(name: string): Promise<string | null> {
         const product = this.items.find(Product => Product.name === name);
 
         return product?.id ?? null;
     }
 
 
-    async findById(id: number): Promise<Product | null> {
+    async findById(id: string): Promise<Product | null> {
         const product = this.items.find(Product => Product.id === id);
 
         return product ?? null;
@@ -61,7 +75,7 @@ export class InMemoryProductRepository implements ProductRepository {
 
 
 
-    async getByCategory(id: number): Promise<Product[]> {
+    async getByCategory(id: string): Promise<Product[]> {
         return this.items
     }
 

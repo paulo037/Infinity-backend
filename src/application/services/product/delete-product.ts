@@ -2,7 +2,7 @@ import { Validation } from "../../../domain/validation/validation";
 import { ProductRepository } from "../../repositories/ProductRepository";
 
 type DeleteProductRequest = {
-    id: number
+    id: string
 }
 
 

@@ -11,10 +11,11 @@ export class ColorRepositoryMsql implements ColorRepository {
     update(color: Color): Promise<null> {
         throw new Error("Method not implemented.");
     }
-    delete(id: number): Promise<null> {
+    delete(id: string): Promise<null> {
         throw new Error("Method not implemented.");
     }
-    async findById(id: number): Promise<Color | null> {
+
+    async findById(id: string): Promise<Color | null> {
         try {
             const color = await knex('color')
                 .where('color.id', id)
@@ -25,6 +26,7 @@ export class ColorRepositoryMsql implements ColorRepository {
             throw new Error("Não foi possível realizar a busca!")
         }
     }
+
     async findByValue(value: string): Promise<Color | null> {
         try {
 
@@ -38,6 +40,7 @@ export class ColorRepositoryMsql implements ColorRepository {
         }
 
     }
+    
     async getAll(): Promise<Color[]> {
         try {
             const colors = await knex('color')

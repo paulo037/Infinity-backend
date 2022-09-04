@@ -19,7 +19,7 @@ describe('Change user permission', () => {
             email: "exemple@gmail.com",
             cpf: "13210829675",
             admin: false,
-            id: 1,
+            id: "1",
         });
 
 
@@ -30,7 +30,7 @@ describe('Change user permission', () => {
 
 
 
-        const response = await sut.execute(1, true);
+        const response = await sut.execute("1", true);
 
 
         expect(response).toBeFalsy();
@@ -51,7 +51,7 @@ describe('Change user permission', () => {
             email: "exemple@gmail.com",
             cpf: "13210829675",
             admin: false,
-            id: 1,
+            id: "1",
         });
 
 
@@ -60,7 +60,7 @@ describe('Change user permission', () => {
 
         try {
 
-            const response = await sut.execute(2, true);
+            const response = await sut.execute("2", true);
 
 
         } catch (error) {

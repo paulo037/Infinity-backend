@@ -5,7 +5,7 @@ import { ProductRepository } from "../../repositories/ProductRepository";
 
 type UpdateProductRequest = {
     name: string;
-    id: number,
+    id: string,
     description?: string;
     price: number;
     height?: number;

@@ -10,10 +10,10 @@ export class SizeRepositoryMsql implements SizeRepository {
     update(size: Size): Promise<null> {
         throw new Error("Method not implemented.");
     }
-    delete(id: number): Promise<null> {
+    delete(id: string): Promise<null> {
         throw new Error("Method not implemented.");
     }
-    async findById(id: number): Promise<Size | null> {
+    async findById(id: string): Promise<Size | null> {
 
         try {
           
@@ -27,6 +27,7 @@ export class SizeRepositoryMsql implements SizeRepository {
         }
 
     }
+
     async findByValue(value: string): Promise<Size | null> {
         try {
             const size = await knex('size')
@@ -38,6 +39,7 @@ export class SizeRepositoryMsql implements SizeRepository {
             throw new Error("Não foi possível realizar a busca!")
         }
     }
+    
     async getAll(): Promise<Size[]> {
         try {
           

@@ -5,9 +5,9 @@ import { ProductRepository } from "../../repositories/ProductRepository";
 import { SizeRepository } from "../../repositories/SizeRepository";
 
 type CreateProductHasColorRequest = {
-    size_id: number;
-    color_id: number;
-    product_id: number;
+    size_id: string;
+    color_id: string;
+    product_id: string;
     quantity: number;
 }
 

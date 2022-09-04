@@ -1,16 +1,35 @@
 import axios from "axios";
-import { Response, Request } from "express";
+import e, { Response, Request } from "express";
 import { JwtPayload } from "../../../application/config/auth";
 import { mercadopago } from "../../../application/config/mercadopago";
+import { CreateItemPreference, CreateItemPreferenceRequest, ItemPreference } from "../../../application/services/order/create-item-preference";
+import { CreateOrder, CreateOrderRequest, OrderHasProductRequest } from "../../../application/services/order/create-order";
+import { CreateOrderHasProduct, CreateOrderHasProductRequest } from "../../../application/services/order/create-order-has-product";
+import { CreatePreference, Preference } from "../../../application/services/order/create-preference";
+import { CreateAddress } from "../../../application/services/user/create-address";
 import { FindUserByEmail } from "../../../application/services/user/find-user-by-email ";
+import { OrderHasProduct } from "../../../domain/entities/order/order_has_product";
+import { AddressProps } from "../../../domain/entities/user/address";
 import { OrderRepositoryMsql } from "../model/order-repository";
+import { ProductRepositoryMsql } from "../model/product-repository";
 import { UserRepositoryMysql } from "../model/user-repository";
+
+const dotenv = require('dotenv')
+dotenv.config()
+
+
 
 export class OrderController {
     constructor(
         private repository = new OrderRepositoryMsql(),
         private userRepository = new UserRepositoryMysql(),
-        private findUserByEmail = new FindUserByEmail(userRepository)
+        private productRepository = new ProductRepositoryMsql(),
+        private findUserByEmail = new FindUserByEmail(userRepository),
+        private createAddress = new CreateAddress(userRepository),
+        private createOrder = new CreateOrder(repository),
+        private createPreference = new CreatePreference(userRepository),
+        private createItemPreference = new CreateItemPreference(productRepository),
+        private createOrderHasProduct = new CreateOrderHasProduct(productRepository)
 
     ) { }
 
@@ -28,66 +47,51 @@ export class OrderController {
 
 
 
-    public createPreference = async (request: Request, response: Response) => {
+    public newOrder = async (request: Request, response: Response) => {
         try {
-            const items = request.body.items;
+
+
+
             const userLog = request.user as JwtPayload
-
             if (userLog == undefined) return response.status(401).send('unauthorized')
-
 
             const user = await this.findUserByEmail.execute(userLog.email)
 
             if (user == null) return response.status(401).send('unauthorized')
 
-            let preference = {
-                items: items,
 
-                payer: {
-                    name: user.props.first_name,
-                    surname: user.props.last_name,
-                    email: user.props.email,
-                    identification: {
-                        type: "CPF",
-                        number: user.props.cpf,
-                    },
+            let items = [] as ItemPreference[]
 
-                },
+            for await (const [index, element] of request.body.items.entries()) {
 
+                const c = await this.createItemPreference.create(element)
+                items.push(c);
 
-                back_urls: {
-                    success: "http://localhost:3000/cart",
-                    failure: "http://localhost:3000/"
-                },
-                auto_return: "approved",
+            }
 
+            const address = await this.createAddress.execute(request.body.address)
 
-                payment_methods: {
+            let order_has_products = [] as OrderHasProduct[]
 
-                    excluded_payment_types: [
-                        {
-                            id: "ticket"
-                        }
-                    ],
+            for await (const [index, element] of request.body.items.entries()) {
+                const c = await this.createOrderHasProduct.execute(element)
+                order_has_products.push(c);
 
-                },
-
-                external_reference: user.props.id?.toString(),
-                statement_descriptor: "INFINITYMODAS",
-                binary_mode: true,
             }
 
             try {
+
+                const order_id = await this.createOrder.execute({ order_has_products, address })
+
+                const preference = await this.createPreference.execute({ email: user.props.email, items, address, order_id })
                 const id = await mercadopago.preferences.create(preference)
-                console.log(id)
                 return response.json({ id: id.body.id });
             } catch (error) {
-                return response.status(204).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+                return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
             }
 
         } catch (error) {
-
-            return response.status(204).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+            return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
 
@@ -103,9 +107,17 @@ export class OrderController {
             }
         };
 
-        const payment = await axios.get(`https://api.mercadopago.com/v1/payments/${id}`, config)
 
-        console.log(payment)
+        let payment : Preference
+
+        const resp = await axios.get(`https://api.mercadopago.com/v1/payments/${id}`, config)
+        
+        payment = resp.data
+
+
+        const { status, external_reference } = payment
+       
+        console.log({ status, external_reference })
 
 
 

@@ -21,11 +21,11 @@ export class InMemorySizeRepository implements SizeRepository{
         return null
     }
 
-    async delete(id: number): Promise<null> {
+    async delete(id: string): Promise<null> {
         let size;
 
         this.items.forEach(element => {
-            if (parseInt(element.id) === id) {
+            if (element.id === id) {
                 size = this.items.splice(this.items.indexOf(element), 1)
             }
 
@@ -39,8 +39,8 @@ export class InMemorySizeRepository implements SizeRepository{
     
 
 
-    async findById(id: number): Promise<Size | null> {
-        const Size =  this.items.find(Size => parseInt(Size.id) === id);
+    async findById(id: string): Promise<Size | null> {
+        const Size =  this.items.find(Size => Size.id === id);
 
         if(!Size){
             return null;

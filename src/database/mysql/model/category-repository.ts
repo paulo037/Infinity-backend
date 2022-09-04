@@ -12,10 +12,11 @@ export class CategoryRepositoryMsql implements CategoryRepository {
     update(category: Category): Promise<null> {
         throw new Error("Method not implemented.");
     }
-    delete(id: number): Promise<null> {
+    delete(id: string): Promise<null> {
         throw new Error("Method not implemented.");
     }
-    async findById(id: number): Promise<Category | null> {
+
+    async findById(id: string): Promise<Category | null> {
 
         try {
 
@@ -28,6 +29,7 @@ export class CategoryRepositoryMsql implements CategoryRepository {
             throw new Error("Não foi possível realizar a busca!")
         }
     }
+    
     async findByName(name: string): Promise<Category | null> {
         try {
 
