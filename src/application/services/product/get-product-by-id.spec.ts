@@ -28,7 +28,7 @@ describe('Get Product', () => {
 
         const sut = new GetProductById(productRepository)
 
-        let response = await sut.execute({ id: "1" })
+        let response = await sut.execute("1")
        
 
         expect(response).toBeTruthy()
@@ -57,7 +57,7 @@ describe('Get Product', () => {
     
         const sut = new GetProductById(productRepository);
         try{
-            await sut.execute({ id: "1" })
+            await sut.execute("1")
     
         }catch(e){
             expect(e).toBeTruthy()
