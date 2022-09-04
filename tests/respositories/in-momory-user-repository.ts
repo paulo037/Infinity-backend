@@ -1,7 +1,12 @@
 import { UserRepository } from "../../src/application/repositories/UserRepository";
+import { Address } from "../../src/domain/entities/user/address";
 import { User } from "../../src/domain/entities/user/user";
 
 export class InMemoryUserRepository implements UserRepository {
+    
+    getAddresses(user_id: string): Promise<Address[]> {
+        throw new Error("Method not implemented.");
+    }
 
     async findByCPF(cpf: string): Promise<User | null> {
         const user = this.items.find(user => user.props.cpf === cpf);

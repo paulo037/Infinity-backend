@@ -12,6 +12,7 @@ export type CreateUserRequest = {
     email: string;
     cpf: string;
     admin?: boolean;
+    id?: string
 }
 
 

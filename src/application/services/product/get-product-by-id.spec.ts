@@ -57,7 +57,7 @@ describe('Get Product', () => {
     
         const sut = new GetProductById(productRepository);
         try{
-            await sut.execute("1")
+            await sut.execute("1'")
     
         }catch(e){
             expect(e).toBeTruthy()
