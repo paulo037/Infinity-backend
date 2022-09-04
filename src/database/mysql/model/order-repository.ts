@@ -29,8 +29,14 @@ export class OrderRepositoryMsql implements OrderRepository {
             throw new Error("Não foi possível criar pedido!");
         }
     }
-    async update(order: Order): Promise<null> {
-        throw new Error("Method not implemented.");
+
+    async update(status: number, id: string): Promise<null> {
+        try {
+            await knex('order').update("status", status).where("id", id)
+        } catch (error) {
+
+        }
+        return null;
     }
     async delete(id: string): Promise<null> {
         throw new Error("Method not implemented.");

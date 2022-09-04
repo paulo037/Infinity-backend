@@ -17,7 +17,8 @@ import { UserRepositoryMysql } from "../model/user-repository";
 const dotenv = require('dotenv')
 dotenv.config()
 
-
+const APPROVED = 1;
+const REJECTED = -1;
 
 export class OrderController {
     constructor(
@@ -108,18 +109,28 @@ export class OrderController {
         };
 
 
-        let payment : Preference
+        let payment: Preference
 
         const resp = await axios.get(`https://api.mercadopago.com/v1/payments/${id}`, config)
-        
+
         payment = resp.data
 
 
         const { status, external_reference } = payment
-       
+
         console.log({ status, external_reference })
 
+        switch (status) {
+            case "approved":
+                await this.repository.update(APPROVED, external_reference)
+                break;
 
+            case "rejected":
+                await this.repository.update(REJECTED, external_reference)
+                break;
+            default:
+                break;
+        }
 
         return response.status(200).send()
     }
