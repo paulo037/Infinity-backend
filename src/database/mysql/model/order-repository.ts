@@ -14,7 +14,6 @@ export class OrderRepositoryMsql implements OrderRepository {
             await knex('order_has_product').insert(orderHasProducts.map(element => element.props))
             return null
         } catch (error) {
-            console.log(error)
             throw new Error("Não foi possível adicionar o produto ao pedido!");
         }
 
@@ -25,7 +24,6 @@ export class OrderRepositoryMsql implements OrderRepository {
             await knex('order').insert(order.props)
             return null
         } catch (error) {
-            console.log(error)
             throw new Error("Não foi possível criar pedido!");
         }
     }
@@ -45,13 +43,15 @@ export class OrderRepositoryMsql implements OrderRepository {
         throw new Error("Method not implemented.");
     }
     async getAll(): Promise<Order[]> {
-        let order = await knex('order')
-            .select('price', 'created_at', 'city', 'user_id', 'status')
-        order = order.map(o => {
-            o.created_at = new Date(o.created_at).toLocaleString();
-            return o;
-        })
-        return order;
+        
+        try {
+            let order = await knex('order')
+            .select('*')
+            return order;
+        } catch (error) {
+            throw new Error("Erro ao buscar pedidos!");
+            
+        }
     }
 
 }

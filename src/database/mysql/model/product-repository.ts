@@ -126,7 +126,6 @@ export class ProductRepositoryMsql implements ProductRepository {
                     await knex.insert(images).into('image')
                 }
             } catch (error) {
-                console.log(error)
                 throw error
             }
 

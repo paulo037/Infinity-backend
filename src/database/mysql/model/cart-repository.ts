@@ -1,8 +1,7 @@
 
 import { CartRepository } from "../../../application/repositories/CartRepository";
 import { Product } from "../../../domain/entities/product/product";
-import { Cart, CartProps } from "../../../domain/entities/user/cart";
-import { v4 as uuidv4 } from 'uuid';
+import { Cart } from "../../../domain/entities/user/cart";
 import knex from "../connection";
 
 
@@ -62,6 +61,20 @@ export class CartRepositoryMysql implements CartRepository {
         }
 
 
+    }
+
+    async deleteAll(user_id: string): Promise<null> {
+        try {
+
+            await knex('cart').delete()
+                .where('user_id', user_id)
+
+            return null;
+        } catch (error) {
+            throw new Error("Não foi possível remover o item!");
+
+        }
+
 
     }
 
@@ -104,7 +117,6 @@ export class CartRepositoryMysql implements CartRepository {
 
             return null
         } catch (e) {
-            console.log(e)
             throw new Error("Produto já está presente no carrinho!")
         }
 

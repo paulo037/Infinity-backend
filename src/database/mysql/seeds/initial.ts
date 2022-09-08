@@ -106,7 +106,7 @@ export async function seed(knex: Knex): Promise<void> {
 
     await knex("product").insert([
         {
-            name: "Bulsa Flamengo",
+            name: "Blusa Flamengo",
             description: "Blusa de time do flamengo",
             price: 120,
             height: 2,
@@ -116,7 +116,7 @@ export async function seed(knex: Knex): Promise<void> {
         },
 
         {
-            name: "Bulsa Social",
+            name: "Blusa Social",
             description: "Blusa de Social",
             price: 220,
             height: 2,

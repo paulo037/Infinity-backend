@@ -6,7 +6,7 @@ export async function up(knex: Knex): Promise<void> {
         table.string('id', 36).primary().notNullable()
         table.decimal('price').notNullable();
         table.timestamp('created_at', { precision: 6 }).defaultTo(knex.fn.now(6));
-        table.integer('status').unsigned()
+        table.integer('status').defaultTo(0)
         table.string('user_name',120).notNullable();
         table.string('cep',8).notNullable();
         table.string('state',20).notNullable();

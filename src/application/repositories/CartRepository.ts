@@ -9,4 +9,5 @@ export interface CartRepository{
     delete(cart: Cart):Promise<null>
     findByUserId(user_id: string): Promise<Cart | null>
     numberOfProducts(user_id: string): Promise<Number>
+    deleteAll(user_id: string): Promise<null> 
 }

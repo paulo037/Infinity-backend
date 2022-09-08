@@ -32,8 +32,6 @@ export class CreateOrder {
     }: CreateOrderRequest) {
 
         const order_id = v4()
-        console.log("o>",order_id)
-        console.log("o>",order_id)
         let price = 0.0
 
         order_has_products.forEach((element, index) => {
@@ -45,8 +43,7 @@ export class CreateOrder {
             element.props.order_id = order_id
             return element
         })
-        
-        console.log(order_has_products)
+
 
         const paymentPanding = 0
 

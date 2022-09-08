@@ -171,7 +171,6 @@ export class ProductController {
 
             return response.json(products);
         } catch (error) {
-            console.log(error)
            
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }

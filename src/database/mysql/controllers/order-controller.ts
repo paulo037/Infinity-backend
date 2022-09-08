@@ -10,6 +10,7 @@ import { CreateAddress } from "../../../application/services/user/create-address
 import { FindUserByEmail } from "../../../application/services/user/find-user-by-email ";
 import { OrderHasProduct } from "../../../domain/entities/order/order_has_product";
 import { AddressProps } from "../../../domain/entities/user/address";
+import { CartRepositoryMysql } from "../model/cart-repository";
 import { OrderRepositoryMsql } from "../model/order-repository";
 import { ProductRepositoryMsql } from "../model/product-repository";
 import { UserRepositoryMysql } from "../model/user-repository";
@@ -23,6 +24,7 @@ const REJECTED = -1;
 export class OrderController {
     constructor(
         private repository = new OrderRepositoryMsql(),
+        private cartRepository = new CartRepositoryMysql(),
         private userRepository = new UserRepositoryMysql(),
         private productRepository = new ProductRepositoryMsql(),
         private findUserByEmail = new FindUserByEmail(userRepository),
@@ -60,6 +62,10 @@ export class OrderController {
 
             if (user == null) return response.status(401).send('unauthorized')
 
+
+            if (request.body.type === 'cart'){
+                this.cartRepository.deleteAll(user.id  as string)
+            }
 
             let items = [] as ItemPreference[]
 
