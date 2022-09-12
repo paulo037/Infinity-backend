@@ -90,13 +90,14 @@ export class Auth {
                 httpOnly: true,
                 expires: new Date(payload.exp * 1000),
                 sameSite: 'none',
-                secure:true,
+                secure:false,
             });
+            
             response.cookie("refresh_token", `${refresh_token}`, {
                 httpOnly: true,
                 expires: new Date(refresh_payload.exp * 1000),
                 sameSite: 'none',
-                secure:true,
+                secure:false,
             });
 
 
