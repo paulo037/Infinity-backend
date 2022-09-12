@@ -83,8 +83,8 @@ export class Auth {
             const access_token = sign(payload, AUTH_SECRET as string)
             const refresh_token = sign(refresh_payload, AUTH_SECRET as string)
 
-            response.clearCookie("access_token")
-            response.clearCookie("refresh_token")
+            // response.clearCookie("access_token")
+            // response.clearCookie("refresh_token")
 
             response.cookie("access_token", `Bearer ${access_token}`, {
                 httpOnly: true,
