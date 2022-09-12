@@ -7,7 +7,7 @@ import coockieParser from 'cookie-parser'
 const app = express()
 
 app.use(coockieParser())
-app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
+app.use(cors({credentials: true, origin: process.env.BASE_FRONT}));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(routes)
