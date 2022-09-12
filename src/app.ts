@@ -2,11 +2,12 @@ import express from 'express'
 import cors from 'cors'
 import routes from './routes'
 import bodyParser from 'body-parser'
-
+import coockieParser from 'cookie-parser'
 
 const app = express()
 
-app.use(cors())
+app.use(coockieParser())
+app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(routes)

@@ -35,7 +35,8 @@ router.get('/admin', passport.authenticate, admin(auth.admin))
 
 router.post('/validateToken', passport.authenticate, auth.validateToken)
 
-router.post('/refreshToken',     auth.refreshToken)
+
+router.post('/refreshToken', auth.refreshToken)
 
 router.route('/user')
     .get(passport.authenticate)

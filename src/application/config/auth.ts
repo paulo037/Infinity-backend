@@ -60,6 +60,7 @@ export class Auth {
 
             }
 
+
             const now = Math.floor(Date.now() / 1000);
 
             const payload = {
@@ -69,7 +70,7 @@ export class Auth {
                 email: user.props.email,
                 ad: user.props.admin,
                 iat: now,
-                exp: now + (60 * 60 * 3)
+                exp: now + (60 * 15)
             } as JwtPayload
 
             const refresh_payload = {
@@ -78,12 +79,25 @@ export class Auth {
                 exp: now + (60 * 60 * 24)
             } as JwtRefresh
 
-            response.json({
 
-                access_token: sign(payload, AUTH_SECRET as string),
-                refresh_token: sign(refresh_payload, AUTH_SECRET as string)
+            const access_token = sign(payload, AUTH_SECRET as string)
+            const refresh_token = sign(refresh_payload, AUTH_SECRET as string)
 
-            }).status(200)
+            response.clearCookie("access_token")
+            response.clearCookie("refresh_token")
+
+            response.cookie("access_token", `Bearer ${access_token}`, { httpOnly: true, expires: new Date(payload.exp * 1000) });
+            response.cookie("refresh_token", `${refresh_token}`, { httpOnly: true, expires: new Date(refresh_payload.exp * 1000) });
+
+
+            return response.json({
+                access_token: true,
+                refresh_token: true
+            })
+
+
+
+
         } catch (error) {
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
@@ -91,11 +105,11 @@ export class Auth {
 
 
 
+
     public validateToken = async (request: Request, response: Response) => {
 
 
         try {
-
             const token = request.headers.authorization ? request.headers.authorization.split(' ')[1] : null
             if (token) {
                 const user = verify(token, AUTH_SECRET as string) as JwtPayload
@@ -118,11 +132,12 @@ export class Auth {
 
         try {
 
-            const token = request.body.refresh_token
+            const token = request.cookies['refresh_token']
 
 
 
             const userLog = token ? verify(token, AUTH_SECRET as string) as JwtRefresh : null
+
 
             if (!userLog) {
                 return response.status(400).send("Token expirou!");
@@ -150,7 +165,7 @@ export class Auth {
                 ad: user.props.admin,
                 email: user.props.email,
                 iat: now,
-                exp: now + (60 * 60 * 3)
+                exp: now + (60 * 15)
 
 
             } as JwtPayload
@@ -161,14 +176,28 @@ export class Auth {
                 exp: now + (60 * 60 * 24)
             } as JwtRefresh
 
-            response.json({
-                access_token: sign(payload, AUTH_SECRET as string),
-                refresh_token: sign(refresh_payload, AUTH_SECRET as string)
+
+
+            const access_token = sign(payload, AUTH_SECRET as string)
+            const refresh_token = sign(refresh_payload, AUTH_SECRET as string)
+
+            response.clearCookie("access_token")
+            response.clearCookie("refresh_token")
+
+            response.cookie("access_token", `Bearer ${access_token}`, { httpOnly: true, expires: new Date(payload.exp * 1000) });
+            response.cookie("refresh_token", `${refresh_token}`, { httpOnly: true, expires: new Date(refresh_payload.exp * 1000) });
+
+
+            return response.json({
+                access_token: true,
+                refresh_token: true
             })
 
 
 
+
         } catch (error) {
+            console.log(error)
             return response.status(401).send(error instanceof Error ? error.message : "Houve um erro inesperado")
         }
 
