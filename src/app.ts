@@ -4,6 +4,9 @@ import routes from './routes'
 import bodyParser from 'body-parser'
 import coockieParser from 'cookie-parser'
 
+const dotenv = require('dotenv')
+dotenv.config()
+
 const app = express()
 
 app.use(coockieParser())
