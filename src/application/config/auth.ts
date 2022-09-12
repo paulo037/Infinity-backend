@@ -86,8 +86,8 @@ export class Auth {
             response.clearCookie("access_token")
             response.clearCookie("refresh_token")
 
-            response.cookie("access_token", `Bearer ${access_token}`, { httpOnly: true, expires: new Date(payload.exp * 1000) });
-            response.cookie("refresh_token", `${refresh_token}`, { httpOnly: true, expires: new Date(refresh_payload.exp * 1000) });
+            response.cookie("access_token", `Bearer ${access_token}`, { httpOnly: true, expires: new Date(payload.exp * 1000) , sameSite:'strict'});
+            response.cookie("refresh_token", `${refresh_token}`, { httpOnly: true, expires: new Date(refresh_payload.exp * 1000)  , sameSite:'strict'});
 
 
             return response.json({
