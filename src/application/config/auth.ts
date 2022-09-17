@@ -99,7 +99,7 @@ export class Auth {
 
 
             return response.json({
-                access_token: true,
+                access_token: access_token,
                 refresh_token: true,
               
             })

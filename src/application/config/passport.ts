@@ -43,7 +43,7 @@ export class Passport {
         try {
             console.log( "auth \n\n", request.headers.authorization)
             console.log( "token \n\n", request.cookies)
-            request.headers.authorization = request.cookies['access_token'] 
+            request.headers.authorization = request.cookies['access_token']  ?  request.cookies['access_token']  :  request.headers.authorization 
             passport.authenticate('jwt', function (err, user, info) {
                 if (err) {
                     return response.status(401).send('unauthorized')
