@@ -149,19 +149,19 @@ export class Auth {
 
 
             if (!userLog) {
-                return response.status(400).send("Token expirou!");
+                return response.status(401).send("Token expirou!");
             }
 
 
             if (new Date(userLog.exp * 1000) < new Date()) {
-                return response.status(400).send("Token expirou!");
+                return response.status(401).send("Token expirou!");
             }
 
 
             const user = await this.findUserByEmail.execute(userLog.user_email);
 
             if (!user) {
-                return response.status(400).send("Usuário não encontrado!");
+                return response.status(401).send("Token expirou!");
             }
 
 
@@ -207,7 +207,7 @@ export class Auth {
             });
 
             return response.json({
-                access_token: true,
+                access_token: access_token,
                 refresh_token: true
             })
 
