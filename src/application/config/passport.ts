@@ -41,6 +41,8 @@ export class Passport {
 
     public authenticate = async (request: Request, response: Response, next: NextFunction) => {
         try {
+            console.log( "auth \n\n", request.headers.authorization)
+            console.log( "token \n\n", request.cookies)
             request.headers.authorization = request.cookies['access_token'] 
             passport.authenticate('jwt', function (err, user, info) {
                 if (err) {

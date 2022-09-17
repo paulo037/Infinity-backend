@@ -32,7 +32,8 @@ export class CreateUser {
         email,
         cpf,
         admin }: CreateUserRequest) {
-
+        
+        
         cpf = cpf.replace(/[^0-9]/g, "");
 
         Validation.existOrError(email, "E-mail não informado");
