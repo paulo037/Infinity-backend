@@ -26,7 +26,6 @@ export type JwtRefresh = {
     user_email: string,
     iat: number,
     exp: number
-    id: string,
 }
 
 
@@ -40,8 +39,9 @@ export class Auth {
 
     ) { }
 
-    public getTokens =  (user : User) => {
-        
+
+    public getTokens = (user: User) => {
+
 
         const now = Math.floor(Date.now() / 1000);
 
@@ -59,19 +59,18 @@ export class Auth {
             user_email: user.props.email,
             iat: now,
             exp: now + (60 * 60 * 24),
-            id: user.props.id,
         } as JwtRefresh
 
 
         const access_token = sign(payload, AUTH_SECRET as string)
         const refresh_token = sign(refresh_payload, AUTH_SECRET as string)
 
-        return {access_token, refresh_token}
+        return { access_token, refresh_token }
     }
 
 
     public signin = async (request: Request, response: Response) => {
-        console.log("sign")
+
         try {
 
             if (!request.body.email || !request.body.password) {
@@ -93,17 +92,19 @@ export class Auth {
 
 
 
-            const {access_token, refresh_token} = this.getTokens(user)
 
-            response.cookie("auth._token.local", `Bearer ${access_token}`, {
+            const { access_token, refresh_token } = this.getTokens(user)
+
+
+            response.cookie("access_token", `Bearer ${access_token}`, {
                 httpOnly: true,
-                maxAge:  60 * 60,
+                maxAge: 60 * 60 * 3,
                 sameSite: 'none',
                 secure: true,
             });
-            response.cookie("auth._refresh_token.local", `Bearer ${refresh_token}`, {
+            response.cookie("refresh_token", `${refresh_token}`, {
                 httpOnly: true,
-                maxAge:  60 * 60 * 24,
+                maxAge: 60 * 60 * 24,
                 sameSite: 'none',
                 secure: true,
             });
@@ -111,7 +112,7 @@ export class Auth {
 
             return response.json({
                 access_token: true,
-                refresh_token: true
+                refresh_token: true,
 
             })
 
@@ -119,7 +120,7 @@ export class Auth {
 
 
         } catch (error) {
-            return response.status(401).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+            return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
 
@@ -128,16 +129,39 @@ export class Auth {
 
     public validateToken = async (request: Request, response: Response) => {
 
+
         try {
             const token = request.headers.authorization ? request.headers.authorization.split(' ')[1] : null
             if (token) {
                 const user = verify(token, AUTH_SECRET as string) as JwtPayload
                 if (new Date(user.exp * 1000) > new Date()) {
+
+                    const userEntity = await this.findUserByEmail.execute(user.email);
+
+                    if (!userEntity) {
+                        return response.status(400).send("Usuário não encontrado!");
+                    }
+
+                    const { access_token, refresh_token } = this.getTokens(userEntity)
+
+
+                    response.cookie("access_token", `Bearer ${access_token}`, {
+                        httpOnly: true,
+                        maxAge: 60 * 60 * 3,
+                        sameSite: 'none',
+                        secure: true,
+                    });
+                    response.cookie("refresh_token", `${refresh_token}`, {
+                        httpOnly: true,
+                        maxAge: 60 * 60 * 24,
+                        sameSite: 'none',
+                        secure: true,
+                    });
+
                     return response.json({ user: user }).status(200)
                 }
             }
         } catch (e) {
-            console.log(e)
             return response.send(false).status(401)
         }
 
@@ -149,12 +173,14 @@ export class Auth {
 
     public refreshToken = async (request: Request, response: Response) => {
 
-        console.log("refresh")
+
         try {
 
-            const token = request.cookies['auth._refresh_token.local']? request.cookies['auth._refresh_token.local'].split(' ')[1] as string : ""
-           
-            const userLog = token ? verify(token, AUTH_SECRET as string) as unknown as JwtRefresh : null
+            const token = request.cookies['refresh_token']
+
+
+
+            const userLog = token ? verify(token, AUTH_SECRET as string) as JwtRefresh : null
 
 
             if (!userLog) {
@@ -174,35 +200,32 @@ export class Auth {
             }
 
 
-         
-            const {access_token, refresh_token} = this.getTokens(user)
+            const { access_token, refresh_token } = this.getTokens(user)
 
-            response.cookie("auth._token.local", `Bearer ${access_token}`, {
+
+            response.cookie("access_token", `Bearer ${access_token}`, {
                 httpOnly: true,
-                maxAge:  60 * 60,
+                maxAge: 60 * 60 * 3,
                 sameSite: 'none',
                 secure: true,
             });
-            response.cookie("auth._refresh_token.local", `Bearer ${refresh_token}`, {
+            response.cookie("refresh_token", `${refresh_token}`, {
                 httpOnly: true,
-                maxAge:  60 * 60 * 24,
+                maxAge: 60 * 60 * 24,
                 sameSite: 'none',
                 secure: true,
             });
 
-            console.log("token setado")
 
             return response.json({
                 access_token: true,
-                refresh_token: true
+                refresh_token: true,
 
             })
 
 
 
-
         } catch (error) {
-            console.log("Erro ao setar o token")
             console.log(error)
             return response.status(401).send(error instanceof Error ? error.message : "Houve um erro inesperado")
         }
