@@ -3,6 +3,7 @@ import bcrypt from "bcrypt"
 import { UserRepositoryMysql } from "../../database/mysql/model/user-repository"
 import { Request, Response } from "express"
 import { FindUserByEmail } from "../services/user/find-user-by-email "
+import { User } from "../../domain/entities/user/user"
 
 const dotenv = require('dotenv')
 dotenv.config()
@@ -25,6 +26,7 @@ export type JwtRefresh = {
     user_email: string,
     iat: number,
     exp: number
+    id: string,
 }
 
 
@@ -38,9 +40,38 @@ export class Auth {
 
     ) { }
 
+    public getTokens =  (user : User) => {
+        
+
+        const now = Math.floor(Date.now() / 1000);
+
+        const payload = {
+            id: user.props.id,
+            first_name: user.props.first_name,
+            last_name: user.props.last_name,
+            email: user.props.email,
+            ad: user.props.admin,
+            iat: now,
+            exp: now + (60 * 15)
+        } as JwtPayload
+
+        const refresh_payload = {
+            user_email: user.props.email,
+            iat: now,
+            exp: now + (60 * 60 * 24),
+            id: user.props.id,
+        } as JwtRefresh
+
+
+        const access_token = sign(payload, AUTH_SECRET as string)
+        const refresh_token = sign(refresh_payload, AUTH_SECRET as string)
+
+        return {access_token, refresh_token}
+    }
+
 
     public signin = async (request: Request, response: Response) => {
-
+        console.log("sign")
         try {
 
             if (!request.body.email || !request.body.password) {
@@ -61,54 +92,34 @@ export class Auth {
             }
 
 
-            const now = Math.floor(Date.now() / 1000);
 
-            const payload = {
-                id: user.props.id,
-                first_name: user.props.first_name,
-                last_name: user.props.last_name,
-                email: user.props.email,
-                ad: user.props.admin,
-                iat: now,
-                exp: now + (60 * 15)
-            } as JwtPayload
+            const {access_token, refresh_token} = this.getTokens(user)
 
-            const refresh_payload = {
-                user_email: user.props.email,
-                iat: now,
-                exp: now + (60 * 60 * 24)
-            } as JwtRefresh
-
-
-            const access_token = sign(payload, AUTH_SECRET as string)
-            const refresh_token = sign(refresh_payload, AUTH_SECRET as string)
-
-
-            response.cookie("access_token", `Bearer ${access_token}`, {
+            response.cookie("auth._token.local", `Bearer ${access_token}`, {
                 httpOnly: true,
-                expires: new Date(payload.exp * 1000),
+                maxAge:  60 * 60,
                 sameSite: 'none',
-                secure:true,
+                secure: true,
             });
-            response.cookie("refresh_token", `${refresh_token}`, {
+            response.cookie("auth._refresh_token.local", `Bearer ${refresh_token}`, {
                 httpOnly: true,
-                expires: new Date(refresh_payload.exp * 1000),
+                maxAge:  60 * 60 * 24,
                 sameSite: 'none',
-                secure:true,
+                secure: true,
             });
 
 
             return response.json({
-                access_token: access_token,
-                refresh_token: true,
-              
+                access_token: true,
+                refresh_token: true
+
             })
-            
+
 
 
 
         } catch (error) {
-            return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+            return response.status(401).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
 
@@ -116,7 +127,6 @@ export class Auth {
 
 
     public validateToken = async (request: Request, response: Response) => {
-
 
         try {
             const token = request.headers.authorization ? request.headers.authorization.split(' ')[1] : null
@@ -127,6 +137,7 @@ export class Auth {
                 }
             }
         } catch (e) {
+            console.log(e)
             return response.send(false).status(401)
         }
 
@@ -138,14 +149,12 @@ export class Auth {
 
     public refreshToken = async (request: Request, response: Response) => {
 
-
+        console.log("refresh")
         try {
 
-            const token = request.cookies['refresh_token']
-
-
-
-            const userLog = token ? verify(token, AUTH_SECRET as string) as JwtRefresh : null
+            const token = request.cookies['auth._refresh_token.local']? request.cookies['auth._refresh_token.local'].split(' ')[1] as string : ""
+           
+            const userLog = token ? verify(token, AUTH_SECRET as string) as unknown as JwtRefresh : null
 
 
             if (!userLog) {
@@ -165,56 +174,35 @@ export class Auth {
             }
 
 
-            const now = Math.floor(Date.now() / 1000);
+         
+            const {access_token, refresh_token} = this.getTokens(user)
 
-            const payload = {
-                id: user.props.id,
-                first_name: user.props.first_name,
-                last_name: user.props.last_name,
-                ad: user.props.admin,
-                email: user.props.email,
-                iat: now,
-                exp: now + (60 * 15)
-
-
-            } as JwtPayload
-
-            const refresh_payload = {
-                user_email: user.props.email,
-                iat: now,
-                exp: now + (60 * 60 * 24)
-            } as JwtRefresh
-
-
-
-            const access_token = sign(payload, AUTH_SECRET as string)
-            const refresh_token = sign(refresh_payload, AUTH_SECRET as string)
-
-            response.clearCookie("access_token")
-            response.clearCookie("refresh_token")
-
-              response.cookie("access_token", `Bearer ${access_token}`, {
+            response.cookie("auth._token.local", `Bearer ${access_token}`, {
                 httpOnly: true,
-                expires: new Date(payload.exp * 1000),
+                maxAge:  60 * 60,
                 sameSite: 'none',
-                secure:true,
+                secure: true,
             });
-            response.cookie("refresh_token", `${refresh_token}`, {
+            response.cookie("auth._refresh_token.local", `Bearer ${refresh_token}`, {
                 httpOnly: true,
-                expires: new Date(refresh_payload.exp * 1000),
+                maxAge:  60 * 60 * 24,
                 sameSite: 'none',
-                secure:true,
+                secure: true,
             });
+
+            console.log("token setado")
 
             return response.json({
-                access_token: access_token,
+                access_token: true,
                 refresh_token: true
+
             })
 
 
 
 
         } catch (error) {
+            console.log("Erro ao setar o token")
             console.log(error)
             return response.status(401).send(error instanceof Error ? error.message : "Houve um erro inesperado")
         }
