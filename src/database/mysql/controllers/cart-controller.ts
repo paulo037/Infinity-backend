@@ -98,7 +98,7 @@ export class CartController {
     public getNumberofProducts = async (request: Request, response: Response) => {
 
         const userLog = request.user as JwtPayload
-
+        console.log(userLog)
 
         if (userLog == undefined) return response.status(401).send('Não autorizado!')
 

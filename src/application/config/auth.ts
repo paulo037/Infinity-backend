@@ -23,7 +23,7 @@ export type JwtPayload = {
 }
 
 export type JwtRefresh = {
-    user_email: string,
+    email: string,
     iat: number,
     exp: number
 }
@@ -56,7 +56,7 @@ export class Auth {
         } as JwtPayload
 
         const refresh_payload = {
-            user_email: user.props.email,
+            email: user.props.email,
             iat: now,
             exp: now + (60 * 60 * 24),
         } as JwtRefresh
@@ -102,17 +102,18 @@ export class Auth {
                 sameSite: 'none',
                 secure: true,
             });
-            response.cookie("refresh_token", `${refresh_token}`, {
+            response.cookie("refresh_token", `Bearer ${refresh_token}`, {
                 httpOnly: true,
                 maxAge: 60 * 60 * 24,
                 sameSite: 'none',
                 secure: true,
             });
 
+           
 
             return response.json({
-                access_token: true,
-                refresh_token: true,
+                access_token: access_token,
+                refresh_token: refresh_token,
 
             })
 
@@ -131,7 +132,9 @@ export class Auth {
 
 
         try {
-            const token = request.headers.authorization ? request.headers.authorization.split(' ')[1] : null
+            const token = request.cookies['access_token'] ? request.cookies['access_token'].split(' ')[1] : request.headers.authorization
+
+            console.log('token', token)
             if (token) {
                 const user = verify(token, AUTH_SECRET as string) as JwtPayload
                 if (new Date(user.exp * 1000) > new Date()) {
@@ -142,23 +145,9 @@ export class Auth {
                         return response.status(400).send("Usuário não encontrado!");
                     }
 
-                    const { access_token, refresh_token } = this.getTokens(userEntity)
+                    const { access_token } = this.getTokens(userEntity)
 
-
-                    response.cookie("access_token", `Bearer ${access_token}`, {
-                        httpOnly: true,
-                        maxAge: 60 * 60 * 3,
-                        sameSite: 'none',
-                        secure: true,
-                    });
-                    response.cookie("refresh_token", `${refresh_token}`, {
-                        httpOnly: true,
-                        maxAge: 60 * 60 * 24,
-                        sameSite: 'none',
-                        secure: true,
-                    });
-
-                    return response.json({ user: user }).status(200)
+                    return response.json({ user: user,  access_token: access_token, }).status(200)
                 }
             }
         } catch (e) {
@@ -193,7 +182,7 @@ export class Auth {
             }
 
 
-            const user = await this.findUserByEmail.execute(userLog.user_email);
+            const user = await this.findUserByEmail.execute(userLog.email);
 
             if (!user) {
                 return response.status(401).send("Token expirou!");
@@ -203,19 +192,19 @@ export class Auth {
             const { access_token, refresh_token } = this.getTokens(user)
 
 
+            
             response.cookie("access_token", `Bearer ${access_token}`, {
                 httpOnly: true,
                 maxAge: 60 * 60 * 3,
                 sameSite: 'none',
                 secure: true,
             });
-            response.cookie("refresh_token", `${refresh_token}`, {
+            response.cookie("refresh_token", `Bearer ${refresh_token}`, {
                 httpOnly: true,
                 maxAge: 60 * 60 * 24,
                 sameSite: 'none',
                 secure: true,
             });
-
 
             return response.json({
                 access_token: true,

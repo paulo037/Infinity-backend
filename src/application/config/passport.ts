@@ -3,6 +3,7 @@ import passport from "passport"
 import { Strategy, ExtractJwt } from "passport-jwt"
 import { send } from "process"
 import { UserRepositoryMysql } from "../../database/mysql/model/user-repository"
+import { FindUserByEmail } from "../services/user/find-user-by-email "
 import { JwtPayload } from "./auth"
 
 const dotenv = require('dotenv')
@@ -15,7 +16,7 @@ const AUTH_SECRET = process.env.AUTH_SECRET
 
 
 const repository = new UserRepositoryMysql()
-
+const findByEmail = new FindUserByEmail(repository)
 const params = {
     secretOrKey: AUTH_SECRET,
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
@@ -24,12 +25,19 @@ const params = {
 
 
 passport.use(new Strategy(params, async function (payload, done) {
-    const user = await repository.findById(payload.id)
-
-    if (user) {
-        return done(undefined, { ...payload })
-    } else {
+    try {
+        
+        console.log(payload)
+        const user = await findByEmail.execute(payload.email)
+        if (user) {
+            return done(undefined, { ...payload })
+        } else {
+            return done(undefined, false)
+        }
+    } catch (error) {
+        console.log(error)
         return done(undefined, false)
+        
     }
 
 }));
@@ -41,8 +49,8 @@ export class Passport {
 
     public authenticate = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            console.log( request.headers.authorization)
-            request.headers.authorization = !request.headers.authorization   ?  request.cookies['access_token']  :  request.headers.authorization 
+                
+            request.headers.authorization = !request.headers.authorization   ?  request.cookies['refresh_token']  :  request.headers.authorization 
             passport.authenticate('jwt', function (err, user, info) {
                 if (err) {
                     return response.status(401).send('unauthorized')
