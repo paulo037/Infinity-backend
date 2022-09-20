@@ -20,9 +20,9 @@ export class FindUserByEmail {
 
 
         const userWithEmailExist = await this.userRepository.findByEmail(email);
-        Validation.existOrError(userWithEmailExist, "Não existe uma conta vinculada há esse email");
+        Validation.existOrError(userWithEmailExist, "Email/Senha Inválidos!");
 
-        if (userWithEmailExist == null) throw new Error("Não existe uma conta vinculada há esse email") 
+        if (userWithEmailExist == null) throw new Error("Email/Senha Inválidos!") 
 
         return userWithEmailExist;
             

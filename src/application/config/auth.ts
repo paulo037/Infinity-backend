@@ -81,7 +81,7 @@ export class Auth {
             const user = await this.findUserByEmail.execute(request.body.email);
 
             if (!user) {
-                return response.status(400).send("Usuário não encontrado!");
+                return response.status(400).send("Email/Senha Inválidos!");
             }
 
             const isMatch = bcrypt.compareSync(request.body.password, user.props.password);
@@ -89,8 +89,6 @@ export class Auth {
                 return response.status(401).send("Email/Senha Inválidos!");
 
             }
-
-
 
 
             const { access_token, refresh_token } = this.getTokens(user)
@@ -130,6 +128,7 @@ export class Auth {
 
                     const { access_token, refresh_token } = this.getTokens(userEntity)
 
+
                     return response.json({ user , access_token, refresh_token }).status(200)
                 }
             }
@@ -150,8 +149,7 @@ export class Auth {
 
         try {
 
-            const token = request.body.refresh_token
-
+            const token = request.cookies.refresh_token
 
 
             const userLog = token ? verify(token, AUTH_SECRET as string) as JwtRefresh : null
@@ -186,7 +184,6 @@ export class Auth {
 
 
         } catch (error) {
-            console.log(error)
             return response.status(401).send(error instanceof Error ? error.message : "Houve um erro inesperado")
         }
 

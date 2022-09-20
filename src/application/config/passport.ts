@@ -49,15 +49,14 @@ export class Passport {
 
     public authenticate = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            // request.headers.authorization = !request.headers.authorization   ?  request.cookies['refresh_token']  :  request.headers.authorization 
-            // console.log("Auth", request.headers.authorization)
+        
             passport.authenticate('jwt', function (err, user, info) {
                 if (err) {
 
-                    return response.status(401).send('unauthorized1')
+                    return response.status(401).send('Não autorizado!')
                 }
                 if (!user) {
-                    return response.status(401).send('unauthorized2')
+                    return response.status(401).send('Não autorizado!')
 
                 } else {
                     request.user = user as JwtPayload
@@ -67,7 +66,7 @@ export class Passport {
 
         } catch (error) {
             console.log(error)
-            return response.status(401).send('unauthorized3')
+            return response.status(401).send('Não autorizado!')
 
         }
     }
