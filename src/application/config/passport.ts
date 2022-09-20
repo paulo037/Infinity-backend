@@ -26,9 +26,9 @@ const params = {
 
 passport.use(new Strategy(params, async function (payload, done) {
     try {
-        
-        console.log(payload)
+
         const user = await findByEmail.execute(payload.email)
+      
         if (user) {
             return done(undefined, { ...payload })
         } else {
@@ -37,7 +37,7 @@ passport.use(new Strategy(params, async function (payload, done) {
     } catch (error) {
         console.log(error)
         return done(undefined, false)
-        
+
     }
 
 }));
@@ -49,14 +49,16 @@ export class Passport {
 
     public authenticate = async (request: Request, response: Response, next: NextFunction) => {
         try {
-                
-            request.headers.authorization = !request.headers.authorization   ?  request.cookies['refresh_token']  :  request.headers.authorization 
+            // request.headers.authorization = !request.headers.authorization   ?  request.cookies['refresh_token']  :  request.headers.authorization 
+            // console.log("Auth", request.headers.authorization)
             passport.authenticate('jwt', function (err, user, info) {
                 if (err) {
-                    return response.status(401).send('unauthorized')
+
+                    return response.status(401).send('unauthorized1')
                 }
                 if (!user) {
-                    return response.status(401).send('unauthorized')
+                    return response.status(401).send('unauthorized2')
+
                 } else {
                     request.user = user as JwtPayload
                     return next()
@@ -64,7 +66,8 @@ export class Passport {
             })(request, response, next)
 
         } catch (error) {
-            return response.status(401).send('unauthorized')
+            console.log(error)
+            return response.status(401).send('unauthorized3')
 
         }
     }

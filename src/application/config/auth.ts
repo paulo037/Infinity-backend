@@ -1,7 +1,7 @@
 import { sign, verify } from "jsonwebtoken"
 import bcrypt from "bcrypt"
 import { UserRepositoryMysql } from "../../database/mysql/model/user-repository"
-import { Request, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 import { FindUserByEmail } from "../services/user/find-user-by-email "
 import { User } from "../../domain/entities/user/user"
 
@@ -96,20 +96,20 @@ export class Auth {
             const { access_token, refresh_token } = this.getTokens(user)
 
 
-            response.cookie("access_token", `Bearer ${access_token}`, {
-                httpOnly: true,
-                maxAge: 60 * 60 * 3,
-                sameSite: 'none',
-                secure: true,
-            });
-            response.cookie("refresh_token", `Bearer ${refresh_token}`, {
+            response.cookie("access_token", `${access_token}`, {
                 httpOnly: true,
                 maxAge: 60 * 60 * 24,
                 sameSite: 'none',
                 secure: true,
             });
 
-           
+            response.cookie("Authorization", true, {
+                maxAge: 60 * 60 * 24,
+                sameSite: 'none',
+                secure: true,
+            });
+
+
 
             return response.json({
                 access_token: access_token,
@@ -130,11 +130,9 @@ export class Auth {
 
     public validateToken = async (request: Request, response: Response) => {
 
-
         try {
-            const token = request.cookies['access_token'] ? request.cookies['access_token'].split(' ')[1] : request.headers.authorization
+            const token = request.headers.authorization ? request.headers.authorization.split(' ')[1] : null
 
-            console.log('token', token)
             if (token) {
                 const user = verify(token, AUTH_SECRET as string) as JwtPayload
                 if (new Date(user.exp * 1000) > new Date()) {
@@ -147,7 +145,7 @@ export class Auth {
 
                     const { access_token } = this.getTokens(userEntity)
 
-                    return response.json({ user: user,  access_token: access_token, }).status(200)
+                    return response.json({ user: user, access_token: access_token, }).status(200)
                 }
             }
         } catch (e) {
@@ -159,13 +157,45 @@ export class Auth {
     }
 
 
+    public setCookies = async (request: Request, response: Response, next: NextFunction) => {
+
+        try {
+            const access_token = request.headers.authorization ? request.headers.authorization.split(' ')[1] : null
+            if (access_token) {
+                const user = verify(access_token, AUTH_SECRET as string) as JwtPayload
+                if (new Date(user.exp * 1000) > new Date()) {
+
+                    response.cookie("access_token", `${access_token}`, {
+                        httpOnly: true,
+                        maxAge: (user.exp * 1000) - new Date().getTime(),
+                        sameSite: 'none',
+                        secure: true,
+                    });
+
+                    response.cookie("Authorization", true, {
+                        maxAge: (user.exp * 1000) - new Date().getTime(),
+                        sameSite: 'none',
+                        secure: true,
+                    });
+
+                }
+            }
+        } catch (e) {
+            return next()
+        }
+
+        return next()
+
+    }
+
+
 
     public refreshToken = async (request: Request, response: Response) => {
 
 
         try {
 
-            const token = request.cookies['refresh_token']
+            const token = request.body.refresh_token
 
 
 
@@ -192,23 +222,31 @@ export class Auth {
             const { access_token, refresh_token } = this.getTokens(user)
 
 
-            
-            response.cookie("access_token", `Bearer ${access_token}`, {
-                httpOnly: true,
+            // response.cookie("auth._token.local", `Bearer ${access_token}`, {
+            //     httpOnly: true,
+            //     // maxAge: 60 * 60 * 3,
+            //     sameSite: 'none',
+            //     secure: true,
+            // });
+
+            // response.cookie("auth._refresh_token.local", `Bearer ${refresh_token}`, {
+            //     httpOnly: true,
+            //     // maxAge: 60 * 60 * 24,
+            //     sameSite: 'none',
+            //     secure: true,
+            // });
+
+            response.cookie("access_token", `${access_token}`, {
+                // httpOnly: true,
                 maxAge: 60 * 60 * 3,
                 sameSite: 'none',
                 secure: true,
             });
-            response.cookie("refresh_token", `Bearer ${refresh_token}`, {
-                httpOnly: true,
-                maxAge: 60 * 60 * 24,
-                sameSite: 'none',
-                secure: true,
-            });
+
 
             return response.json({
-                access_token: true,
-                refresh_token: true,
+                access_token: access_token,
+                refresh_token: refresh_token,
 
             })
 
