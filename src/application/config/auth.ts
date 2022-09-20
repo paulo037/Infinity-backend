@@ -101,12 +101,14 @@ export class Auth {
                 maxAge: 60 * 60 * 24,
                 sameSite: 'none',
                 secure: true,
+                domain: process.env.DOMAIN_FRONT
             });
 
             response.cookie("Authorization", true, {
                 maxAge: 60 * 60 * 24,
                 sameSite: 'none',
                 secure: true,
+                domain: process.env.DOMAIN_FRONT
             });
 
 
@@ -170,12 +172,14 @@ export class Auth {
                         maxAge: (user.exp * 1000) - new Date().getTime(),
                         sameSite: 'none',
                         secure: true,
+                        domain: process.env.DOMAIN_FRONT
                     });
 
                     response.cookie("Authorization", true, {
                         maxAge: (user.exp * 1000) - new Date().getTime(),
                         sameSite: 'none',
                         secure: true,
+                        domain: process.env.DOMAIN_FRONT
                     });
 
                 }
