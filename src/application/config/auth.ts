@@ -52,7 +52,7 @@ export class Auth {
             email: user.props.email,
             ad: user.props.admin,
             iat: now,
-            exp: now + (60 * 15)
+            exp: now + (60 * 60)
         } as JwtPayload
 
         const refresh_payload = {
