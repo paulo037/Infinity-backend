@@ -96,27 +96,10 @@ export class Auth {
             const { access_token, refresh_token } = this.getTokens(user)
 
 
-            response.cookie("access_token", `${access_token}`, {
-                httpOnly: true,
-                maxAge: 60 * 60 * 24,
-                sameSite: 'none',
-                secure: true,
-                domain: process.env.DOMAIN_FRONT
-            });
-
-            response.cookie("Authorization", true, {
-                maxAge: 60 * 60 * 24,
-                sameSite: 'none',
-                secure: true,
-                domain: process.env.DOMAIN_FRONT
-            });
-
-
 
             return response.json({
                 access_token: access_token,
                 refresh_token: refresh_token,
-
             })
 
 
@@ -145,9 +128,9 @@ export class Auth {
                         return response.status(400).send("Usuário não encontrado!");
                     }
 
-                    const { access_token } = this.getTokens(userEntity)
+                    const { access_token, refresh_token } = this.getTokens(userEntity)
 
-                    return response.json({ user: user, access_token: access_token, }).status(200)
+                    return response.json({ user , access_token, refresh_token }).status(200)
                 }
             }
         } catch (e) {
@@ -159,38 +142,6 @@ export class Auth {
     }
 
 
-    public setCookies = async (request: Request, response: Response, next: NextFunction) => {
-
-        try {
-            const access_token = request.headers.authorization ? request.headers.authorization.split(' ')[1] : null
-            if (access_token) {
-                const user = verify(access_token, AUTH_SECRET as string) as JwtPayload
-                if (new Date(user.exp * 1000) > new Date()) {
-
-                    response.cookie("access_token", `${access_token}`, {
-                        httpOnly: true,
-                        maxAge: (user.exp * 1000) - new Date().getTime(),
-                        sameSite: 'none',
-                        secure: true,
-                        domain: process.env.DOMAIN_FRONT
-                    });
-
-                    response.cookie("Authorization", true, {
-                        maxAge: (user.exp * 1000) - new Date().getTime(),
-                        sameSite: 'none',
-                        secure: true,
-                        domain: process.env.DOMAIN_FRONT
-                    });
-
-                }
-            }
-        } catch (e) {
-            return next()
-        }
-
-        return next()
-
-    }
 
 
 
@@ -224,28 +175,6 @@ export class Auth {
 
 
             const { access_token, refresh_token } = this.getTokens(user)
-
-
-            // response.cookie("auth._token.local", `Bearer ${access_token}`, {
-            //     httpOnly: true,
-            //     // maxAge: 60 * 60 * 3,
-            //     sameSite: 'none',
-            //     secure: true,
-            // });
-
-            // response.cookie("auth._refresh_token.local", `Bearer ${refresh_token}`, {
-            //     httpOnly: true,
-            //     // maxAge: 60 * 60 * 24,
-            //     sameSite: 'none',
-            //     secure: true,
-            // });
-
-            response.cookie("access_token", `${access_token}`, {
-                // httpOnly: true,
-                maxAge: 60 * 60 * 3,
-                sameSite: 'none',
-                secure: true,
-            });
 
 
             return response.json({
