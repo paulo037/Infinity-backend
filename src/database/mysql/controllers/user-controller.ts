@@ -115,4 +115,22 @@ export class UserController {
         }
     }
 
+
+    public getAdress = async (request: Request, response: Response) => {
+
+        const userLog = request.user as JwtPayload
+
+        if (userLog == undefined) response.status(401).send("Sem permissão!")
+
+        const id = request.params.id
+
+        try {
+            const address = await this.repository.getAddress(id, userLog.id);
+            response.json(address).status(200);
+        } catch (error) {
+            return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+
+        }
+    }
+
 }

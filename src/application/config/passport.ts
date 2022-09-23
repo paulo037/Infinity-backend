@@ -49,7 +49,6 @@ export class Passport {
 
     public authenticate = async (request: Request, response: Response, next: NextFunction) => {
         try {
-        
             passport.authenticate('jwt', function (err, user, info) {
                 if (err) {
 

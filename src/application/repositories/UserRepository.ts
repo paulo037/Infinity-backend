@@ -11,4 +11,5 @@ export interface UserRepository{
     getAllUsers():Promise<User[]>
     changeAdminPermission(id: string, adminPermission: Boolean):Promise<null>
     getAddresses(user_id: string): Promise<Address[]>
+    getAddress(id:string, user_id: string): Promise<Address>
 }

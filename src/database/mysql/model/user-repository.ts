@@ -137,9 +137,29 @@ export class UserRepositoryMysql implements UserRepository {
 
             let address = await knex('address')
                 .where("address.user_id", user_id);
+
             return address;
         } catch (e) {
-            throw new Error("Não encontrar nenhum endereço!")
+            throw new Error("Não foi possível encontrar nenhum endereço!")
+        }
+
+    }
+
+    async getAddress(id: string, user_id: string): Promise<Address> {
+        try {
+
+            let address = await knex('address')
+                .where("address.user_id", user_id)
+                .andWhere("address.id", id)
+                .first();
+            
+            if (!address){
+                console.log("Endereço não encontrado!")
+                throw new Error("Endereço não encontrado!")
+            }
+            return address;
+        } catch (e) {
+            throw new Error("Endereço não encontrado!")
         }
 
     }

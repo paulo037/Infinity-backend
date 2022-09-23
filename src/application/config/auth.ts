@@ -60,7 +60,7 @@ export class Auth {
             iat: now,
             exp: now + (60 * 60 * 24),
         } as JwtRefresh
-
+        
 
         const access_token = sign(payload, AUTH_SECRET as string)
         const refresh_token = sign(refresh_payload, AUTH_SECRET as string)
@@ -112,7 +112,6 @@ export class Auth {
 
 
     public validateToken = async (request: Request, response: Response) => {
-
         try {
             const token = request.headers.authorization ? request.headers.authorization.split(' ')[1] : null
 
@@ -146,7 +145,7 @@ export class Auth {
 
     public refreshToken = async (request: Request, response: Response) => {
 
-
+        console.log("refresh")
         try {
 
             const token = request.cookies.refresh_token
