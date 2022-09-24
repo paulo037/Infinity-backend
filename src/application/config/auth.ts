@@ -173,7 +173,7 @@ export class Auth {
 
             const { access_token, refresh_token } = this.getTokens(user)
 
-
+            console.log("response ok")
             return response.json({
                 access_token: access_token,
                 refresh_token: refresh_token,
