@@ -145,10 +145,10 @@ export class Auth {
 
     public refreshToken = async (request: Request, response: Response) => {
 
-        console.log("refresh")
         try {
-
+            
             const token = request.cookies.refresh_token
+            console.log("refresh", token)
 
 
             const userLog = token ? verify(token, AUTH_SECRET as string) as JwtRefresh : null
