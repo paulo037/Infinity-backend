@@ -75,7 +75,7 @@ router.route('/product')
     .get(admin(productController.getAll));
 
 router.route('/product/category/:id')
-    .get(productController.getProductByCategoryId)
+    .get(productController.getProductByCategoryId)  
 
 router.route('/product/search/:term')
     .get(productController.search)
