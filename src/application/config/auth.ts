@@ -147,7 +147,8 @@ export class Auth {
 
         try {
             
-            const token = request.cookies.refresh_token
+            const cookie = request.cookies.refresh_token
+            const token = !!cookie ? cookie : request.body
             console.log("refresh"   , request.body, token)
 
 
