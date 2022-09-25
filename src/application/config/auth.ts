@@ -148,8 +148,8 @@ export class Auth {
         try {
             
             const cookie = request.cookies.refresh_token
-            const token = !!cookie ? cookie : request.body
-            console.log("refresh"   , request.body, token)
+            const token = !!cookie ? cookie : JSON.stringify(request.body)
+            console.log("refresh"   , JSON.stringify(request.body), token)
 
 
             const userLog = token ? verify(token, AUTH_SECRET as string) as JwtRefresh : null
