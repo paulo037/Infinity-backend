@@ -52,15 +52,15 @@ export class Auth {
             email: user.props.email,
             ad: user.props.admin,
             iat: now,
-            exp: now + (30)
+            exp: now + (60 * 60)
         } as JwtPayload
 
         const refresh_payload = {
             email: user.props.email,
             iat: now,
-            exp: now + (60 * 60 * 24),
+            exp: now + (60 * 60 * 48),
         } as JwtRefresh
-        
+
 
         const access_token = sign(payload, AUTH_SECRET as string)
         const refresh_token = sign(refresh_payload, AUTH_SECRET as string)
@@ -128,7 +128,7 @@ export class Auth {
                     const { access_token, refresh_token } = this.getTokens(userEntity)
 
 
-                    return response.json({ user , access_token, refresh_token }).status(200)
+                    return response.json({ user, access_token, refresh_token }).status(200)
                 }
             }
         } catch (e) {
@@ -146,10 +146,10 @@ export class Auth {
     public refreshToken = async (request: Request, response: Response) => {
 
         try {
-            
+
             const cookie = request.cookies.refresh_token
             const token = !!cookie ? cookie : request.body.refresh_token
-            console.log("refresh"   , request.body.refresh_token, request.cookies.refresh_token)
+
 
 
             const userLog = token ? verify(token, AUTH_SECRET as string) as JwtRefresh : null
