@@ -42,15 +42,12 @@ export class ProductRepositoryMsql implements ProductRepository {
     }
 
 
-    async create(product: Product): Promise<string> {
+    async create(product: Product): Promise<null> {
         try {
 
-            const id =  uuidv4()
 
-            await knex('product').insert({ id:id , ...product.props });
-
-          
-            return id;
+            await knex('product').insert({ ...product.props });
+            return null;
 
         } catch (e) {
             throw new Error("Não foi possível criar o produto!")
@@ -72,45 +69,48 @@ export class ProductRepositoryMsql implements ProductRepository {
 
     async updateColor(colors: ProductHasColor[], product_id: string): Promise<null> {
         try {
-            await knex('product_has_color as phc')
-                .where('phc.product_id', product_id)
-                .del();
+            return await knex.transaction(async trx => {
 
-            if (colors.length > 0) {
-                await knex.insert(colors.map(c => c.props)).into('product_has_color')
-            }
+                await trx('product_has_color as phc')
+                    .where('phc.product_id', product_id)
+                    .del();
 
-            return null;
+                if (colors.length > 0) {
+                    await trx.insert(colors.map(c => c.props)).into('product_has_color')
+                }
+
+                return null;
+            })
         } catch (e) {
             throw new Error("Não foi possível atualizar as cores do produto!")
         }
-
     }
 
     async updateCategories(categories: ProductHasCategory[], product_id: string): Promise<null> {
         try {
+            return await knex.transaction(async trx => {
+                await trx('product_has_category as phc')
+                    .where('phc.product_id', product_id)
+                    .del();
 
-            await knex('product_has_category as phc')
-                .where('phc.product_id', product_id)
-                .del();
-
-            if (categories.length > 0) {
-                await knex.insert(categories.map(c => c.props)).into('product_has_category')
-            }
+                if (categories.length > 0) {
+                    await trx.insert(categories.map(c => c.props)).into('product_has_category')
+                }
 
 
-            return null;
-
+                return null;
+            })
         } catch (e) {
             throw new Error("Não foi possível atualizar as categorias do produto!")
         }
     }
 
     async updateImages(images: Image[], product_id: string): Promise<null> {
-        try {
 
-            try {
-                await knex('image')
+
+        try {
+            return await knex.transaction(async trx => {
+                await trx('image')
                     .where('image.product_id', product_id)
                     .del()
 
@@ -123,19 +123,15 @@ export class ProductRepositoryMsql implements ProductRepository {
                     )
 
 
-                    await knex.insert(images).into('image')
+                    await trx.insert(images).into('image')
                 }
-            } catch (error) {
-                throw error
-            }
 
-
-            return null;
+                return null;
+            })
 
         } catch (e) {
             throw new Error("Não foi possível atualizar as imagens do produto!")
         }
-
     }
 
 
@@ -155,73 +151,72 @@ export class ProductRepositoryMsql implements ProductRepository {
 
     async findById(id: string): Promise<Product | null> {
         try {
-            let product = await knex('product as p')
-                .select('p.name as name',
-                    'p.price as price',
-                    'p.description as description',
-                    'p.height as height',
-                    'p.length as length',
-                    'p.id as id')
-                .avg('ohp.rating as rating')
-                .sum('ohp.quantity as sold')
-                .leftJoin('order_has_product as ohp', 'p.id', 'ohp.product_id')
-                .where('p.id', id)
-                .first();
+            return await knex.transaction(async trx => {
+
+                let product = await trx('product as p')
+                    .select('p.name as name',
+                        'p.price as price',
+                        'p.description as description',
+                        'p.height as height',
+                        'p.length as length',
+                        'p.id as id')
+                    .avg('ohp.rating as rating')
+                    .sum('ohp.quantity as sold')
+                    .leftJoin('order_has_product as ohp', 'p.id', 'ohp.product_id')
+                    .where('p.id', id)
+                    .first();
 
 
-            product = product as unknown as Product;
-            let colors = await knex('color as c')
-                .select(
-                    'c.value as color',
-                    'c.id as color_id',
-                    's.value as size',
-                    's.id as size_id',
-                    'phc.quantity as quantity')
-                .join('product_has_color as phc', 'phc.color_id', ' c.id')
-                .join('size as s', 'phc.size_id', ' s.id')
-                .where('phc.product_id', id);
+                product = product as unknown as Product;
+                let colors = await trx('color as c')
+                    .select(
+                        'c.value as color',
+                        'c.id as color_id',
+                        's.value as size',
+                        's.id as size_id',
+                        'phc.quantity as quantity')
+                    .join('product_has_color as phc', 'phc.color_id', ' c.id')
+                    .join('size as s', 'phc.size_id', ' s.id')
+                    .where('phc.product_id', id);
 
-            product.colors = colors.map(color => {
-                return {
-                    "size_id": color.size_id,
-                    "size": color.size,
-                    "color_id": color.color_id,
-                    "color": color.color,
-                    "quantity": color.quantity
-                }
-            })
+                product.colors = colors.map(color => {
+                    return {
+                        "size_id": color.size_id,
+                        "size": color.size,
+                        "color_id": color.color_id,
+                        "color": color.color,
+                        "quantity": color.quantity
+                    }
+                })
 
-            let categories = await knex('category as c')
-                .join('product_has_category as phc', 'phc.category_id', 'c.id')
-                .where('phc.product_id', id);
-
-
-            product.categories = categories.map(category => {
-                return { "name": category.name, "image": category.image, "id": category.id }
-            })
-
-            let images = await knex('image as i')
-                .where('i.product_id', id);
+                let categories = await trx('category as c')
+                    .join('product_has_category as phc', 'phc.category_id', 'c.id')
+                    .where('phc.product_id', id);
 
 
-            product.images = images.map(image => {
-                return { "id": image.id, "name": image.name, "url": image.url, "primary": image.primary, "key": image.key }
-            })
+                product.categories = categories.map(category => {
+                    return { "name": category.name, "image": category.image, "id": category.id }
+                })
 
-            try {
+                let images = await trx('image as i')
+                    .where('i.product_id', id);
+
+
+                product.images = images.map(image => {
+                    return { "id": image.id, "name": image.name, "url": image.url, "primary": image.primary, "key": image.key }
+                })
+
+
 
                 product.images.sort((a: any, b: any) => a.primary - b.primary).reverse();
-            } catch (error) {
-                product.images = []
-            }
 
-            return product as Product;
 
+                return product as Product;
+            })
 
         } catch (e) {
             throw new Error("Não foi possível realizar a busca pelo produto!")
         }
-
 
     }
     async findByName(name: string): Promise<string | null> {
@@ -256,8 +251,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                 .leftJoin('order_has_product as ohp', 'p.id', 'ohp.product_id')
                 .where('phc.category_id', id)
                 .andWhere(function () {
-                    this.where('i.primary', true)
-                    this.orWhere('i.primary', null)
+                    this.where('i.primary', true).orWhere('i.primary', null)
                 })
                 .groupBy('p.id', 'p.name', 'p.price', 'i.url', 'c.name');
 
@@ -272,38 +266,68 @@ export class ProductRepositoryMsql implements ProductRepository {
 
     async search(search: string): Promise<Product[]> {
         try {
+            return await knex.transaction(async trx => {
+                search = search.replace(' ', '|')
+                let products = await trx.select('p.id as id',
+                    'p.name as name',
+                    'p.price as price',
+                    'i.url as image',
+                    'p.description as description')
+                    .avg('ohp.rating as rating')
+                    .sum('ohp.quantity as sold')
+                    .from('product as p')
+                    .leftJoin('image as i', 'p.id', 'i.product_id')
+                    .leftJoin('order_has_product as ohp', 'p.id', 'ohp.product_id')
+                    .where(function () {
+                        this.where('p.name', 'rlike', `${search}`)
+                            .orWhere('p.description', 'rlike', `${search}`)
 
-            let products = await knex.select('p.id as id',
-                'p.name as name',
-                'p.price as price',
-                'i.url as image')
-                .avg('ohp.rating as rating')
-                .sum('ohp.quantity as sold')
-                .from('product as p')
-                .leftJoin('image as i', 'p.id', 'i.product_id')
-                .leftJoin('order_has_product as ohp', 'p.id', 'ohp.product_id')
-                .where('p.name', 'LIKE', `%${search}%`)
-                .andWhere(function () {
-                    this.where('i.primary', true)
-                    this.orWhere('i.primary', null)
+                    })
+                    .andWhere(function () {
+                        this.where('i.primary', true).orWhere('i.primary', null)
+                    })
+                    .groupBy('p.id', 'p.name',
+                        'p.price',
+                        'i.url')
+                    .orderBy([{ column: 'sold', order: 'desc' }, 'rating', { column: 'i.url', nulls: 'last' }]);
+
+                for await (const [index, product] of products.entries()) {
+                    let categories = await trx.select('c.name as category', 'c.id as id')
+                        .from('category as c')
+                        .join('product_has_category as phc', 'phc.category_id', 'c.id')
+                        .where('phc.product_id', product.id);
+                    product.categories = categories;
+
+                }
+
+                const searchArray = search.replace('|', ' ').split(' ')
+                products.forEach(product => {
+                    let ranking = 0
+                    let rankingDescription = 0
+                    const lengthDescription = product.description.split('<wbr/>&nbsp;<wbr/>').length
+
+
+                    searchArray.forEach((word) => {
+                        console.log(word, product.name.toLowerCase() )
+                        if (product.name.toLowerCase().includes(word.toLocaleLowerCase())) ranking++;
+                        rankingDescription += product.description.split('<wbr/>&nbsp;<wbr/>').filter((x: string,) => x.toLowerCase().includes(word.toLocaleLowerCase())).length;
+                    })
+
+                    ranking += rankingDescription / lengthDescription
+
+                    product.ranking = ranking
+                    delete product.description
+
                 })
-                .groupBy('p.id', 'p.name',
-                    'p.price',
-                    'i.url')
-                .orderBy([{ column: 'sold', order: 'desc' }, 'rating', { column: 'i.url', nulls: 'last' }]);
 
-            for await (const [index, product] of products.entries()) {
-                let categories = await knex.select('c.name as category', 'c.id as id')
-                    .from('category as c')
-                    .join('product_has_category as phc', 'phc.category_id', 'c.id')
-                    .where('phc.product_id', product.id);
-                product.categories = categories;
+                products.sort((a : any, b : any)=> b.ranking - a.ranking)
 
-            }
+                return products as Product[];
 
-            return products as Product[];
+            })
         } catch (e) {
-            throw new Error("Não foi possível realizar a busca!")
+            console.log(e)
+            throw new Error("Não foi possível realizar a busca1!")
         }
 
     }

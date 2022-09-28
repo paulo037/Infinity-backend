@@ -39,8 +39,8 @@ export class CreateProduct {
             length,
         });
 
-        let id = await this.productRepository.create(product);
-        return id;
+        await this.productRepository.create(product);
+        return product.id;
     }
 }
 

@@ -5,7 +5,7 @@ import { ProductHasCategory } from "../../domain/entities/product/product_has_ca
 import { ProductHasColor } from "../../domain/entities/product/product_has_color"
 
 export interface ProductRepository {
-    create(product: Product): Promise<string>
+    create(product: Product): Promise<null>
     update(product: Product): Promise<null>
     delete(id: string): Promise<null>
     findById(id: string): Promise<Product | null>

@@ -10,39 +10,39 @@ export class CartRepositoryMysql implements CartRepository {
 
     async update(cart: Cart): Promise<null> {
         try {
+            return await knex.transaction(async trx => {
+                const product = await trx('product_has_color')
+                    .select('quantity')
+                    .where('product_id', cart.props.product_id)
+                    .andWhere('color_id', cart.props.color_id)
+                    .andWhere('size_id', cart.props.size_id)
+                    .first();
 
-            const product = await knex('product_has_color')
-                .select('quantity')
-                .where('product_id', cart.props.product_id)
-                .andWhere('color_id', cart.props.color_id)
-                .andWhere('size_id', cart.props.size_id)
-                .first();
+                if (cart.props.quantity > product.quantity) {
 
-            if (cart.props.quantity > product.quantity) {
+                    throw new Error("Quantidade máxima já selecionada!");
 
-                throw new Error("Quantidade máxima já selecionada!");
+                }
+                if (cart.props.quantity < 1) {
 
-            }
-            if (cart.props.quantity < 1) {
-
-                throw new Error("Quantidade mínima já selecionada!");
-            }
+                    throw new Error("Quantidade mínima já selecionada!");
+                }
 
 
 
-            await knex('cart').update({ ...cart.props })
-                .where('product_id', cart.props.product_id)
-                .where('user_id', cart.props.user_id)
+                await trx('cart').update({ ...cart.props })
+                    .where('product_id', cart.props.product_id)
+                    .where('user_id', cart.props.user_id)
 
-                .andWhere('color_id', cart.props.color_id)
-                .andWhere('size_id', cart.props.size_id)
+                    .andWhere('color_id', cart.props.color_id)
+                    .andWhere('size_id', cart.props.size_id)
 
-            return null;
+                return null;
+            })
         } catch (error) {
-
             throw new Error("Não foi possível atualizar o item!");
-
         }
+
     }
 
     async delete(cart: Cart): Promise<null> {
@@ -100,8 +100,7 @@ export class CartRepositoryMysql implements CartRepository {
                     "p.id as product_id")
                 .where("cart.user_id", id)
                 .andWhere(function () {
-                    this.where('i.primary', true)
-                    this.orWhere('i.primary', null)
+                    this.where('i.primary', true).orWhere('i.primary', null)
                 });
 
             return products

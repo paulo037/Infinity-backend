@@ -17,7 +17,7 @@ export class InMemoryProductRepository implements ProductRepository {
     updateImages(images: Image[], product_id: string): Promise<null> {
         throw new Error("Method not implemented.");
     }
-    create(product: Product): Promise<string> {
+    create(product: Product): Promise<null> {
         throw new Error("Method not implemented.");
     }
     
