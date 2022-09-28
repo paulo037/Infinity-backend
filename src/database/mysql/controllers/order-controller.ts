@@ -38,12 +38,47 @@ export class OrderController {
 
     public getAll = async (request: Request, response: Response) => {
         try {
+            const userLog = request.user as JwtPayload
+            if (userLog == undefined) return response.status(401).send('unauthorized')
+
             let orders = await this.repository.getAll()
 
             response.status(200).json(orders)
         } catch (error) {
 
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+        }
+
+    }
+
+    public get = async (request: Request, response: Response) => {
+        try {
+            const userLog = request.user as JwtPayload
+            if (userLog == undefined) return response.status(401).send('unauthorized')
+            
+            let orders = await this.repository.get(userLog.id)
+
+            response.status(200).json(orders)
+        } catch (error) {
+
+            return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+        }
+
+    }
+
+
+    public delete = async (request: Request, response: Response) => {
+        try {
+            const id = request.params.id
+            const userLog = request.user as JwtPayload
+            if (userLog == undefined) return response.status(401).send('unauthorized')
+            
+            let orders = await this.repository.delete(userLog.id, id)
+
+            response.status(200).json(orders)
+        } catch (error) {
+
+            return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
 
     }

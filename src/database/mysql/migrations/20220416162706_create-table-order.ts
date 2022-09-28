@@ -14,6 +14,7 @@ export async function up(knex: Knex): Promise<void> {
         table.string('district',100).notNullable();
         table.string('street',100).notNullable();
         table.string('telephone',20).notNullable();
+        table.string('tracking_code',13)
         table.integer('number').unsigned();
         table.string('user_id', 36)
             .notNullable()

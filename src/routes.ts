@@ -75,7 +75,7 @@ router.route('/product')
     .get(admin(productController.getAll));
 
 router.route('/product/category/:id')
-    .get(productController.getProductByCategoryId)  
+    .get(productController.getProductByCategoryId)
 
 router.route('/product/search/:term')
     .get(productController.search)
@@ -92,9 +92,17 @@ router.route('/color')
 router.route('/category')
     .get(categoryController.getAll)
 
-router.route('/order')
+router.route('/orders')
     .all(passport.authenticate)
     .get(admin(orderController.getAll))
+
+router.route('/order')
+    .all(passport.authenticate)
+    .get(admin(orderController.get))
+
+router.route('/order/:id')
+    .all(passport.authenticate)
+    .delete(admin(orderController.delete))
 
 router.route('/cart')
     .all(passport.authenticate)
@@ -114,11 +122,13 @@ router.route('/cart/:id')
 
 router.route('/addresses')
     .all(passport.authenticate)
-    .get(userController.getAdresses)
-    
+    .get(userController.getAddresses)
+
 router.route('/address/:id')
     .all(passport.authenticate)
-    .get(userController.getAdress)
+    .post(userController.createAddress)
+    .put(userController.updateAddress)
+    .get(userController.getAddress)
 
 
 router.route('/preference')

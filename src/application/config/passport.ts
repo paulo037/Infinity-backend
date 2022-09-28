@@ -35,7 +35,6 @@ passport.use(new Strategy(params, async function (payload, done) {
             return done(undefined, false)
         }
     } catch (error) {
-        console.log(error)
         return done(undefined, false)
 
     }
@@ -48,7 +47,7 @@ export class Passport {
 
 
     public authenticate = async (request: Request, response: Response, next: NextFunction) => {
-        console.log(`${request.url}\n\n ${request.headers.authorization}\n\n ${request.cookies.access_token}\n\n\n`)
+
         try {
             passport.authenticate('jwt', function (err, user, info) {
                 if (err) {
@@ -65,7 +64,6 @@ export class Passport {
             })(request, response, next)
 
         } catch (error) {
-            console.log(error)
             return response.status(401).send('Não autorizado!')
 
         }

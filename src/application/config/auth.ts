@@ -52,7 +52,7 @@ export class Auth {
             email: user.props.email,
             ad: user.props.admin,
             iat: now,
-            exp: now + (60 * 60)
+            exp: now + (60 * 60 * 3)
         } as JwtPayload
 
         const refresh_payload = {
@@ -148,9 +148,7 @@ export class Auth {
         try {
 
             const cookie = request.cookies.refresh_token
-            const token = !!cookie ? cookie : request.body.refresh_token
-
-
+            const token = !!cookie ? cookie : request.body.refresh_token    
 
             const userLog = token ? verify(token, AUTH_SECRET as string) as JwtRefresh : null
 
@@ -173,8 +171,6 @@ export class Auth {
 
 
             const { access_token, refresh_token } = this.getTokens(user)
-
-            console.log("response ok")
             return response.json({
                 access_token: access_token,
                 refresh_token: refresh_token,

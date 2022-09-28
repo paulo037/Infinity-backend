@@ -15,6 +15,7 @@ export type OrderProps = {
     telephone: number;
     number: number;
     user_id: string;
+    tracking_code?:string;
 }
 
 

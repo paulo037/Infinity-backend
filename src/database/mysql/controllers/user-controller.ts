@@ -1,12 +1,12 @@
 import { UserRepositoryMysql } from "../model/user-repository";
 import { Request, Response } from "express";
-import { User } from "../../../domain/entities/user/user";
 import { CreateUser, CreateUserRequest } from "../../../application/services/user/create-user";
 import { JwtPayload } from "../../../application/config/auth";
 import { UpdateUser, UpdateUserRequest } from "../../../application/services/user/update-user";
 import { FindUserByEmail } from "../../../application/services/user/find-user-by-email ";
 import { GetAllUsers } from "../../../application/services/user/get-all-users";
 import { ChangeAdminPermission } from "../../../application/services/user/change-admin-permission";
+import { Address } from "../../../domain/entities/user/address";
 export class UserController {
     constructor(
         private repository = new UserRepositoryMysql(),
@@ -99,11 +99,11 @@ export class UserController {
     }
 
 
-    public getAdresses = async (request: Request, response: Response) => {
+    public getAddresses = async (request: Request, response: Response) => {
 
         const userLog = request.user as JwtPayload
 
-        if (userLog == undefined) response.status(401).send("Sem permissão!")
+        if (userLog == undefined) response.status(401).send("Usuário não autorizado!")
 
 
         try {
@@ -115,12 +115,51 @@ export class UserController {
         }
     }
 
+    public createAddress = async (request: Request, response: Response) => {
 
-    public getAdress = async (request: Request, response: Response) => {
+        try {
+            const userLog = request.user as JwtPayload
+
+            if (userLog == undefined) response.status(401).send("Usuário não autorizado!")
+            let addressProps = request.body.address
+            addressProps.user_id = userLog.id
+            const address = Address.create(addressProps)
+
+            if (userLog.id != address.props.user_id) response.status(401).send("Usuário não autorizado!")
+
+            await this.repository.createAddress(address);
+            return response.status(200).send("Endereço atualizado com sucesso!");
+        } catch (error) {
+            return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+
+        }
+    }
+
+    public updateAddress = async (request: Request, response: Response) => {
+
+        try {
+            const userLog = request.user as JwtPayload
+
+            if (userLog == undefined) response.status(401).send("Usuário não autorizado!")
+
+            const address = Address.create(request.body.address)
+
+            if (userLog.id != address.props.user_id) response.status(401).send("Usuário não autorizado!")
+
+            await this.repository.updateAddress(address);
+            return response.status(200).send("Endereço atualizado com sucesso!");
+        } catch (error) {
+            return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+
+        }
+    }
+
+
+    public getAddress = async (request: Request, response: Response) => {
 
         const userLog = request.user as JwtPayload
 
-        if (userLog == undefined) response.status(401).send("Sem permissão!")
+        if (userLog == undefined) response.status(401).send("Usuário não autorizado!")
 
         const id = request.params.id
 
@@ -132,5 +171,7 @@ export class UserController {
 
         }
     }
+
+
 
 }

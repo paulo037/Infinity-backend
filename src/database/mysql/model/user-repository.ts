@@ -164,5 +164,37 @@ export class UserRepositoryMysql implements UserRepository {
 
     }
 
+    async createAddress(address: Address): Promise<null> {
+        try {
+
+            await knex('address')
+                .insert(address.props)
+                
+            return null;
+        } catch (e) {
+            throw new Error("Não foi possível atualizar o Endereço!")
+        }
+
+    }
+    
+
+    async updateAddress(address: Address): Promise<null> {
+        try {
+
+            await knex('address')
+                .update(address.props)
+                .where("address.user_id", address.props.user_id)
+                .andWhere("address.id", address.props.id)
+                
+            return null;
+        } catch (e) {
+            throw new Error("Não foi possível atualizar o Endereço!")
+        }
+
+    }
+
+
+    
+
 
 }

@@ -3,6 +3,13 @@ import { Address } from "../../src/domain/entities/user/address";
 import { User } from "../../src/domain/entities/user/user";
 
 export class InMemoryUserRepository implements UserRepository {
+    createAddress(address: Address): Promise<null> {
+        throw new Error("Method not implemented.");
+    }
+    updateAddress(address: Address): Promise<null> {
+        throw new Error("Method not implemented.");
+    }
+   
     getAddress(id: string, user_id: string): Promise<Address> {
         throw new Error("Method not implemented.");
     }
