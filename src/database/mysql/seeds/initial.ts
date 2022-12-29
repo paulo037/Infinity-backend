@@ -1,6 +1,7 @@
-import { Knex } from "knex";
+import {Knex} from "knex";
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from "bcrypt"
+import { Status } from "../../../domain/entities/order/status";
 
 export async function seed(knex: Knex): Promise<void> {
 
@@ -71,6 +72,7 @@ export async function seed(knex: Knex): Promise<void> {
             district: 'Centro',
             street: 'Sitio',
             telephone: '998713736',
+            complement: "complemento",
             number: 1,
             user_id: id1,
             id: uuidv4(),
@@ -83,6 +85,7 @@ export async function seed(knex: Knex): Promise<void> {
             district: 'Centro',
             street: 'Sitio',
             telephone: '998713736',
+            complement: "complemento",
             number: 22,
             user_id: id1,
             id: uuidv4(),
@@ -96,6 +99,7 @@ export async function seed(knex: Knex): Promise<void> {
             district: 'Centro',
             street: 'Sitio',
             telephone: '998713736',
+            complement: "complemento",
             number: 2,
             user_id: id2,
             id: uuidv4(),
@@ -280,7 +284,7 @@ export async function seed(knex: Knex): Promise<void> {
         {
             id: o1,
             price: 440,
-            status: 5,
+            status: Status.PAYMENT_PENDING,
             user_name: 'casa',
             cep: '35695000',
             state: 'Minas Gerais',
@@ -294,7 +298,22 @@ export async function seed(knex: Knex): Promise<void> {
         {
             id: o2,
             price: 120,
-            status: 5,
+            status: Status.PAYMENT_APPROVED,
+            user_name: 'casa',
+            cep: '35695000',
+            state: 'Minas Gerais',
+            city: 'Igaratinga',
+            district: 'Centro',
+            street: 'Sitio',
+            telephone: '998713736',
+            number: 22,
+            user_id: id1,
+        },
+
+        {
+            id: "ndjbdfkjfbskjf",
+            price: 120,
+            status: Status.PAYMENT_REFUSED,
             user_name: 'casa',
             cep: '35695000',
             state: 'Minas Gerais',
@@ -314,7 +333,7 @@ export async function seed(knex: Knex): Promise<void> {
 
             id: uuidv4(),
 
-            order_id: o1,
+            order_id: o2,
 
             product_price: 50,
 
@@ -356,7 +375,7 @@ export async function seed(knex: Knex): Promise<void> {
         {
             id: uuidv4(),
 
-            order_id: o1,
+            order_id: "ndjbdfkjfbskjf",
 
             product_id: p1,
 
@@ -373,6 +392,27 @@ export async function seed(knex: Knex): Promise<void> {
             product_name: 'blusa flamengo',
 
         },
+
+        {
+            id: uuidv4(),
+
+            order_id: "ndjbdfkjfbskjf",
+
+            product_id: p1,
+
+            product_price: 50,
+
+            color: 'Branco',
+
+            size: 'M',
+
+            rating: 3,
+
+            quantity: 1,
+
+            product_name: 'blusa flamengo',
+
+        },  
 
 
     ]);

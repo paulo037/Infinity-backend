@@ -16,7 +16,6 @@ export class ChangeAdminPermission {
 
         Validation.existOrError(id, "Usuário não informado!");
         Validation.existOrError(admin, "Permissão de usuário não informada!");
-  
         const userWithEmailExist = await this.userRepository.findById(id)
         Validation.existOrError(userWithEmailExist, "Usuário informado não existe!");
 

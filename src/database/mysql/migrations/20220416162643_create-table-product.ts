@@ -1,4 +1,4 @@
-import { Knex } from "knex";
+import {Knex} from "knex";Knex
 
 
 export async function up(knex: Knex): Promise<void> {
@@ -10,7 +10,8 @@ export async function up(knex: Knex): Promise<void> {
         table.integer('height');
         table.integer('width');
         table.integer('length');
-
+        table.decimal('weight');
+        
     })
 }
 

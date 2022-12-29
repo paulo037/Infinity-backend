@@ -15,8 +15,8 @@ export class Color extends Entity<ColorProps>{
         return this.props.value;
     }
 
-    public get id(): string {
-        return this.id;
+    public get id(): string | undefined {
+        return this.props.id;
     }
 
     static create(props: ColorProps) {

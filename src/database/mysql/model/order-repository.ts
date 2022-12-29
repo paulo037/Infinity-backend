@@ -1,38 +1,81 @@
 
+/**
+ * @type {Knex}
+ */
 import { OrderRepository } from "../../../application/repositories/OrderRepository";
 import { Order } from "../../../domain/entities/order/order";
 import { OrderHasProduct } from "../../../domain/entities/order/order_has_product";
+import { logger } from "../../../logger";
 import knex from "../connection";
-
 
 
 export class OrderRepositoryMsql implements OrderRepository {
 
-
-
-    async createOrderHasProduct(orderHasProducts: OrderHasProduct[]): Promise<null> {
+    async get(id: string): Promise<Order | null> {
         try {
-            await knex('order_has_product').insert(orderHasProducts.map(element => element.props))
-            return null
+            return await knex.transaction(async trx => {
+                let order = await trx('order as o')
+                    .select('*').where('o.id', id).first();
+
+                if (order == undefined) {
+                    throw new Error("Erro ao buscar pedido!");
+                }
+
+                const ohp = await trx('order as o')
+                    .select('p.name as name',
+                        'i.url as image',
+                        'ohp.size as size',
+                        'ohp.color as color',
+                        'ohp.product_price as price',
+                        'ohp.quantity as quantity',
+                        'ohp.product_id as product_id',
+
+
+                    )
+                    .join('order_has_product as ohp', 'ohp.order_id', 'o.id')
+                    .join('product as p', 'ohp.product_id', 'p.id')
+                    .leftJoin('image as i', 'p.id', 'i.product_id')
+                    .where(function () {
+                        this.where('i.primary', true).orWhere('i.primary', null)
+                    })
+                    .andWhere('o.id', order.id)
+                    .orderBy('o.created_at', 'asc');
+
+                const user = await trx('user as u').select("cpf", "first_name", "last_name", "id").first();
+
+                order.products = ohp;;
+                order.user = user;
+
+                return order;
+            })
+
         } catch (error) {
-            throw new Error("Não foi possível adicionar o produto ao pedido!");
+            throw new Error("Erro ao buscar pedido!");
         }
-
-
     }
-    async create(order: Order): Promise<null> {
+
+
+    async create(order: Order, orderHasProducts: OrderHasProduct[]): Promise<null> {
         try {
-            await knex('order').insert(order.props)
+            await knex.transaction(async trx => {
+                await trx('order').insert(order.props)
+                await trx('order_has_product').insert(orderHasProducts.map(element => element.props))
+            })
             return null
         } catch (error) {
             throw new Error("Não foi possível criar pedido!");
         }
     }
 
-    async update(status: number, id: string): Promise<null> {
+    async update(id: string, status: number,  tracking_code?: string | null): Promise<null> {
         try {
-            await knex('order').update("status", status).where("id", id)
+            
+            await knex('order').update({"status": status}).where("id", id)
+            if(tracking_code){
+                await knex('order').update({"tracking_code": tracking_code}).where("id", id)
+            }
         } catch (error) {
+            logger.error(error)
             throw new Error("Erro ao atualizar pedido!");
         }
         return null;
@@ -48,7 +91,7 @@ export class OrderRepositoryMsql implements OrderRepository {
                     .where("o.id", id)
                     .andWhere('o.user_id', user_id);
 
-                ohp = ohp.map(o => o.id)
+                ohp = ohp.map((o: any) => o.id)
 
                 if (ohp.length == 0) throw new Error("Erro ao apagar pedido!");
 
@@ -69,37 +112,40 @@ export class OrderRepositoryMsql implements OrderRepository {
 
         return null;
     }
-    async findByUserId(id: string): Promise<Order | null> {
-        throw new Error("Method not implemented.");
-    }
+
     async getAll(): Promise<Order[]> {
 
         try {
-            let order = await knex('order')
+            let orders = await knex('order')
                 .select('*')
-            return order;
+
+            return orders;
         } catch (error) {
             throw new Error("Erro ao buscar pedidos!");
 
         }
     }
 
-    async get(user_id: string): Promise<Order[][]> {
+    async findByUserId(user_id: string): Promise<Order[][]> {
         try {
             return await knex.transaction(async trx => {
-                const ordersIds = await trx('order as o').select('o.id').where('o.user_id', user_id)
-                let orders = []
-                for await (const [index, order_id] of ordersIds.entries()) {
-                    const order = await trx('order as o')
+                const ordens = await trx('order as o')
+                    .select('id ',
+                        'created_at',
+                        'status',
+                        'id',).where('o.user_id', user_id)
+
+                let ordersWithProducts = []
+                for await (const [index, order] of ordens.entries()) {
+                    const ohp = await trx('order as o')
                         .select('p.name as name',
                             'i.url as image',
                             'ohp.size as size',
                             'ohp.color as color',
                             'ohp.product_price as price',
                             'ohp.quantity as quantity',
-                            'o.created_at as date',
-                            'o.status as status',
-                            'o.id as id',
+                            'ohp.product_id as product_id',
+
 
                         )
                         .join('order_has_product as ohp', 'ohp.order_id', 'o.id')
@@ -108,13 +154,14 @@ export class OrderRepositoryMsql implements OrderRepository {
                         .where(function () {
                             this.where('i.primary', true).orWhere('i.primary', null)
                         })
-                        .andWhere('o.id', order_id.id)
+                        .andWhere('o.id', order.id)
                         .orderBy('o.created_at', 'asc');
 
-                    orders.push(order);
+                    order.products = ohp;
+                    ordersWithProducts.push(order);
                 }
 
-                return orders;
+                return ordersWithProducts;
             })
 
         } catch (error) {

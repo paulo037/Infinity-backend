@@ -27,8 +27,7 @@ const params = {
 passport.use(new Strategy(params, async function (payload, done) {
     try {
 
-        const user = await findByEmail.execute(payload.email)
-      
+        const user = await repository.findById(payload.id)
         if (user) {
             return done(undefined, { ...payload })
         } else {

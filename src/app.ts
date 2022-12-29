@@ -3,14 +3,17 @@ import cors from 'cors'
 import routes from './routes'
 import bodyParser from 'body-parser'
 import coockieParser from 'cookie-parser'
+import dotenv from 'dotenv'
+import morgan from 'morgan'
 
-const dotenv = require('dotenv')
+
 dotenv.config()
 
 const app = express()
 
+app.use(morgan(`:method\t:status\t:response-time ms\t:date[web]\t:url`));
 app.use(coockieParser())
-app.use(cors({credentials: true, origin: process.env.BASE_FRONT}));
+app.use(cors({ credentials: true, origin: process.env.BASE_FRONT }));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(routes)

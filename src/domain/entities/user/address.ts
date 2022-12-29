@@ -8,6 +8,7 @@ export type AddressProps = {
     city: string;
     district: string;
     street: string;
+    complement: string;
     cep: number;
     telephone: number;
     number: number;

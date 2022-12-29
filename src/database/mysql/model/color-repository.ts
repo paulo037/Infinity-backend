@@ -5,14 +5,31 @@ import knex from "../connection";
 
 
 export class ColorRepositoryMsql implements ColorRepository {
-    create(color: Color): Promise<null> {
-        throw new Error("Method not implemented.");
+    async create(color: Color): Promise<null> {
+        try {
+            await knex('color').insert(color.props);
+        } catch (error) {
+            throw new Error("Não foi possível criar o tamanho!")
+        }
+        return null
     }
-    update(color: Color): Promise<null> {
-        throw new Error("Method not implemented.");
+
+    async update(color: Color): Promise<null> {
+        try {
+            await knex('color').update(color.props).where("id", color.id);
+        } catch (error) {
+            throw new Error("Não foi possível atualizar o tamanho!")
+        }
+        return null
     }
-    delete(id: string): Promise<null> {
-        throw new Error("Method not implemented.");
+
+    async delete(id: string): Promise<null> {
+        try {
+            await knex('color').delete().where("id", id);
+        } catch (error) {
+            throw new Error("Não foi possível deletar o tamanho!")
+        }
+        return null
     }
 
     async findById(id: string): Promise<Color | null> {
@@ -43,7 +60,7 @@ export class ColorRepositoryMsql implements ColorRepository {
     
     async getAll(): Promise<Color[]> {
         try {
-            const colors = await knex('color')
+            const colors = await knex('color').select("*")
             return colors;
 
 

@@ -4,6 +4,7 @@ import { UserRepositoryMysql } from "../../database/mysql/model/user-repository"
 import { NextFunction, Request, Response } from "express"
 import { FindUserByEmail } from "../services/user/find-user-by-email "
 import { User } from "../../domain/entities/user/user"
+import { logger } from "../../logger"
 
 const dotenv = require('dotenv')
 dotenv.config()
@@ -28,7 +29,13 @@ export type JwtRefresh = {
     exp: number
 }
 
-
+type UserResponse = {
+    first_name: string;
+    last_name: string;
+    image?: string;
+    email: string;
+    cpf: string;
+}
 
 
 export class Auth {
@@ -113,22 +120,28 @@ export class Auth {
 
     public validateToken = async (request: Request, response: Response) => {
         try {
-            const token = request.headers.authorization ? request.headers.authorization.split(' ')[1] : null
-
-            if (token) {
-                const user = verify(token, AUTH_SECRET as string) as JwtPayload
+           
+            if (request.user) {
+                const user = request.user as JwtPayload
+                
                 if (new Date(user.exp * 1000) > new Date()) {
-
-                    const userEntity = await this.findUserByEmail.execute(user.email);
-
+                    
+                    const userEntity = await this.repository.findById(user.id)
+                    
                     if (!userEntity) {
                         return response.status(400).send("Usuário não encontrado!");
                     }
-
+                    
+             
+                    
                     const { access_token, refresh_token } = this.getTokens(userEntity)
+                    
+                    let userResponse =  verify(access_token, AUTH_SECRET as string) as any
 
+                    delete userResponse.id
+                    
 
-                    return response.json({ user, access_token, refresh_token }).status(200)
+                    return response.json({ user: {...userResponse}, access_token, refresh_token }).status(200)
                 }
             }
         } catch (e) {

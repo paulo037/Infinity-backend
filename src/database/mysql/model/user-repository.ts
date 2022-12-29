@@ -30,7 +30,7 @@ export class UserRepositoryMysql implements UserRepository {
 
     }
 
-    async changeAdminPermission(id: string, adminPermission: Boolean): Promise<null> {
+    async changeAdminPermission(id: string, adminPermission: boolean): Promise<null> {
         try {
 
             await knex('user')
@@ -62,7 +62,7 @@ export class UserRepositoryMysql implements UserRepository {
         try {
             await knex('user as u')
                 .update({ ...user.props })
-                .where('u.id', user.props.id);
+                .where('u.id', (user.props.id as string));
         } catch (e) {
             throw new Error("Não foi possível atualizar os dados do usuário!")
         }
@@ -154,7 +154,6 @@ export class UserRepositoryMysql implements UserRepository {
                 .first();
             
             if (!address){
-                console.log("Endereço não encontrado!")
                 throw new Error("Endereço não encontrado!")
             }
             return address;
@@ -184,7 +183,7 @@ export class UserRepositoryMysql implements UserRepository {
             await knex('address')
                 .update(address.props)
                 .where("address.user_id", address.props.user_id)
-                .andWhere("address.id", address.props.id)
+                .andWhere("address.id", (address.props.id as string))
                 
             return null;
         } catch (e) {

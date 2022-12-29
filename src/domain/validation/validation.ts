@@ -2,7 +2,7 @@
 export class Validation {
 
     static existOrError(value: any, msg: string) {
-        if (!value) throw new Error(msg)
+        if (typeof value !== 'boolean' && !value) throw new Error(msg)
         if (value == null) throw new Error(msg)
         if (Array.isArray(value) && value.length === 0) throw new Error(msg)
         if (typeof value === 'string' && !value.trim()) throw new Error(msg)
@@ -17,7 +17,7 @@ export class Validation {
         throw new Error(msg) 
     }
 
-    static equalsOrError(valueA: any, valueB: any, msg: string) {
+    static equalsOrError(valueA: any, valueB: any, msg?: string) {
 
         if (typeof valueA === 'object' && typeof valueB === 'object') {
             let akeys = Object.keys(valueA)

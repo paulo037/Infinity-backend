@@ -5,7 +5,7 @@ require('dotenv/config');
 
 
 const storageTypes = {
-    local: diskStorage({
+    development: diskStorage({
         destination: (request, file, callback) => {
             callback(null, resolve(__dirname, '..', 'tmp', 'uploads'));
         },
@@ -32,7 +32,7 @@ const storageTypes = {
 export const multerConfig = {
 
     dest: resolve(__dirname, '..', 'tmp', 'uploads'),
-    storage: storageTypes[process.env.ENVIRONMENT_TYPE as string],
+    storage: storageTypes[process.env.NODE_ENV as string],
     fileFilter: (req, file, cb) => {
         const allowedMimes = [
             "image/jpeg",

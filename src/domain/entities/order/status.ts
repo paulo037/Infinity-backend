@@ -1,0 +1,7 @@
+export enum Status {
+    PAYMENT_REFUSED = -1,
+    PAYMENT_PENDING = 0,
+    PAYMENT_APPROVED = 1,
+    ORDER_SENT = 2,
+    ORDER_DELIVERED = 3
+}

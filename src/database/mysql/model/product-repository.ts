@@ -59,7 +59,7 @@ export class ProductRepositoryMsql implements ProductRepository {
 
             await knex('product as p')
                 .update({ ...product.props })
-                .where('p.id', product.props.id);
+                .where('p.id', product.props.id as string);
             return null;
         } catch (e) {
             throw new Error("Não foi possível atualizar o produto!")
@@ -179,7 +179,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                     .join('size as s', 'phc.size_id', ' s.id')
                     .where('phc.product_id', id);
 
-                product.colors = colors.map(color => {
+                product.colors = colors.map((color : any) => {
                     return {
                         "size_id": color.size_id,
                         "size": color.size,
@@ -194,7 +194,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                     .where('phc.product_id', id);
 
 
-                product.categories = categories.map(category => {
+                product.categories = categories.map((category : any)=> {
                     return { "name": category.name, "image": category.image, "id": category.id }
                 })
 
@@ -202,7 +202,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                     .where('i.product_id', id);
 
 
-                product.images = images.map(image => {
+                product.images = images.map((image : any) => {
                     return { "id": image.id, "name": image.name, "url": image.url, "primary": image.primary, "key": image.key }
                 })
 
@@ -289,7 +289,9 @@ export class ProductRepositoryMsql implements ProductRepository {
                     .groupBy('p.id', 'p.name',
                         'p.price',
                         'i.url')
-                    .orderBy([{ column: 'sold', order: 'desc' }, 'rating', { column: 'i.url', nulls: 'last' }]);
+                    .orderBy('sold', 'desc')
+                    .orderBy( 'rating')
+                    .orderBy('i.url', 'last');
 
                 for await (const [index, product] of products.entries()) {
                     let categories = await trx.select('c.name as category', 'c.id as id')
@@ -301,14 +303,13 @@ export class ProductRepositoryMsql implements ProductRepository {
                 }
 
                 const searchArray = search.replace('|', ' ').split(' ')
-                products.forEach(product => {
+                products.forEach((product : any) => {
                     let ranking = 0
                     let rankingDescription = 0
                     const lengthDescription = product.description.split('<wbr/>&nbsp;<wbr/>').length
 
 
                     searchArray.forEach((word) => {
-                        console.log(word, product.name.toLowerCase() )
                         if (product.name.toLowerCase().includes(word.toLocaleLowerCase())) ranking++;
                         rankingDescription += product.description.split('<wbr/>&nbsp;<wbr/>').filter((x: string,) => x.toLowerCase().includes(word.toLocaleLowerCase())).length;
                     })
@@ -326,7 +327,6 @@ export class ProductRepositoryMsql implements ProductRepository {
 
             })
         } catch (e) {
-            console.log(e)
             throw new Error("Não foi possível realizar a busca1!")
         }
 
@@ -335,7 +335,7 @@ export class ProductRepositoryMsql implements ProductRepository {
         try {
             let products = await knex.select('p.name as name')
                 .from('product as p')
-            products = products.map(p => p.name)
+            products = products.map((p : any) => p.name)
             return products;
 
         } catch (e) {

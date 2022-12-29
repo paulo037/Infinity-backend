@@ -3,6 +3,8 @@ import { Validation } from "../../../domain/validation/validation";
 import { UserRepository } from "../../repositories/UserRepository";
 
 type CreateAddressRequest = {
+  
+    complement: string;
     user_name: string;
     state: string;
     city: string;
@@ -23,34 +25,15 @@ export class CreateAddress {
 
 
 
-    async execute({ user_name,
-        state,
-        city,
-        district,
-        street,
-        cep,
-        telephone,
-        number,
-        user_id, }: CreateAddressRequest) {
+    async execute(createAddressRequest : CreateAddressRequest) {
 
 
 
 
-        const AddressWithUserIdExist = await this.userRepository.getAddresses(user_id);
+        const AddressWithUserIdExist = await this.userRepository.getAddresses(createAddressRequest.user_id);
         Validation.existOrError(AddressWithUserIdExist, "O usuário para qual o endereço está sendo crido não foi encontrado!");
 
-        const address = Address.create(
-            {
-                user_name,
-                state,
-                city,
-                district,
-                street,
-                cep,
-                telephone,
-                number,
-                user_id,
-            });
+        const address = Address.create(createAddressRequest);
 
        
         return address;

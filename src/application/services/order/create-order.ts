@@ -1,10 +1,9 @@
 import { OrderHasProduct, OrderHasProductProps } from "../../../domain/entities/order/order_has_product";
 import { Address, AddressProps } from "../../../domain/entities/user/address";
-import { Validation } from "../../../domain/validation/validation";
-import { ProductRepository } from "../../repositories/ProductRepository";
 import { v4 } from "uuid"
 import { Order, OrderProps } from "../../../domain/entities/order/order";
 import { OrderRepository } from "../../repositories/OrderRepository";
+import { Status } from "../../../domain/entities/order/status";
 
 
 export type CreateOrderRequest = {
@@ -45,19 +44,18 @@ export class CreateOrder {
         })
 
 
-        const paymentPanding = 0
 
         delete address.props.id
         
         const order = Order.create({
             id: order_id,
             price: price,
-            status: paymentPanding,
+            status: Status.PAYMENT_PENDING,
             ...address.props
         })
 
 
-        return await this.repository.create(order).then( async () => await this.repository.createOrderHasProduct(order_has_products)).then(() =>  order_id)
+        return await this.repository.create(order, order_has_products).then(() =>  order_id)
 
 
 

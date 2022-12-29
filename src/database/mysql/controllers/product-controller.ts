@@ -213,7 +213,7 @@ export class ProductController {
     }
 
     public uploadImage = async (request: Request, response: Response) => {
-        const image = request.body.stillRemain
+        const image = response.locals.images
         return response.json(image)
     }
 

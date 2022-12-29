@@ -2,7 +2,7 @@ const dotenv = require('dotenv')
 dotenv.config()
 
 
-const local = {
+const development = {
     client: process.env.BD_CLIENT_LOCAL,
     connection: {
         host: process.env.HOST_LOCAL,
@@ -44,4 +44,4 @@ const production = {
 };
 
 
-module.exports = process.env.ENVIRONMENT_TYPE == 'local' ? local : production
+module.exports = process.env.NODE_ENV == 'development' ? development : production

@@ -40,7 +40,7 @@ export class CartRepositoryMysql implements CartRepository {
                 return null;
             })
         } catch (error) {
-            throw new Error("Não foi possível atualizar o item!");
+            throw new Error(error instanceof Error ? error.message : 'Erro ao atualizar item!');
         }
 
     }

@@ -6,14 +6,33 @@ import knex from "../connection";
 
 
 export class CategoryRepositoryMsql implements CategoryRepository {
-    create(category: Category): Promise<null> {
-        throw new Error("Method not implemented.");
+
+    async create(category: Category): Promise<null> {
+        try {
+            await knex('category').insert(category.props);
+        } catch (error) {
+            throw new Error("Não foi possível criar a categoria!")
+        }
+        return null
     }
-    update(category: Category): Promise<null> {
-        throw new Error("Method not implemented.");
+
+    async update(category: Category): Promise<null> {
+        try {
+            await knex('category').update(category.props).where("id", category.id);
+        } catch (error) {
+            console.log(error)
+            throw new Error("Não foi possível atualizar a categoria!")
+        }
+        return null
     }
-    delete(id: string): Promise<null> {
-        throw new Error("Method not implemented.");
+
+    async delete(id: string): Promise<null> {
+        try {
+            await knex('category').delete().where("id", id);
+        } catch (error) {
+            throw new Error("Não foi possível deletar a categoria!")
+        }
+        return null
     }
 
     async findById(id: string): Promise<Category | null> {

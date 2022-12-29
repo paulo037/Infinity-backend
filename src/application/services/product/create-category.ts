@@ -4,7 +4,8 @@ import { CategoryRepository } from "../../repositories/CategoryRepository";
 
 type CreateCategoryRequest = {
     name: string;
-    image:string;
+    image: string;
+    id?: string
 }
 
 
@@ -15,25 +16,30 @@ export class CreateCategory {
     ) { }
 
 
-    
 
-    async execute({ 
+
+    public async execute({
         name,
-        image,}: CreateCategoryRequest) {
+        image,
+        id }: CreateCategoryRequest) {
 
         const CategoryExist = await this.categoryRepository.findByName(name);
-        
 
-        Validation.notExistOrError(CategoryExist, "Uma Categoria com esse nome já existe");
-        
+        try {
+            Validation.notExistOrError(CategoryExist, "Uma Categoria com esse nome já existe");
+        } catch (error) {
+            Validation.equalsOrError(id, CategoryExist?.id, "Uma Categoria com esse nome já existe")
+        }
 
-     
+
+
         const category = Category.create({
             name,
             image,
+            id
         });
 
-        this.categoryRepository.create(category);
+        return category
 
     }
 }

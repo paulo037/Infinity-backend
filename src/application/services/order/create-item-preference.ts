@@ -70,6 +70,7 @@ export class CreateItemPreference {
 
         const product = await this.findProductById.execute(props.product_id) as any
         const currence = "BRL"
+       
         const itemPreferenceProps = {
             id: props.product_id,
             quantity: props.quantity,

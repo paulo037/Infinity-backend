@@ -8,6 +8,7 @@ type ProductProps = {
     height?: number;
     width?: number;
     length?: number;
+    weight?:number;
     id?: string;
 }
 export class Product extends Entity<ProductProps>{

@@ -81,16 +81,37 @@ router.route('/product/search/:term')
     .get(productController.search)
 
 
+router.route('/size/:id')
+    .all(passport.authenticate)
+    .delete(admin(sizeController.deleteSize))
+
+
 router.route('/size')
     .all(passport.authenticate)
     .get(admin(sizeController.getAll))
+    .post(admin(sizeController.createNewSize))
+    .put(admin(sizeController.updateSize))
+
+
+router.route('/color/:id')
+    .all(passport.authenticate)
+    .delete(admin(colorController.deleteColor))
 
 router.route('/color')
     .all(passport.authenticate)
     .get(admin((colorController.getAll)))
+    .post(admin(colorController.createNewColor))
+    .put(admin(colorController.updateColor))
 
 router.route('/category')
-    .get(categoryController.getAll)
+    .all(passport.authenticate)
+    .get(admin(categoryController.getAll))
+    .post(admin(multer(multerConfig).single('file')), uploadImage, categoryController.createNewCategory)
+    .put(admin(multer(multerConfig).single('file')), uploadImage, categoryController.updateCategory)
+
+router.route('/category/:id')
+    .all(passport.authenticate)
+    .delete(admin(categoryController.deleteCategory))
 
 router.route('/orders')
     .all(passport.authenticate)
@@ -98,10 +119,12 @@ router.route('/orders')
 
 router.route('/order')
     .all(passport.authenticate)
-    .get(admin(orderController.get))
+    .get((orderController.getbyUserId))
 
 router.route('/order/:id')
     .all(passport.authenticate)
+    .get(orderController.getbyId)
+    .put(admin(orderController.update))
     .delete(admin(orderController.delete))
 
 router.route('/cart')

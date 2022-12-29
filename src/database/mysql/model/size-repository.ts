@@ -1,17 +1,36 @@
 import { SizeRepository } from "../../../application/repositories/SizeRepository";
 import { Size } from "../../../domain/entities/product/size";
+import { logger } from "../../../logger";
 import knex from "../connection";
 
 
 export class SizeRepositoryMsql implements SizeRepository {
-    create(size: Size): Promise<null> {
-        throw new Error("Method not implemented.");
+    async create(size: Size): Promise<null> {
+        try {
+            await knex('size').insert(size.props);
+        } catch (error) {
+            throw new Error("Não foi possível criar o tamanho!")
+        }
+        return null
     }
-    update(size: Size): Promise<null> {
-        throw new Error("Method not implemented.");
+
+    async update(size: Size): Promise<null> {
+        try {
+            await knex('size').update(size.props).where("id", size.id);
+        } catch (error) {
+            console.log(error)
+            throw new Error("Não foi possível atualizar o tamanho!")
+        }
+        return null
     }
-    delete(id: string): Promise<null> {
-        throw new Error("Method not implemented.");
+
+    async delete(id: string): Promise<null> {
+        try {
+            await knex('size').delete().where("id", id);
+        } catch (error) {
+            throw new Error("Não foi possível deletar o tamanho!")
+        }
+        return null
     }
     async findById(id: string): Promise<Size | null> {
 
@@ -31,11 +50,12 @@ export class SizeRepositoryMsql implements SizeRepository {
     async findByValue(value: string): Promise<Size | null> {
         try {
             const size = await knex('size')
-                .where('size.value', value)
+                .where('value', value)
                 .first();
             return size; 
 
         } catch (e) {
+            logger.error(e)
             throw new Error("Não foi possível realizar a busca!")
         }
     }

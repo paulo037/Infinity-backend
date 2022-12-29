@@ -4,6 +4,7 @@ import { SizeRepository } from "../../repositories/SizeRepository";
 
 type CreateSizeRequest = {
     value:string
+    id?: string
 }
 
 
@@ -16,20 +17,24 @@ export class CreateSize {
 
 
     async execute({ 
-        value}: CreateSizeRequest) {
+        value, id}: CreateSizeRequest) {
 
         const SizeExist = await this.SizeRepository.findByValue(value)
         
-
-        Validation.notExistOrError(SizeExist, "Um tamanho com esse valor já existe");
+        try {
+            Validation.notExistOrError(SizeExist, "Um tamanho com esse valor já existe");
+        } catch (error) {
+            Validation.differentOrError(SizeExist?.value, value,"Um tamanho com esse valor já existe");
+        }
         
 
      
         const size = Size.create({
-          value
+          value,
+          id
         });
 
-        this.SizeRepository.create(size);
+        return size;
 
     }
 }
