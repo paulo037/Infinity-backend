@@ -1,8 +1,6 @@
 import { User } from "../../../domain/entities/user/user";
 import { Validation } from "../../../domain/validation/validation";
 import { UserRepository } from "../../repositories/UserRepository";
-import bcrypt from "bcrypt"
-import { logger } from "../../../logger";
 
 
 
@@ -15,13 +13,6 @@ export type UpdateUserRequest = {
     image?: string;
 }
 
-
-
-export type UpdateUserPasswordRequest = {
-    id: string
-    confirm_password: string;
-    password: string;
-}
 
 
 export class UpdateUser {

@@ -33,6 +33,11 @@ export class CreateOrder {
         const order_id = v4()
         let price = 0.0
 
+
+        order_has_products.forEach((element, index) => {
+            price += element.props.quantity * element.props.product_price
+        })
+
         order_has_products.forEach((element, index) => {
             price += element.props.quantity * element.props.product_price
         })

@@ -38,11 +38,17 @@ router.post('/validateToken', passport.authenticate, auth.validateToken)
 
 router.post('/refreshToken', auth.refreshToken)
 
+
+
 router.route('/user')
-    .get(passport.authenticate)
-    .put(passport.authenticate)
+    .all(passport.authenticate)
     .get(userController.getUser)
     .put(userController.update)
+
+
+router.route('/password')
+    .all(passport.authenticate)
+    .put(userController.updatePassword)
 
 router.route('/users')
     .get(passport.authenticate, admin(userController.getAll))
@@ -74,8 +80,8 @@ router.route('/product')
     .post(admin(productController.createProduct))
     .get(admin(productController.getAll));
 
-router.route('/product/category/:id')
-    .get(productController.getProductByCategoryId)
+router.route('/product/category/:name')
+    .get(productController.getProductByCategoryName)
 
 router.route('/product/search/:term')
     .get(productController.search)
@@ -132,14 +138,12 @@ router.route('/cart')
     .post(cartController.postCart)
     .delete(cartController.deleteCart)
     .put(cartController.updateCart)
+    .get(cartController.getCart)
 
 router.route('/cart/products-number')
     .all(passport.authenticate)
     .get(cartController.getNumberofProducts)
 
-router.route('/cart/:id')
-    .all(passport.authenticate)
-    .get(cartController.getCart)
 
 
 

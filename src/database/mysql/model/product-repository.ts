@@ -5,11 +5,13 @@ import { ProductHasColor } from "../../../domain/entities/product/product_has_co
 import { ProductHasCategory } from "../../../domain/entities/product/product_has_category";
 import { Image } from "../../../domain/entities/product/image";
 import { v4 as uuidv4 } from "uuid"
+import { OrderHasProduct } from "../../../domain/entities/order/order_has_product";
 
 
 
 
 export class ProductRepositoryMsql implements ProductRepository {
+
 
 
     async getLenght(): Promise<number> {
@@ -179,7 +181,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                     .join('size as s', 'phc.size_id', ' s.id')
                     .where('phc.product_id', id);
 
-                product.colors = colors.map((color : any) => {
+                product.colors = colors.map((color: any) => {
                     return {
                         "size_id": color.size_id,
                         "size": color.size,
@@ -194,7 +196,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                     .where('phc.product_id', id);
 
 
-                product.categories = categories.map((category : any)=> {
+                product.categories = categories.map((category: any) => {
                     return { "name": category.name, "image": category.image, "id": category.id }
                 })
 
@@ -202,7 +204,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                     .where('i.product_id', id);
 
 
-                product.images = images.map((image : any) => {
+                product.images = images.map((image: any) => {
                     return { "id": image.id, "name": image.name, "url": image.url, "primary": image.primary, "key": image.key }
                 })
 
@@ -290,7 +292,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                         'p.price',
                         'i.url')
                     .orderBy('sold', 'desc')
-                    .orderBy( 'rating')
+                    .orderBy('rating')
                     .orderBy('i.url', 'last');
 
                 for await (const [index, product] of products.entries()) {
@@ -303,7 +305,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                 }
 
                 const searchArray = search.replace('|', ' ').split(' ')
-                products.forEach((product : any) => {
+                products.forEach((product: any) => {
                     let ranking = 0
                     let rankingDescription = 0
                     const lengthDescription = product.description.split('<wbr/>&nbsp;<wbr/>').length
@@ -321,7 +323,7 @@ export class ProductRepositoryMsql implements ProductRepository {
 
                 })
 
-                products.sort((a : any, b : any)=> b.ranking - a.ranking)
+                products.sort((a: any, b: any) => b.ranking - a.ranking)
 
                 return products as Product[];
 
@@ -335,10 +337,33 @@ export class ProductRepositoryMsql implements ProductRepository {
         try {
             let products = await knex.select('p.name as name')
                 .from('product as p')
-            products = products.map((p : any) => p.name)
+            products = products.map((p: any) => p.name)
             return products;
 
         } catch (e) {
+            throw new Error("Não foi possível realizar a busca!")
+        }
+    }
+
+
+    async have(order_has_product: OrderHasProduct): Promise<Number> {
+        const {product_id, size, color} = order_has_product.props
+        try {
+            const phc = await knex('product_has_color as phc')
+            .join("color as c", "c.id", "phc.color_id")
+            .join("size as s", "s.id", "phc.size_id")
+            .select("phc.quantity as quantity")
+            .where("phc.product_id", product_id)
+            .andWhere("s.value", size)
+            .andWhere("c.value", color)
+            .first();
+
+            if (phc){
+                return phc.quantity;
+            }
+            return 0
+
+        } catch (error) {
             throw new Error("Não foi possível realizar a busca!")
         }
     }

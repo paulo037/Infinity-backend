@@ -133,12 +133,12 @@ export async function seed(knex: Knex): Promise<void> {
 
     await knex("category").insert([
         {
-            name: "Blusa",
+            name: "Produtos Mais Vendidos",
             image: "https://a-static.mlcdn.com.br/618x463/camiseta-masculina-basica-lisa-100-algodao-fio-30-1-cor-preta-tamanho-m-ritual-surf/ritualsurfstore/3ba9043af7bc11ea81aa4201ac18502e/5700a151a4ee615cafb10e2cf637708c.jpg",
             id: c1,
         },
         {
-            name: "Blusa de Time",
+            name: "Lançamentos",
             image: "https://static.netshoes.com.br/produtos/camisa-selecao-brasil-iii-1920-sn-torcedor-nike-masculina/14/HZM-0866-014/HZM-0866-014_zoom1.jpg?ts=1639673308",
             id: c2,
         },

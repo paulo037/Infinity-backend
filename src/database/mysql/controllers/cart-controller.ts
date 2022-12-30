@@ -16,9 +16,7 @@ export class CartController {
 
         if (userLog == undefined) return response.status(401).send('unauthorized')
 
-        let id = request.params.id;
-
-        if (userLog.id != id) return response.status(401).send('unauthorized')
+        let id = userLog.id;
 
         try {
             const products = await this.repository.getCart(id)
@@ -38,7 +36,9 @@ export class CartController {
         if (userLog == undefined) return response.status(401).send('unauthorized')
 
         try {
-            const newCart = Cart.create(request.body.cart)
+            let cart = request.body.cart
+            cart.user_id = userLog.id;
+            const newCart = Cart.create(cart)
 
             await this.repository.create(newCart)
 
@@ -59,8 +59,9 @@ export class CartController {
         if (userLog == undefined) return response.status(401).send('unauthorized')
 
         try {
-
-            const newCart = Cart.create(request.body.cart)
+            let cart = request.body.cart
+            cart.user_id = userLog.id;
+            const newCart = Cart.create(cart)
 
             await this.repository.update(newCart)
 
@@ -82,7 +83,9 @@ export class CartController {
         if (userLog == undefined) return response.status(401).send('Não autorizado!')
 
         try {
-            const newCart = Cart.create(request.body.cart)
+            let cart = request.body.cart
+            cart.user_id = userLog.id;
+            const newCart = Cart.create(cart)
 
             await this.repository.delete(newCart)
 

@@ -133,6 +133,14 @@ export class OrderController {
                 this.cartRepository.deleteAll(user.id as string)
             }
 
+            let order_has_products = [] as OrderHasProduct[]
+
+            for await (const [index, element] of request.body.items.entries()) {
+                const c = await this.createOrderHasProduct.execute(element)
+                order_has_products.push(c);
+
+            }
+
             let items = [] as ItemPreference[]
 
             for await (const [index, element] of request.body.items.entries()) {
@@ -144,18 +152,11 @@ export class OrderController {
 
             const address = await this.createAddress.execute(request.body.address)
 
-            let order_has_products = [] as OrderHasProduct[]
 
-            for await (const [index, element] of request.body.items.entries()) {
-                const c = await this.createOrderHasProduct.execute(element)
-                order_has_products.push(c);
-
-            }
 
             try {
 
                 const order_id = await this.createOrder.execute({ order_has_products, address })
-
                 const preference = await this.createPreference.execute({ email: user.props.email, items, address, order_id })
                 const id = await mercadopago.preferences.create(preference)
                 return response.json({ id: id.body.id });

@@ -41,6 +41,12 @@ export class CreateOrderHasProduct {
 
         })
 
+        const quantity = await this.productRepository.have(order_has_product);
+
+        if(order_has_product.props.quantity > quantity ){
+            throw new Error(`Não foi possível criar o pedido! pois a quantidade de ${product.name} disponível no estoque é de apenas ${quantity} unidade(s)`)
+        }
+
         return order_has_product;
     }
 

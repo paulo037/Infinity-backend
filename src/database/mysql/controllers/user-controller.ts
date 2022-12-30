@@ -9,11 +9,14 @@ import { ChangeAdminPermission } from "../../../application/services/user/change
 import { Address } from "../../../domain/entities/user/address";
 import { Entity } from "../../../core/domain/entities";
 import { logger } from "../../../logger";
+import { UpdateUserPassword, UpdateUserPasswordRequest } from "../../../application/services/user/update-user -password";
 export class UserController {
+
     constructor(
         private repository = new UserRepositoryMysql(),
         private createUser = new CreateUser(repository),
         private updateUser = new UpdateUser(repository),
+        private updateUserPassword = new UpdateUserPassword(repository),
         private findByEmail = new FindUserByEmail(repository),
         private getAllUsers = new GetAllUsers(repository),
         private changeUserPermission = new ChangeAdminPermission(repository),
@@ -88,7 +91,27 @@ export class UserController {
         }
     }
 
+    public updatePassword = async (request: Request, response: Response) => {
 
+        try {
+            const userLog = request.user as JwtPayload
+            if (userLog == undefined) return response.status(401).send();
+
+            let props = request.body.props as UpdateUserPasswordRequest
+
+            props.id = userLog.id
+
+
+            await this.updateUserPassword.execute(props)
+            response.status(201).send();
+        } catch (error) {
+            console.log(error)
+            return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+        }
+    }
+
+
+    
 
     public getAll = async (request: Request, response: Response) => {
         try {

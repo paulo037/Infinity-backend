@@ -4,7 +4,7 @@ import { CategoryRepository } from "../../repositories/CategoryRepository";
 import { ProductRepository } from "../../repositories/ProductRepository";
 
 type GetProductByCategoryRequest = {
-    id: string;
+    name: string;
 }
 
 
@@ -15,12 +15,12 @@ export class GetProductByCategory {
         private categoryRepository: CategoryRepository,
     ) { }
 
-    async execute({ id }: GetProductByCategoryRequest) {
+    async execute({ name }: GetProductByCategoryRequest) {
 
-        const category = await this.categoryRepository.findById(id)
+        const category = await this.categoryRepository.findByName(name)
         Validation.existOrError(category, "Categoria não encontrada");
       
-        return this.productRepository.getByCategory(id)
+        return this.productRepository.getByCategory(category?.id as string)
 
         
     }

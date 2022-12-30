@@ -164,10 +164,10 @@ export class ProductController {
         }
     }
 
-    public getProductByCategoryId = async (request: Request, response: Response) => {
-        let id =request.params.id;
+    public getProductByCategoryName = async (request: Request, response: Response) => {
+        let name =request.params.name;
         try {
-            const products = await this.getProductByCategory.execute({ id })
+            const products = await this.getProductByCategory.execute({ name })
 
             return response.json(products);
         } catch (error) {
