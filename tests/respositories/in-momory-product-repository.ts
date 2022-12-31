@@ -1,4 +1,5 @@
 import { ProductRepository } from "../../src/application/repositories/ProductRepository";
+import { OrderHasProduct } from "../../src/domain/entities/order/order_has_product";
 import { Image } from "../../src/domain/entities/product/image";
 import { Product } from "../../src/domain/entities/product/product";
 import { ProductHasCategory } from "../../src/domain/entities/product/product_has_category";
@@ -6,6 +7,9 @@ import { ProductHasColor } from "../../src/domain/entities/product/product_has_c
 
 
 export class InMemoryProductRepository implements ProductRepository {
+    have(order_has_product: OrderHasProduct): Promise<Number> {
+        throw new Error("Method not implemented.");
+    }
 
     
     updateColor(colors: ProductHasColor[], product_id: string): Promise<null> {
