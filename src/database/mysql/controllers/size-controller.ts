@@ -11,7 +11,7 @@ class SizeController{
     public getAll = async (request: Request, response: Response) => {
         try {
             let sizes = await this.repository.getAll()
-            response.json(sizes)
+            return response.json(sizes)
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
@@ -24,7 +24,7 @@ class SizeController{
             let value = request.body.size;
             const size = await this.createService.execute({ value })
             await this.repository.create(size);
-            response.status(201).json(size.id)
+            return response.status(201).json(size.id)
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
@@ -36,7 +36,7 @@ class SizeController{
             let props = request.body.size;
             const size = await this.createService.execute(props)
             await this.repository.update(size);
-            response.status(204).send()
+            return response.status(204).send()
         } catch (error) {
 
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -50,7 +50,7 @@ class SizeController{
     
             await this.repository.delete(id);
 
-            response.status(200).send();
+            return response.status(200).send();
         } catch (error) {
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }

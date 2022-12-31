@@ -66,7 +66,7 @@ export class UserController {
 
             
             
-            response.json(userResponse).status(200);
+            return response.json(userResponse).status(200);
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
@@ -85,7 +85,7 @@ export class UserController {
 
 
             await this.updateUser.execute(user)
-            response.status(201).send();
+            return response.status(201).send();
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
@@ -103,9 +103,8 @@ export class UserController {
 
 
             await this.updateUserPassword.execute(props)
-            response.status(201).send();
+            return response.status(201).send();
         } catch (error) {
-            console.log(error)
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
@@ -116,7 +115,7 @@ export class UserController {
     public getAll = async (request: Request, response: Response) => {
         try {
             const users = await this.getAllUsers.execute();
-            response.json(users);
+            return response.json(users);
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
@@ -129,12 +128,12 @@ export class UserController {
         let { admin } = request.body
         const userLog = request.user as JwtPayload
 
-        if (userLog == undefined) response.status(401).send("Usuário não é um administrador!")
-        if (userLog.ad == false) response.status(401).send("Usuário não é um administrador!")
+        if (userLog == undefined) return response.status(401).send("Usuário não é um administrador!")
+        if (userLog.ad == false) return response.status(401).send("Usuário não é um administrador!")
 
         try {
             await this.changeUserPermission.execute(id, admin)
-            response.status(201).send();
+            return response.status(201).send();
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
@@ -145,12 +144,12 @@ export class UserController {
 
         const userLog = request.user as JwtPayload
 
-        if (userLog == undefined) response.status(401).send("Usuário não autorizado!")
+        if (userLog == undefined) return response.status(401).send("Usuário não autorizado!")
 
 
         try {
             const address = await this.repository.getAddresses(userLog.id);
-            response.json(address).status(200);
+            return response.json(address).status(200);
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
 
@@ -162,12 +161,12 @@ export class UserController {
         try {
             const userLog = request.user as JwtPayload
 
-            if (userLog == undefined) response.status(401).send("Usuário não autorizado!")
+            if (userLog == undefined) return response.status(401).send("Usuário não autorizado!")
             let addressProps = request.body.address
             addressProps.user_id = userLog.id
             const address = Address.create(addressProps)
 
-            if (userLog.id != address.props.user_id) response.status(401).send("Usuário não autorizado!")
+            if (userLog.id != address.props.user_id) return response.status(401).send("Usuário não autorizado!")
 
             await this.repository.createAddress(address);
             return response.status(200).send("Endereço atualizado com sucesso!");
@@ -182,11 +181,11 @@ export class UserController {
         try {
             const userLog = request.user as JwtPayload
 
-            if (userLog == undefined) response.status(401).send("Usuário não autorizado!")
+            if (userLog == undefined) return response.status(401).send("Usuário não autorizado!")
 
             const address = Address.create(request.body.address)
 
-            if (userLog.id != address.props.user_id) response.status(401).send("Usuário não autorizado!")
+            if (userLog.id != address.props.user_id) return response.status(401).send("Usuário não autorizado!")
 
             await this.repository.updateAddress(address);
             return response.status(200).send("Endereço atualizado com sucesso!");
@@ -201,13 +200,13 @@ export class UserController {
 
         const userLog = request.user as JwtPayload
 
-        if (userLog == undefined) response.status(401).send("Usuário não autorizado!")
+        if (userLog == undefined) return response.status(401).send("Usuário não autorizado!")
 
         const id = request.params.id
 
         try {
             const address = await this.repository.getAddress(id, userLog.id);
-            response.json(address).status(200);
+            return response.json(address).status(200);
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
 

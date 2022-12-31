@@ -20,7 +20,6 @@ export class CategoryRepositoryMsql implements CategoryRepository {
         try {
             await knex('category').update(category.props).where("id", category.id);
         } catch (error) {
-            console.log(error)
             throw new Error("Não foi possível atualizar a categoria!")
         }
         return null

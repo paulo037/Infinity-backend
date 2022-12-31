@@ -23,10 +23,10 @@ export = (middleware: Function) => {
                 middleware(request, response, next)
             }
             else {
-                response.status(401).send("Usuário não é um administrador!")
+                return response.status(401).send("Usuário não é um administrador!")
             }
         } catch (error) {
-            response.status(401).send("Usuário não é um administrador!")
+            return response.status(401).send("Usuário não é um administrador!")
 
         }
 

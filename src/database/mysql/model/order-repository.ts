@@ -5,6 +5,7 @@
 import { OrderRepository } from "../../../application/repositories/OrderRepository";
 import { Order } from "../../../domain/entities/order/order";
 import { OrderHasProduct } from "../../../domain/entities/order/order_has_product";
+import { Status } from "../../../domain/entities/order/status";
 import { logger } from "../../../logger";
 import knex from "../connection";
 
@@ -67,15 +68,23 @@ export class OrderRepositoryMsql implements OrderRepository {
         }
     }
 
-    async update(id: string, status: number,  tracking_code?: string | null): Promise<null> {
+    async update(id: string, status: Status, tracking_code?: string): Promise<null> {
         try {
-            
-            await knex('order').update({"status": status}).where("id", id)
-            if(tracking_code){
-                await knex('order').update({"tracking_code": tracking_code}).where("id", id)
+            await knex.transaction(async trx => {
+                await trx('order').update({ 'status': status }).where('id', id)
+                if (status == Status.PAYMENT_APPROVED) {
+                    await trx('order_has_product as ohc')
+                        .join('color as c', 'c.value', 'ohc.color')
+                        .join('size as s', 's.value', 'ohc.size')
+                        .join('product_has_color as phc', { 'phc.product_id': 'ohc.product_id', 'phc.size_id': 's.id', 'phc.color_id': 'c.id' })
+                        .update({ 'phc.quantity': '(phc.quantity - ohp.quantity)' })
+                        .where('ohc.order_id', id)
+                }
+            })
+            if (tracking_code) {
+                await knex('order').update({ "tracking_code": tracking_code }).where("id", id)
             }
         } catch (error) {
-            logger.error(error)
             throw new Error("Erro ao atualizar pedido!");
         }
         return null;
@@ -133,6 +142,7 @@ export class OrderRepositoryMsql implements OrderRepository {
                     .select('id ',
                         'created_at',
                         'status',
+                        'tracking_code',
                         'id',).where('o.user_id', user_id)
 
                 let ordersWithProducts = []

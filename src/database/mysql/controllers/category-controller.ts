@@ -16,7 +16,7 @@ export class CategoryController {
     public getAll = async (request: Request, response: Response) => {
         try {
             let categories = await this.repository.getAll()
-            response.json(categories)
+            return response.json(categories)
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
@@ -30,7 +30,7 @@ export class CategoryController {
             
             const category = await this.createService.execute(props)
             await this.repository.create(category);
-            response.status(201).json({...category.props})
+            return response.status(201).json({...category.props})
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
@@ -47,7 +47,7 @@ export class CategoryController {
 
             const category = await this.createService.execute(props)
             await this.repository.update(category);
-            response.status(200).json({...category.props})
+            return response.status(200).json({...category.props})
         } catch (error) {
 
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -63,7 +63,7 @@ export class CategoryController {
 
             await this.repository.delete(id);
 
-            response.status(200).send();
+            return response.status(200).send();
         } catch (error) {
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }

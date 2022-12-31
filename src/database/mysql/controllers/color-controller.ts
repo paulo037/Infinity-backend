@@ -13,7 +13,7 @@ export class ColorController{
         try {
             let colors = await this.repository.getAll()
            
-            response.status(200).json(colors)
+            return response.status(200).json(colors)
         } catch (error) {
  
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -26,7 +26,7 @@ export class ColorController{
             let value = request.body.color;
             const color = await this.createService.execute({ value })
             await this.repository.create(color);
-            response.status(201).json(color.id)
+            return response.status(201).json(color.id)
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
@@ -38,7 +38,7 @@ export class ColorController{
             let props = request.body.color;
             const color = await this.createService.execute(props)
             await this.repository.update(color);
-            response.status(204).send()
+            return response.status(204).send()
         } catch (error) {
 
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -52,7 +52,7 @@ export class ColorController{
     
             await this.repository.delete(id);
 
-            response.status(200).send();
+            return response.status(200).send();
         } catch (error) {
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }

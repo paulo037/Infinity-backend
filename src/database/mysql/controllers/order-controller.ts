@@ -9,6 +9,7 @@ import { CreatePreference, Preference } from "../../../application/services/orde
 import { CreateAddress } from "../../../application/services/user/create-address";
 import { FindUserByEmail } from "../../../application/services/user/find-user-by-email ";
 import { OrderHasProduct } from "../../../domain/entities/order/order_has_product";
+import { Status } from "../../../domain/entities/order/status";
 import { AddressProps } from "../../../domain/entities/user/address";
 import { logger } from "../../../logger";
 import { CartRepositoryMysql } from "../model/cart-repository";
@@ -19,8 +20,6 @@ import { UserRepositoryMysql } from "../model/user-repository";
 const dotenv = require('dotenv')
 dotenv.config()
 
-const APPROVED = 1;
-const REJECTED = -1;
 
 export class OrderController {
 
@@ -45,7 +44,7 @@ export class OrderController {
 
             let orders = await this.repository.getAll()
 
-            response.status(200).json(orders)
+            return response.status(200).json(orders)
         } catch (error) {
 
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -61,7 +60,7 @@ export class OrderController {
             const id = request.params.id;
             const order = await this.repository.get(id) as any;
             if (userLog.id != order.user.id) return response.status(401).send('unauthorized')
-            response.status(200).json(order);
+            return response.status(200).json(order);
 
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -75,7 +74,7 @@ export class OrderController {
 
             let orders = await this.repository.findByUserId(userLog.id)
 
-            response.status(200).json(orders)
+            return response.status(200).json(orders)
         } catch (error) {
 
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -91,7 +90,7 @@ export class OrderController {
 
             let orders = await this.repository.delete(userLog.id, id)
 
-            response.status(200).json(orders)
+            return response.status(200).json(orders)
         } catch (error) {
 
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -110,7 +109,7 @@ export class OrderController {
 
             await this.repository.update(id, status, tracking_code);
 
-            response.status(201).send();
+            return response.status(201).send();
         } catch (error) {
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
@@ -194,15 +193,17 @@ export class OrderController {
 
         switch (status) {
             case "approved":
-                await this.repository.update(external_reference, APPROVED)
+                await this.repository.update(external_reference, Status.PAYMENT_APPROVED)
                 break;
 
             case "rejected":
-                await this.repository.update(external_reference, REJECTED)
+                await this.repository.update(external_reference, Status.PAYMENT_REFUSED)
                 break;
             default:
                 break;
         }
+
+        
 
         return response.status(200).send()
     }

@@ -179,7 +179,8 @@ export class ProductRepositoryMsql implements ProductRepository {
                         'phc.quantity as quantity')
                     .join('product_has_color as phc', 'phc.color_id', ' c.id')
                     .join('size as s', 'phc.size_id', ' s.id')
-                    .where('phc.product_id', id);
+                    .where('phc.product_id', id)
+                    .andWhere('phc.quantity','>=' , 1);
 
                 product.colors = colors.map((color: any) => {
                     return {

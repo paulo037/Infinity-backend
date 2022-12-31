@@ -18,7 +18,6 @@ export class SizeRepositoryMsql implements SizeRepository {
         try {
             await knex('size').update(size.props).where("id", size.id);
         } catch (error) {
-            console.log(error)
             throw new Error("Não foi possível atualizar o tamanho!")
         }
         return null

@@ -108,7 +108,7 @@ export class ProductController {
 
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
-        response.status(201).send();
+        return response.status(201).send();
     }
 
     public updateProduct = async (request: Request, response: Response) => {
@@ -128,7 +128,7 @@ export class ProductController {
 
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
-        response.status(200).send();
+        return response.status(200).send();
     }
 
     public delete = async (request: Request, response: Response) => {

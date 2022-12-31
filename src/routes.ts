@@ -110,8 +110,9 @@ router.route('/color')
     .put(admin(colorController.updateColor))
 
 router.route('/category')
-    .all(passport.authenticate)
-    .get(admin(categoryController.getAll))
+    .put(passport.authenticate)
+    .post(passport.authenticate)
+    .get(categoryController.getAll)
     .post(admin(multer(multerConfig).single('file')), uploadImage, categoryController.createNewCategory)
     .put(admin(multer(multerConfig).single('file')), uploadImage, categoryController.updateCategory)
 
@@ -171,12 +172,12 @@ router.get('/address/cep/:cep', async (request: Request, response: Response) => 
     try {
         const resp = await axios.get(`http://viacep.com.br/ws/${cep}/json/`)
         if (resp.data.erro) {
-            response.status(400).send(`Não foi possível encontrar o cep: ${cep}`)
+            return response.status(400).send(`Não foi possível encontrar o cep: ${cep}`)
 
         }
-        response.json(resp.data).status(200)
+        return response.json(resp.data).status(200)
     } catch (error) {
-        response.status(400).send(`Não foi possível encontrar o cep: ${cep}`)
+        return response.status(400).send(`Não foi possível encontrar o cep: ${cep}`)
 
     }
 })
