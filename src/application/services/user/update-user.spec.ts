@@ -34,11 +34,8 @@ describe('Update User', () => {
             first_name: "Paulo",
             last_name: "silva",
             image: "ww.exemple.com",
-            password: "12345678",
-            confirm_password: "12345678",
             email: "exemple@gmail.com",
             cpf: "13210829675",
-            admin: false,
             id: "1"
         });
 
@@ -74,11 +71,8 @@ describe('Update User', () => {
                 first_name: "Paulo",
                 last_name: "silva",
                 image: "ww.exemple.com",
-                password: "12345678",
-                confirm_password: "12345678",
                 email: "exemple@gmail.com",
                 cpf: "13210829675",
-                admin: false,
                 id: "2"
             });
 
@@ -120,11 +114,8 @@ describe('Update User', () => {
                 first_name: "",
                 last_name: "silva",
                 image: "ww.exemple.com",
-                password: "12345678",
-                confirm_password: "12345678",
                 email: "exemple@gmail.com",
                 cpf: "13210829675",
-                admin: false,
                 id: "2"
             });
 
