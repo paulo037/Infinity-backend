@@ -9,7 +9,8 @@ const development = {
         port: process.env.PORT_BD_LOCAL,
         user: process.env.BD_USER_LOCAL,
         password: process.env.PASSWORD_LOCAL,
-        database: process.env.DATABASE_LOCAL
+        database: process.env.DATABASE_LOCAL,
+        decimalNumbers: true
     },
 
     migrations: {
@@ -30,7 +31,8 @@ const production = {
         port: process.env.PORT_BD,
         user: process.env.BD_USER,
         password: process.env.PASSWORD,
-        database: process.env.DATABASE
+        database: process.env.DATABASE,
+        decimalNumbers: true
     },
 
     migrations: {

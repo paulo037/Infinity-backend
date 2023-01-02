@@ -180,7 +180,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                     .join('product_has_color as phc', 'phc.color_id', ' c.id')
                     .join('size as s', 'phc.size_id', ' s.id')
                     .where('phc.product_id', id)
-                    .andWhere('phc.quantity','>=' , 1);
+                    .andWhere('phc.quantity', '>=', 1);
 
                 product.colors = colors.map((color: any) => {
                     return {
@@ -270,7 +270,12 @@ export class ProductRepositoryMsql implements ProductRepository {
     async search(search: string): Promise<Product[]> {
         try {
             return await knex.transaction(async trx => {
-                search = search.replace(' ', '|')
+                
+                const search_split = search.split(' ')
+                search = search_split.filter( (word) =>  word.length > 3).join(' ');
+                search = search.replaceAll(' ', '|')
+                
+                if (search.length < 3 )return [];
                 let products = await trx.select('p.id as id',
                     'p.name as name',
                     'p.price as price',
@@ -348,18 +353,18 @@ export class ProductRepositoryMsql implements ProductRepository {
 
 
     async have(order_has_product: OrderHasProduct): Promise<Number> {
-        const {product_id, size, color} = order_has_product.props
+        const { product_id, size, color } = order_has_product.props
         try {
             const phc = await knex('product_has_color as phc')
-            .join("color as c", "c.id", "phc.color_id")
-            .join("size as s", "s.id", "phc.size_id")
-            .select("phc.quantity as quantity")
-            .where("phc.product_id", product_id)
-            .andWhere("s.value", size)
-            .andWhere("c.value", color)
-            .first();
+                .join("color as c", "c.id", "phc.color_id")
+                .join("size as s", "s.id", "phc.size_id")
+                .select("phc.quantity as quantity")
+                .where("phc.product_id", product_id)
+                .andWhere("s.value", size)
+                .andWhere("c.value", color)
+                .first();
 
-            if (phc){
+            if (phc) {
                 return phc.quantity;
             }
             return 0

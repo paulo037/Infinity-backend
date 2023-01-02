@@ -22,7 +22,6 @@ dotenv.config()
 
 
 export class OrderController {
-
     constructor(
         private repository = new OrderRepositoryMsql(),
         private cartRepository = new CartRepositoryMysql(),
@@ -59,7 +58,7 @@ export class OrderController {
 
             const id = request.params.id;
             const order = await this.repository.get(id) as any;
-            if (userLog.id != order.user.id) return response.status(401).send('unauthorized')
+            if ((userLog.id != order.user.id) && !userLog.ad) return response.status(401).send('unauthorized')
             return response.status(200).json(order);
 
         } catch (error) {
@@ -73,7 +72,6 @@ export class OrderController {
             if (userLog == undefined) return response.status(401).send('unauthorized')
 
             let orders = await this.repository.findByUserId(userLog.id)
-
             return response.status(200).json(orders)
         } catch (error) {
 
@@ -114,6 +112,23 @@ export class OrderController {
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
+
+    public updateRating = async (request: Request, response: Response) => {
+        try {
+            const id = request.params.id;
+            const rating = request.body.rating;
+            const userLog = request.user as JwtPayload;
+            if (userLog == undefined) return response.status(401).send('unauthorized');
+            const user_id = userLog.id;
+            await this.repository.updateRating(id, rating, user_id);
+
+            return response.status(201).send();
+        } catch (error) {
+            return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+        }
+    }
+
+
 
     public newOrder = async (request: Request, response: Response) => {
         try {
@@ -203,7 +218,7 @@ export class OrderController {
                 break;
         }
 
-        
+
 
         return response.status(200).send()
     }

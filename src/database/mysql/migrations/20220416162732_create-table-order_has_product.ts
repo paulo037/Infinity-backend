@@ -18,7 +18,7 @@ export async function up(knex: Knex): Promise<void> {
         table.string('product_name', 50)
             .notNullable()
 
-        table.decimal('product_price').notNullable();
+        table.decimal('product_price', 14,2).notNullable();
 
         table.string('color', 50)
             .notNullable()
@@ -37,6 +37,6 @@ export async function up(knex: Knex): Promise<void> {
 
 
 export async function down(knex: Knex): Promise<void> {
-    return knex.schema.dropTable('order_has_product');
+    return knex.schema.dropTableIfExists('order_has_product');
 }
 

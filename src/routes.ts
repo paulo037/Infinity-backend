@@ -128,6 +128,10 @@ router.route('/order')
     .all(passport.authenticate)
     .get((orderController.getbyUserId))
 
+router.route('/order/rating/:id')
+    .all(passport.authenticate)
+    .put(orderController.updateRating)
+
 router.route('/order/:id')
     .all(passport.authenticate)
     .get(orderController.getbyId)

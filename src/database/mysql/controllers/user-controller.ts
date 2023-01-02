@@ -25,12 +25,7 @@ export class UserController {
     public create = async (request: Request, response: Response) => {
 
         try {
-            const userLog = request.user as JwtPayload
-
             let user = request.body.user
-
-            if (userLog == undefined) user.ad = false
-            else if (userLog.ad == false) user.ad = false
 
             await this.createUser.execute(user as CreateUserRequest)
             return response.status(201).send();

@@ -12,6 +12,7 @@ import knex from "../connection";
 
 export class OrderRepositoryMsql implements OrderRepository {
 
+
     async get(id: string): Promise<Order | null> {
         try {
             return await knex.transaction(async trx => {
@@ -55,7 +56,6 @@ export class OrderRepositoryMsql implements OrderRepository {
         }
     }
 
-
     async create(order: Order, orderHasProducts: OrderHasProduct[]): Promise<null> {
         try {
             await knex.transaction(async trx => {
@@ -89,6 +89,22 @@ export class OrderRepositoryMsql implements OrderRepository {
         }
         return null;
     }
+
+    async updateRating(id: string, rating: Number, user_id: string): Promise<null> {
+        try {
+
+            await knex('order_has_product as ohp')
+                .join('order as o', 'o.id', 'ohp.order_id')
+                .update('rating', rating)
+                .where('ohp.id', id)
+                .andWhere('o.user_id', user_id)
+        } catch (error) {
+
+            throw new Error("Erro ao avaliar produto!");
+        }
+        return null;
+    }
+
     async delete(user_id: string, id: string): Promise<null> {
 
         try {
@@ -155,6 +171,9 @@ export class OrderRepositoryMsql implements OrderRepository {
                             'ohp.product_price as price',
                             'ohp.quantity as quantity',
                             'ohp.product_id as product_id',
+                            'ohp.rating as rating',
+                            'ohp.id as id'
+
 
 
                         )
