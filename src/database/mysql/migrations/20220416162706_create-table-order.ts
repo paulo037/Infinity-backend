@@ -5,7 +5,8 @@ export async function up(knex: Knex): Promise<void> {
     return knex.schema.createTable('order', table => {
         table.string('id', 36).primary().notNullable()
         table.decimal('price',14,2).notNullable();
-        table.timestamp('created_at').defaultTo(knex.fn.now());
+        table.decimal('shipping_price',14,2).defaultTo(0);
+        table.timestamp('created_at', { precision: 6,  useTz: true }).defaultTo(knex.fn.now(6));
         table.integer('status').defaultTo(0)
         table.string('user_name',120).notNullable();
         table.string('cep',8).notNullable();

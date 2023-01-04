@@ -12,6 +12,9 @@ import { Passport } from "./application/config/passport";
 import admin from "./application/config/admin";
 import { CartController } from "./database/mysql/controllers/cart-controller";
 import axios from "axios";
+import nodemailer from 'nodemailer'
+import fs from 'fs'
+import { Mailer } from "./application/config/nodemailer";
 
 const router = express.Router()
 const userController = new UserController()
@@ -47,8 +50,15 @@ router.route('/user')
 
 
 router.route('/password')
-    .all(passport.authenticate)
+    .put(passport.authenticate)
     .put(userController.updatePassword)
+    .post(userController.passwordRecovery)
+
+
+
+router.route('/password/:id')
+    .get(userController.passwordRecoveryExist)
+    .post(userController.UpdatePassword)
 
 router.route('/users')
     .get(passport.authenticate, admin(userController.getAll))
@@ -185,4 +195,9 @@ router.get('/address/cep/:cep', async (request: Request, response: Response) => 
 
     }
 })
+
+
+
+
 export default router;
+

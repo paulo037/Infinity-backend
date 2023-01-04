@@ -10,12 +10,16 @@ import { Address } from "../../../domain/entities/user/address";
 import { Entity } from "../../../core/domain/entities";
 import { logger } from "../../../logger";
 import { UpdateUserPassword, UpdateUserPasswordRequest } from "../../../application/services/user/update-user -password";
+import { Mailer } from "../../../application/config/nodemailer";
+import { UpdatePassword } from "../../../application/services/user/update-password";
 export class UserController {
+
 
     constructor(
         private repository = new UserRepositoryMysql(),
         private createUser = new CreateUser(repository),
         private updateUser = new UpdateUser(repository),
+        private updatePasswordService = new UpdatePassword(repository),
         private updateUserPassword = new UpdateUserPassword(repository),
         private findByEmail = new FindUserByEmail(repository),
         private getAllUsers = new GetAllUsers(repository),
@@ -103,6 +107,65 @@ export class UserController {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
+
+    public passwordRecovery = async (request: Request, response: Response) => {
+
+        try {
+           
+
+            let email = request.body.email as string;
+
+            const user = await this.findByEmail.execute(email);
+    
+            const haveRecovery = await this.repository.findPasswordRecovery(user.id as string);
+            if (haveRecovery) throw new Error('Já há um link de redefinição de senha ativo! O link tem duração de 15 minutos.')
+
+
+            const id = await this.repository.passwordRecovery(user.id as string);
+            await Mailer.passwordRecovery({
+                first_name: user.props.first_name,
+                id,
+                to: user.email
+            })
+            return response.status(200).send();
+        } catch (error) {
+            return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+        }
+    }
+
+
+    public passwordRecoveryExist = async (request: Request, response: Response) => {
+
+        try {
+
+            const id = request.params.id as string;
+    
+            const recovery = await this.repository.passwordRecoveryExist(id);
+        
+            return response.status(200).json(recovery);
+        } catch (error) {
+            return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+        }
+    }
+
+
+    public UpdatePassword = async (request: Request, response: Response) => {
+
+        try {
+
+            const id = request.params.id as string;
+            const user = request.body.user;
+    
+            await this.updatePasswordService.execute({recovery_id: id, password: user.password, confirm_password : user.confirm_password});
+        
+            return response.status(200).send();
+        } catch (error) {
+            return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
+        }
+    }
+    
+
+    
 
 
     

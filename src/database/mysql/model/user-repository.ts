@@ -7,6 +7,7 @@ import { Address } from "../../../domain/entities/user/address";
 
 export class UserRepositoryMysql implements UserRepository {
 
+
     async findByCPF(cpf: string): Promise<User | null> {
 
         try {
@@ -152,8 +153,8 @@ export class UserRepositoryMysql implements UserRepository {
                 .where("address.user_id", user_id)
                 .andWhere("address.id", id)
                 .first();
-            
-            if (!address){
+
+            if (!address) {
                 throw new Error("Endereço não encontrado!")
             }
             return address;
@@ -168,14 +169,14 @@ export class UserRepositoryMysql implements UserRepository {
 
             await knex('address')
                 .insert(address.props)
-                
+
             return null;
         } catch (e) {
             throw new Error("Não foi possível atualizar o Endereço!")
         }
 
     }
-    
+
 
     async updateAddress(address: Address): Promise<null> {
         try {
@@ -184,7 +185,7 @@ export class UserRepositoryMysql implements UserRepository {
                 .update(address.props)
                 .where("address.user_id", address.props.user_id)
                 .andWhere("address.id", (address.props.id as string))
-                
+
             return null;
         } catch (e) {
             throw new Error("Não foi possível atualizar o Endereço!")
@@ -193,7 +194,79 @@ export class UserRepositoryMysql implements UserRepository {
     }
 
 
-    
+    async passwordRecovery(user_id: string): Promise<string> {
+        try {
+            const id = uuidv4()
+            await knex('password_recovery')
+                .insert({ id, user_id });
+
+            return id;
+        } catch (e) {
+            throw new Error("Não foi possível atualizar o Endereço!")
+        }
+    }
+
+    async findPasswordRecovery(user_id: string): Promise<Boolean> {
+        try {
+            const request = await knex('password_recovery')
+                .where('user_id', user_id)
+                .orderBy('created_at', 'desc')
+                .first();
+
+            if (!request) return false;
+
+            const request_date = new Date(request.created_at);
+            return (request_date.getTime() + (60 * 15 * 1000) > Date.now());
+        } catch (e) {
+            throw new Error("Não foi possível realizar a consulta!")
+        }
+    }
+
+    async passwordRecoveryExist(id: string): Promise<Boolean> {
+        try {
+            const request = await knex('password_recovery')
+                .where('id', id)
+                .first();
+
+            if (!request) return false;
+
+            const request_date = new Date(request.created_at);
+
+            return (request_date.getTime() + (1000 * 60 * 15) > Date.now());
+        } catch (e) {
+            throw new Error("Não foi possível realizar a consulta!")
+        }
+    }
+
+
+    async updatePassword(recovery_id: string, password: string): Promise<null> {
+        try {
+            await knex('user')
+                .join('password_recovery', 'password_recovery.user_id', 'user.id')
+                .update({ password })
+                .where("password_recovery.id", recovery_id);
+        } catch (e) {
+            throw new Error("Não foi possível atualizar a senha!")
+        }
+
+        return null;
+    }
+
+    async deleteRecovery(recovery_id: string): Promise<null> {
+        try {
+            await knex('password_recovery')
+                .delete()
+                .where("id", recovery_id);
+        } catch (e) {
+            throw new Error("Não foi possível apagar o link de recuperação!")
+        }
+
+        return null;
+    }
+
+
+
+
 
 
 }

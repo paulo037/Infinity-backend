@@ -4,6 +4,7 @@ import { v4 } from "uuid";
 export type OrderProps = {
     id?: string
     price: number;
+    shipping_price?: number;
     state: string;
     created_at?: Date;
     status: number;

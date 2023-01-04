@@ -10,7 +10,7 @@ const development = {
         user: process.env.BD_USER_LOCAL,
         password: process.env.PASSWORD_LOCAL,
         database: process.env.DATABASE_LOCAL,
-        decimalNumbers: true
+        decimalNumbers: true,
     },
 
     migrations: {

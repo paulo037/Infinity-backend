@@ -202,7 +202,7 @@ export class Auth {
 
     public admin = async (request: Request, response: Response) => {
 
-        return response.status(200).json({ admin: true })
+        return response.status(200).json(true )
 
     }
 

@@ -3,6 +3,15 @@ import { Address } from "../../src/domain/entities/user/address";
 import { User } from "../../src/domain/entities/user/user";
 
 export class InMemoryUserRepository implements UserRepository {
+    passwordRecoveryExist(id: string): Promise<Boolean> {
+        throw new Error("Method not implemented.");
+    }
+    findPasswordRecovery(user_id: string): Promise<Boolean> {
+        throw new Error("Method not implemented.");
+    }
+    passwordRecovery(id: string): Promise<string> {
+        throw new Error("Method not implemented.");
+    }
     createAddress(address: Address): Promise<null> {
         throw new Error("Method not implemented.");
     }
