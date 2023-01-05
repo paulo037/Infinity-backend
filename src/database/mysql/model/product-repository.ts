@@ -273,7 +273,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                 
                 const search_split = search.split(' ')
                 search = search_split.filter( (word) =>  word.length > 3).join(' ');
-                search = search.replaceAll(' ', '|')
+                // search = search.replaceAll(' ', '|')
                 
                 if (search.length < 3 )return [];
                 let products = await trx.select('p.id as id',
@@ -287,8 +287,8 @@ export class ProductRepositoryMsql implements ProductRepository {
                     .leftJoin('image as i', 'p.id', 'i.product_id')
                     .leftJoin('order_has_product as ohp', 'p.id', 'ohp.product_id')
                     .where(function () {
-                        this.where('p.name', 'rlike', `${search}`)
-                            .orWhere('p.description', 'rlike', `${search}`)
+                        this.where('p.name', 'rlike', search)
+                            .orWhere('p.description', 'rlike', search)
 
                     })
                     .andWhere(function () {
