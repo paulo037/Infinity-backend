@@ -7,6 +7,7 @@ export interface OrderRepository {
     update(id: string, status: number,  tracking_code?: string | null): Promise<null> 
     delete(user_id: string, id: string): Promise<null>
     get(id: string): Promise<Order | null>
+    getBasic(id: string): Promise<Order | null> 
     getAll(): Promise<Order[]>
     findByUserId(user_id: string): Promise<Order[][]>
 }

@@ -11,7 +11,7 @@ export type AddressProps = {
     complement: string;
     cep: number;
     telephone: number;
-    number: number;
+    number?: number;
     user_id: string;
     id?: string;
 

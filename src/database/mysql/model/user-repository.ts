@@ -172,7 +172,7 @@ export class UserRepositoryMysql implements UserRepository {
 
             return null;
         } catch (e) {
-            throw new Error("Não foi possível atualizar o Endereço!")
+            throw new Error("Não foi possível Criar o Endereço!")
         }
 
     }

@@ -14,7 +14,7 @@ export type OrderProps = {
     street: string;
     cep: number;
     telephone: number;
-    number: number;
+    number?: number;
     complement?: string;
     user_id: string;
     tracking_code?: string;

@@ -56,6 +56,25 @@ export class OrderRepositoryMsql implements OrderRepository {
         }
     }
 
+    async getBasic(id: string): Promise<Order | null> {
+        try {
+            return await knex.transaction(async trx => {
+                let order = await trx('order as o')
+                    .join('user', 'user.id', 'o.user_id')
+                    .select('price', 'district', 'city', 'first_name', 'o.email as email')
+                    .where('o.id', id).first();
+
+
+
+                return order;
+            })
+
+        } catch (error) {
+            throw new Error("Erro ao buscar pedido!");
+        }
+    }
+
+
     async create(order: Order, orderHasProducts: OrderHasProduct[]): Promise<null> {
         try {
             await knex.transaction(async trx => {

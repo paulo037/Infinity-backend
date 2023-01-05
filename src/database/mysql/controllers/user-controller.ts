@@ -10,7 +10,7 @@ import { Address } from "../../../domain/entities/user/address";
 import { Entity } from "../../../core/domain/entities";
 import { logger } from "../../../logger";
 import { UpdateUserPassword, UpdateUserPasswordRequest } from "../../../application/services/user/update-user -password";
-import { Mailer } from "../../../application/config/nodemailer";
+import { Mailer, SendWelcomeRequest } from "../../../application/config/nodemailer";
 import { UpdatePassword } from "../../../application/services/user/update-password";
 export class UserController {
 
@@ -29,9 +29,10 @@ export class UserController {
     public create = async (request: Request, response: Response) => {
 
         try {
-            let user = request.body.user
+            let user = request.body.user as CreateUserRequest
 
-            await this.createUser.execute(user as CreateUserRequest)
+            await this.createUser.execute(user)
+            Mailer.welcome({first_name: user.first_name, to: user.email} as SendWelcomeRequest)
             return response.status(201).send();
         } catch (error) {
 
@@ -227,7 +228,7 @@ export class UserController {
             if (userLog.id != address.props.user_id) return response.status(401).send("Usuário não autorizado!")
 
             await this.repository.createAddress(address);
-            return response.status(200).send("Endereço atualizado com sucesso!");
+            return response.status(200).send("Endereço criado com sucesso!");
         } catch (error) {
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
 

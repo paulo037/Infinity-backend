@@ -1,7 +1,9 @@
 import axios from "axios";
 import e, { Response, Request } from "express";
+import Mail from "nodemailer/lib/mailer";
 import { JwtPayload } from "../../../application/config/auth";
 import { mercadopago } from "../../../application/config/mercadopago";
+import { Mailer } from "../../../application/config/nodemailer";
 import { CreateItemPreference, CreateItemPreferenceRequest, ItemPreference } from "../../../application/services/order/create-item-preference";
 import { CreateOrder, CreateOrderRequest, OrderHasProductRequest } from "../../../application/services/order/create-order";
 import { CreateOrderHasProduct, CreateOrderHasProductRequest } from "../../../application/services/order/create-order-has-product";
@@ -11,6 +13,7 @@ import { FindUserByEmail } from "../../../application/services/user/find-user-by
 import { OrderHasProduct } from "../../../domain/entities/order/order_has_product";
 import { Status } from "../../../domain/entities/order/status";
 import { AddressProps } from "../../../domain/entities/user/address";
+import { User } from "../../../domain/entities/user/user";
 import { logger } from "../../../logger";
 import { CartRepositoryMysql } from "../model/cart-repository";
 import { OrderRepositoryMsql } from "../model/order-repository";
@@ -106,6 +109,10 @@ export class OrderController {
             if (status == undefined) return response.status(400).send('Status não informado');
 
             await this.repository.update(id, status, tracking_code);
+            if (status == Status.ORDER_SENT) {
+                const order = await this.repository.getBasic(id) as any;
+                await Mailer.orderStatusSent({ first_name: order.first_name, to: order.email, tracking_code })
+            }
 
             return response.status(201).send();
         } catch (error) {
@@ -127,8 +134,6 @@ export class OrderController {
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
-
-
 
     public newOrder = async (request: Request, response: Response) => {
         try {
@@ -185,42 +190,51 @@ export class OrderController {
     }
 
     public webhook = async (request: Request, response: Response) => {
+        try {
 
-        const id = request.body.data.id
+            const id = request.body.data.id
 
-        const config = {
-            headers: {
-                Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+                }
+            };
+
+
+            let payment: any
+
+            const resp = await axios.get(`https://api.mercadopago.com/v1/payments/${id}`, config)
+
+            payment = resp.data
+
+
+            const { status, external_reference, payer } = payment
+
+            console.log({ status, external_reference })
+
+            const order = await this.repository.getBasic(external_reference) as any;
+            switch (status) {
+                case "approved":
+                    await this.repository.update(external_reference, Status.PAYMENT_APPROVED)
+                    await Mailer.orderStatusApproved({ first_name: order.first_name, to: order.email });
+                    await Mailer.newOrder({ city: order.city, district: order.district, id: external_reference, price: order.price });
+                    break;
+
+                case "rejected":
+                    await this.repository.update(external_reference, Status.PAYMENT_REFUSED);
+                    await Mailer.orderStatusRefused({ first_name: order.first_name, to: order.email });
+                    break;
+                default:
+                    break;
             }
-        };
 
 
-        let payment: Preference
 
-        const resp = await axios.get(`https://api.mercadopago.com/v1/payments/${id}`, config)
+            return response.status(200).send()
+        } catch (error) {
+            return response.status(400).send()
 
-        payment = resp.data
-
-
-        const { status, external_reference } = payment
-
-        console.log({ status, external_reference })
-
-        switch (status) {
-            case "approved":
-                await this.repository.update(external_reference, Status.PAYMENT_APPROVED)
-                break;
-
-            case "rejected":
-                await this.repository.update(external_reference, Status.PAYMENT_REFUSED)
-                break;
-            default:
-                break;
         }
-
-
-
-        return response.status(200).send()
     }
 
 

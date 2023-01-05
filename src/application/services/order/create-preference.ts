@@ -67,6 +67,9 @@ export class CreatePreference {
 
         let preference = {
             items: items,
+            shipments:{
+                cost: 10,
+            },        
 
             payer: {
                 name: user.props.first_name,

@@ -28,6 +28,10 @@ export class User extends Entity<UserProps>{
         return this.props.id;
     }
 
+    public get first_name() {
+        return this.props.first_name;
+    }
+
     static create(props: UserProps) {
         props.id = props.id ? props.id : v4()
 
