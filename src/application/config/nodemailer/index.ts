@@ -1,8 +1,5 @@
 import nodemailer from 'nodemailer'
 import fs from 'fs'
-import { send } from 'process';
-import { Status } from '../../../domain/entities/order/status';
-
 
 export type SendPasswordRecoveryRequest = {
     first_name: string;

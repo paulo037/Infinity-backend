@@ -64,13 +64,13 @@ export class CreatePreference {
         let expireDate = new Date()
         expireDate.setHours(expireDate.getHours() + 3)
 
+        // shipments:{
+        //     cost: 10,
+        // },        
 
         let preference = {
             items: items,
-            shipments:{
-                cost: 10,
-            },        
-
+           
             payer: {
                 name: user.props.first_name,
                 surname: user.props.last_name,
