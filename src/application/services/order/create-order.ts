@@ -38,10 +38,6 @@ export class CreateOrder {
             price += element.props.quantity * element.props.product_price
         })
 
-        order_has_products.forEach((element, index) => {
-            price += element.props.quantity * element.props.product_price
-        })
-
 
         order_has_products = order_has_products.map((element) => {
             element.props.order_id = order_id
