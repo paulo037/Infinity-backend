@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer'
 import fs from 'fs'
 
+
 export type SendPasswordRecoveryRequest = {
     first_name: string;
     id: string;
@@ -35,7 +36,7 @@ export type SendNewOrder = {
     id: string;
     price: number;
     city: string;
-    district: string;
+    state: string;
 }
 
 const host = process.env.NODEMAILER_HOST as string
@@ -104,7 +105,7 @@ export class Mailer {
         })
     }
 
-    public static orderStatusApproved = async ({ first_name,  to}: SendOrderStatusApprovedRequest) => {
+    public static orderStatusApproved = async ({ first_name, to }: SendOrderStatusApprovedRequest) => {
         let html = fs.readFileSync(__dirname + '/status_approved.html', 'utf8')
 
         const link = `${process.env.BASE_FRONT}/profile/order`;
@@ -122,7 +123,7 @@ export class Mailer {
         })
     }
 
-    public static orderStatusRefused = async ({ first_name,  to}: SendOrderStatusRefusedRequest) => {
+    public static orderStatusRefused = async ({ first_name, to }: SendOrderStatusRefusedRequest) => {
         let html = fs.readFileSync(__dirname + '/status_refused.html', 'utf8')
 
         const link = `${process.env.BASE_FRONT}/profile/order`;
@@ -140,7 +141,7 @@ export class Mailer {
         })
     }
 
-    public static orderStatusSent = async ({ first_name,  to, tracking_code}: SendOrderStatusSentRequest) => {
+    public static orderStatusSent = async ({ first_name, to, tracking_code }: SendOrderStatusSentRequest) => {
         let html = fs.readFileSync(__dirname + '/status_sent.html', 'utf8')
 
         const link = `${process.env.BASE_FRONT}/profile/order`;
@@ -159,13 +160,13 @@ export class Mailer {
         })
     }
 
-    public static newOrder= async ({ id, price, city, district }: SendNewOrder) => {
+    public static newOrder = async ({ id, price, city, state }: SendNewOrder) => {
         let html = fs.readFileSync(__dirname + '/new_order.html', 'utf8')
 
         const to = process.env.EMAIL_ORDER;
         const link = `${process.env.BASE_FRONT}/admin/order/${id}`;
-        const price_string = 'R$ '+ price.toFixed(2).toString().replace('.', ',');
-        const location = `${city}, ${district}`
+        const price_string = 'R$ ' + price.toFixed(2).toString().replace('.', ',');
+        const location = `${city}, ${state}`
         html = html.replace('{link}', link);
         html = html.replace('{price}', price_string);
         html = html.replace('{location}', location);
@@ -180,3 +181,4 @@ export class Mailer {
         })
     }
 }
+

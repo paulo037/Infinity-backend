@@ -61,15 +61,14 @@ export class OrderRepositoryMsql implements OrderRepository {
             return await knex.transaction(async trx => {
                 let order = await trx('order as o')
                     .join('user', 'user.id', 'o.user_id')
-                    .select('price', 'district', 'city', 'first_name', 'o.email as email')
+                    .select('price', 'state', 'city', 'first_name', 'user.email as email')
                     .where('o.id', id).first();
-
-
 
                 return order;
             })
 
         } catch (error) {
+            console.log(error)
             throw new Error("Erro ao buscar pedido!");
         }
     }
@@ -117,6 +116,7 @@ export class OrderRepositoryMsql implements OrderRepository {
                 .update('rating', rating)
                 .where('ohp.id', id)
                 .andWhere('o.user_id', user_id)
+                .andWhere('o.status', Status.ORDER_DELIVERED)
         } catch (error) {
 
             throw new Error("Erro ao avaliar produto!");

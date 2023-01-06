@@ -116,6 +116,7 @@ export class OrderController {
 
             return response.status(201).send();
         } catch (error) {
+            console.log(error)
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
@@ -177,6 +178,7 @@ export class OrderController {
 
                 const order_id = await this.createOrder.execute({ order_has_products, address })
                 const preference = await this.createPreference.execute({ email: user.props.email, items, address, order_id })
+                console.log(preference)
                 const id = await mercadopago.preferences.create(preference)
                 return response.json({ id: id.body.id });
             } catch (error) {
@@ -201,14 +203,14 @@ export class OrderController {
             };
 
 
-            let payment: any
+            let payment: Preference
 
             const resp = await axios.get(`https://api.mercadopago.com/v1/payments/${id}`, config)
 
             payment = resp.data
 
 
-            const { status, external_reference, payer } = payment
+            const { status, external_reference } = payment
 
             console.log({ status, external_reference })
 
@@ -217,7 +219,7 @@ export class OrderController {
                 case "approved":
                     await this.repository.update(external_reference, Status.PAYMENT_APPROVED)
                     await Mailer.orderStatusApproved({ first_name: order.first_name, to: order.email });
-                    await Mailer.newOrder({ city: order.city, district: order.district, id: external_reference, price: order.price });
+                    await Mailer.newOrder({ city: order.city, state: order.state, id: external_reference, price: order.price });
                     break;
 
                 case "rejected":
