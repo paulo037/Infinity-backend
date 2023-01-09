@@ -6,12 +6,39 @@ import { OrderRepository } from "../../../application/repositories/OrderReposito
 import { Order } from "../../../domain/entities/order/order";
 import { OrderHasProduct } from "../../../domain/entities/order/order_has_product";
 import { Status } from "../../../domain/entities/order/status";
-import { logger } from "../../../logger";
 import knex from "../connection";
 
 
 export class OrderRepositoryMsql implements OrderRepository {
 
+
+    async getLenght(status: Status): Promise<number> {
+        try {
+            const order = await knex('order')
+                .count('* as count')
+                .where(function () {
+                    if (status && status >= Status.PAYMENT_REFUSED && status <= Status.ORDER_DELIVERED) {
+                        this.where('status', status);
+                    }
+                }).first() as any;
+            return order.count as number;
+
+        } catch (e) {
+            throw new Error("Não foi possível realizar a contagem!")
+        }
+    }
+
+    async getLenghtByUserId(user_id: String): Promise<number> {
+        try {
+            const order = await knex('order')
+                .count('* as count')
+                .where('user_id', user_id).first() as any;
+            return order.count as number;
+
+        } catch (e) {
+            throw new Error("Não foi possível realizar a contagem!")
+        }
+    }
 
     async get(id: string): Promise<Order | null> {
         try {
@@ -41,7 +68,7 @@ export class OrderRepositoryMsql implements OrderRepository {
                         this.where('i.primary', true).orWhere('i.primary', null)
                     })
                     .andWhere('o.id', order.id)
-                    .orderBy('o.created_at', 'asc');
+                    .orderBy('o.created_at', 'desc');
 
                 const user = await trx('user as u').select("cpf", "first_name", "last_name", "id").first();
 
@@ -68,7 +95,6 @@ export class OrderRepositoryMsql implements OrderRepository {
             })
 
         } catch (error) {
-            console.log(error)
             throw new Error("Erro ao buscar pedido!");
         }
     }
@@ -157,11 +183,18 @@ export class OrderRepositoryMsql implements OrderRepository {
         return null;
     }
 
-    async getAll(): Promise<Order[]> {
+    async getAll(page: number, limit: number, status?: Status): Promise<Order[]> {
 
         try {
             let orders = await knex('order')
-                .select('*')
+                .select('id', 'created_at', 'state', 'city', 'price', 'status')
+                .where(function () {
+                    if (status && status >= Status.PAYMENT_REFUSED && status <= Status.ORDER_DELIVERED) {
+                        this.where('status', status);
+                    }
+                })
+                .limit(limit).offset(page * limit - limit)
+                .orderBy('created_at', 'desc');
 
             return orders;
         } catch (error) {
@@ -170,7 +203,7 @@ export class OrderRepositoryMsql implements OrderRepository {
         }
     }
 
-    async findByUserId(user_id: string): Promise<Order[][]> {
+    async findByUserId(user_id: string, page: number, limit: number): Promise<Order[][]> {
         try {
             return await knex.transaction(async trx => {
                 const ordens = await trx('order as o')
@@ -178,7 +211,10 @@ export class OrderRepositoryMsql implements OrderRepository {
                         'created_at',
                         'status',
                         'tracking_code',
-                        'id',).where('o.user_id', user_id)
+                        'id',)
+                    .where('o.user_id', user_id)
+                    .orderBy('o.created_at', 'desc')
+                    .limit(limit).offset(page * limit - limit);
 
                 let ordersWithProducts = []
                 for await (const [index, order] of ordens.entries()) {
@@ -202,8 +238,8 @@ export class OrderRepositoryMsql implements OrderRepository {
                         .where(function () {
                             this.where('i.primary', true).orWhere('i.primary', null)
                         })
-                        .andWhere('o.id', order.id)
-                        .orderBy('o.created_at', 'asc');
+                        .andWhere('o.id', order.id);
+                        
 
                     order.products = ohp;
                     ordersWithProducts.push(order);

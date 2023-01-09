@@ -20,4 +20,5 @@ export interface ProductRepository {
     updateCategories(categories: ProductHasCategory[], product_id: string): Promise<null> 
     updateImages(images: Image[], product_id: string): Promise<null>
     have(order_has_product : OrderHasProduct): Promise<Number>
+    getLenght(): Promise<number>
 }

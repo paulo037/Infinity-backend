@@ -1,5 +1,6 @@
 import { Order } from "../../domain/entities/order/order"
 import { OrderHasProduct } from "../../domain/entities/order/order_has_product"
+import { Status } from "../../domain/entities/order/status"
 
 
 export interface OrderRepository {
@@ -8,6 +9,8 @@ export interface OrderRepository {
     delete(user_id: string, id: string): Promise<null>
     get(id: string): Promise<Order | null>
     getBasic(id: string): Promise<Order | null> 
-    getAll(): Promise<Order[]>
-    findByUserId(user_id: string): Promise<Order[][]>
+    getAll(page: number, limit: number, status?: Status): Promise<Order[]> 
+    findByUserId(user_id: string, page: number, limit: number): Promise<Order[][]> 
+    getLenght(status: Status): Promise<number>
+    getLenghtByUserId(user_id: String): Promise<number> 
 }

@@ -46,12 +46,15 @@ export class CreateOrder {
 
 
 
+        const shipping_price = price >= 200 ? 0 : 25
+
         delete address.props.id
         
         const order = Order.create({
             id: order_id,
             price: price,
             status: Status.PAYMENT_PENDING,
+            shipping_price,
             ...address.props
         })
 

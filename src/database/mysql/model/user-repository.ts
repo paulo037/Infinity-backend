@@ -119,17 +119,29 @@ export class UserRepositoryMysql implements UserRepository {
     }
 
 
-    async getAllUsers(): Promise<User[]> {
+    async getAllUsers(page: number, limit: number,): Promise<User[]> {
         try {
 
             const users = await knex('user')
-                .select('first_name', 'admin', 'email', 'id')
+                .select('first_name', 'admin', 'email', 'id').limit(limit).offset(page * limit - limit)
             return users;
         } catch (e) {
             throw new Error("Não foi possível realizar a busca!")
+
         }
 
 
+    }
+
+    async getLenght(): Promise<number> {
+        try {
+            const order = await knex('user')
+                .count('* as count').first() as any;
+            return order.count as number;
+
+        } catch (e) {
+            throw new Error("Não foi possível realizar a contagem!")
+        }
     }
 
 

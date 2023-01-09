@@ -193,11 +193,12 @@ export class ProductController {
         let search = request.params.term;
 
         try {
+            
             const products = await this.repository.search(search)
 
             return response.json(products);
         } catch (error) {
-
+    
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }

@@ -62,15 +62,24 @@ export class CreatePreference {
         let now = new Date()
 
         let expireDate = new Date()
-        expireDate.setHours(expireDate.getHours() + 3)
+        expireDate.setHours(expireDate.getHours() + 1)
 
-        // shipments:{
-        //     cost: 10,
-        // },        
+        let price = 0
+        items.forEach((element) => {
+            price += element.unit_price * element.quantity
+        })
+
+
+
+        const shipping_price = price >= 200 ? 0 : 25
+
+
 
         let preference = {
             items: items,
-           
+            shipments: {
+                cost: shipping_price,
+            },
             payer: {
                 name: user.props.first_name,
                 surname: user.props.last_name,

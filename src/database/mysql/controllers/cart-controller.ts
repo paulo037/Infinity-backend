@@ -14,7 +14,7 @@ export class CartController {
         const userLog = request.user as JwtPayload
 
 
-        if (userLog == undefined) return response.status(401).send('unauthorized')
+        if (userLog == undefined) return response.status(401).send('Não autorizado!')
 
         let id = userLog.id;
 
@@ -33,7 +33,7 @@ export class CartController {
         const userLog = request.user as JwtPayload
 
 
-        if (userLog == undefined) return response.status(401).send('unauthorized')
+        if (userLog == undefined) return response.status(401).send('Não autorizado!')
 
         try {
             let cart = request.body.cart
@@ -56,7 +56,7 @@ export class CartController {
         const userLog = request.user as JwtPayload
 
 
-        if (userLog == undefined) return response.status(401).send('unauthorized')
+        if (userLog == undefined) return response.status(401).send('Não autorizado!')
 
         try {
             let cart = request.body.cart

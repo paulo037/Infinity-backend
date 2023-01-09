@@ -13,10 +13,11 @@ export interface UserRepository{
     deleteRecovery(recovery_id: string): Promise<null> 
     findByEmail(email: string): Promise<User | null>
     findByCPF(cpf: string): Promise<User | null>
-    getAllUsers():Promise<User[]>
+    getAllUsers(page: number, limit: number,): Promise<User[]> 
     changeAdminPermission(id: string, adminPermission: Boolean):Promise<null>
     getAddresses(user_id: string): Promise<Address[]>
     getAddress(id:string, user_id: string): Promise<Address>
     createAddress(address: Address): Promise<null>
     updateAddress(address: Address): Promise<null>
+    getLenght(): Promise<number> 
 }

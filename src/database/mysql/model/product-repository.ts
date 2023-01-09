@@ -16,8 +16,8 @@ export class ProductRepositoryMsql implements ProductRepository {
 
     async getLenght(): Promise<number> {
         try {
-            const count = await knex('product').count('* as count').first() as unknown as number;
-            return count;
+            const product = await knex('product').count('* as count').first() as any;
+            return product.count;
 
         } catch (e) {
             throw new Error("Não foi possível realizar a contagem!")
@@ -270,12 +270,12 @@ export class ProductRepositoryMsql implements ProductRepository {
     async search(search: string): Promise<Product[]> {
         try {
             return await knex.transaction(async trx => {
-                
+
                 const search_split = search.split(' ')
-                search = search_split.filter( (word) =>  word.length > 3).join(' ');
-                // search = search.replaceAll(' ', '|')
-                
-                if (search.length < 3 )return [];
+                search = search_split.filter((word) => word.length > 3).join('|');
+                // search = search.split(' ').join('|');
+
+                if (search.length < 3) return [];
                 let products = await trx.select('p.id as id',
                     'p.name as name',
                     'p.price as price',
@@ -296,10 +296,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                     })
                     .groupBy('p.id', 'p.name',
                         'p.price',
-                        'i.url')
-                    .orderBy('sold', 'desc')
-                    .orderBy('rating')
-                    .orderBy('i.url', 'last');
+                        'i.url');
 
                 for await (const [index, product] of products.entries()) {
                     let categories = await trx.select('c.name as category', 'c.id as id')
@@ -310,7 +307,7 @@ export class ProductRepositoryMsql implements ProductRepository {
 
                 }
 
-                const searchArray = search.replace('|', ' ').split(' ')
+                const searchArray = search.split('|')
                 products.forEach((product: any) => {
                     let ranking = 0
                     let rankingDescription = 0

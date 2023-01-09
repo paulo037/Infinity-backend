@@ -3,6 +3,9 @@ import { Address } from "../../src/domain/entities/user/address";
 import { User } from "../../src/domain/entities/user/user";
 
 export class InMemoryUserRepository implements UserRepository {
+    getLenght(): Promise<number> {
+        throw new Error("Method not implemented.");
+    }
     updatePassword(recovery_id: string, password: string): Promise<null> {
         throw new Error("Method not implemented.");
     }
@@ -94,7 +97,7 @@ export class InMemoryUserRepository implements UserRepository {
     }
 
 
-    async getAllUsers(): Promise<User[]> {
+    async getAllUsers(page: number, limit: number,): Promise<User[]> {
         return this.items;
     }
 

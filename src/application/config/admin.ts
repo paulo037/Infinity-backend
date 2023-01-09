@@ -16,17 +16,17 @@ export = (middleware: Function) => {
             const user = await findUserByEmail.execute(userJwt.email);
 
             if (!user) {
-                return response.status(400).send("Usuário não é um administrador!");
+                return response.status(400).send("Não autorizado!");
             }
 
             if (user.props.admin) {
                 middleware(request, response, next)
             }
             else {
-                return response.status(401).send("Usuário não é um administrador!")
+                return response.status(401).send("Não autorizado!")
             }
         } catch (error) {
-            return response.status(401).send("Usuário não é um administrador!")
+            return response.status(401).send("Não autorizado!")
 
         }
 

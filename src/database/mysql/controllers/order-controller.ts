@@ -41,12 +41,16 @@ export class OrderController {
 
     public getAll = async (request: Request, response: Response) => {
         try {
+
             const userLog = request.user as JwtPayload
-            if (userLog == undefined) return response.status(401).send('unauthorized')
+            if (userLog == undefined) return response.status(401).send('Não autorizado!')
+            const limit = request.query.limit as unknown as number;
+            const page = request.query.page as unknown as number;
+            const status = request.query.status as unknown as number;
 
-            let orders = await this.repository.getAll()
-
-            return response.status(200).json(orders)
+            let orders = await this.repository.getAll(page, limit, status)
+            const count = await this.repository.getLenght(status)
+            return response.status(200).json({ orders, count })
         } catch (error) {
 
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -57,11 +61,11 @@ export class OrderController {
     public getbyId = async (request: Request, response: Response) => {
         try {
             const userLog = request.user as JwtPayload
-            if (userLog == undefined) return response.status(401).send('unauthorized')
+            if (userLog == undefined) return response.status(401).send('Não autorizado!')
 
             const id = request.params.id;
             const order = await this.repository.get(id) as any;
-            if ((userLog.id != order.user.id) && !userLog.ad) return response.status(401).send('unauthorized')
+            if ((userLog.id != order.user.id) && !userLog.ad) return response.status(401).send('Não autorizado!')
             return response.status(200).json(order);
 
         } catch (error) {
@@ -72,10 +76,13 @@ export class OrderController {
     public getbyUserId = async (request: Request, response: Response) => {
         try {
             const userLog = request.user as JwtPayload
-            if (userLog == undefined) return response.status(401).send('unauthorized')
+            if (userLog == undefined) return response.status(401).send('Não autorizado!')
+            const limit = request.query.limit as unknown as number;
+            const page = request.query.page as unknown as number;
 
-            let orders = await this.repository.findByUserId(userLog.id)
-            return response.status(200).json(orders)
+            let orders = await this.repository.findByUserId(userLog.id, page, limit);
+            const count = await this.repository.getLenghtByUserId(userLog.id);
+            return response.status(200).json({orders, count})
         } catch (error) {
 
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -87,7 +94,7 @@ export class OrderController {
         try {
             const id = request.params.id
             const userLog = request.user as JwtPayload
-            if (userLog == undefined) return response.status(401).send('unauthorized')
+            if (userLog == undefined) return response.status(401).send('Não autorizado!')
 
             let orders = await this.repository.delete(userLog.id, id)
 
@@ -105,7 +112,7 @@ export class OrderController {
             const userLog = request.user as JwtPayload;
             const status = request.body.status;
             const tracking_code = request.body.tracking_code;
-            if (userLog == undefined) return response.status(401).send('unauthorized');
+            if (userLog == undefined) return response.status(401).send('Não autorizado!');
             if (status == undefined) return response.status(400).send('Status não informado');
 
             await this.repository.update(id, status, tracking_code);
@@ -116,7 +123,6 @@ export class OrderController {
 
             return response.status(201).send();
         } catch (error) {
-            console.log(error)
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
@@ -126,7 +132,7 @@ export class OrderController {
             const id = request.params.id;
             const rating = request.body.rating;
             const userLog = request.user as JwtPayload;
-            if (userLog == undefined) return response.status(401).send('unauthorized');
+            if (userLog == undefined) return response.status(401).send('Não autorizado!');
             const user_id = userLog.id;
             await this.repository.updateRating(id, rating, user_id);
 
@@ -142,11 +148,11 @@ export class OrderController {
 
 
             const userLog = request.user as JwtPayload
-            if (userLog == undefined) return response.status(401).send('unauthorized')
+            if (userLog == undefined) return response.status(401).send('Não autorizado!')
 
             const user = await this.findUserByEmail.execute(userLog.email)
 
-            if (user == null) return response.status(401).send('unauthorized')
+            if (user == null) return response.status(401).send('Não autorizado!')
 
 
             if (request.body.type === 'cart') {
@@ -177,8 +183,7 @@ export class OrderController {
             try {
 
                 const order_id = await this.createOrder.execute({ order_has_products, address })
-                const preference = await this.createPreference.execute({ email: user.props.email, items, address, order_id })
-                console.log(preference)
+                const preference = await this.createPreference.execute({ email: user.props.email, items, address, order_id})
                 const id = await mercadopago.preferences.create(preference)
                 return response.json({ id: id.body.id });
             } catch (error) {
@@ -210,9 +215,8 @@ export class OrderController {
             payment = resp.data
 
 
-            const { status, external_reference } = payment
+            const { status, external_reference } = payment;
 
-            console.log({ status, external_reference })
 
             const order = await this.repository.getBasic(external_reference) as any;
             switch (status) {

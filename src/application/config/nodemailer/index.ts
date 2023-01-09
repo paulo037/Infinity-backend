@@ -81,7 +81,7 @@ export class Mailer {
             from: `Infinity Modas <${user}>`,
             to,
             subject: "Recuperação de senha",
-            html: html
+            html: html,
         }).catch(() => {
             throw new Error("Não foi possível enviar o email de recuperação de senha!")
         })
