@@ -9,7 +9,7 @@ export class CategoryRepositoryMsql implements CategoryRepository {
 
     async create(category: Category): Promise<null> {
         try {
-            await knex('category').insert(category.props);
+            await knex('category').insert(category);
         } catch (error) {
             throw new Error("Não foi possível criar a categoria!")
         }
@@ -18,7 +18,7 @@ export class CategoryRepositoryMsql implements CategoryRepository {
 
     async update(category: Category): Promise<null> {
         try {
-            await knex('category').update(category.props).where("id", category.id);
+            await knex('category').update(category).where("id", category.id);
         } catch (error) {
             throw new Error("Não foi possível atualizar a categoria!")
         }

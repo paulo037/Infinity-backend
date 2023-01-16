@@ -103,8 +103,8 @@ export class OrderRepositoryMsql implements OrderRepository {
     async create(order: Order, orderHasProducts: OrderHasProduct[]): Promise<null> {
         try {
             await knex.transaction(async trx => {
-                await trx('order').insert(order.props)
-                await trx('order_has_product').insert(orderHasProducts.map(element => element.props))
+                await trx('order').insert(order)
+                await trx('order_has_product').insert(orderHasProducts)
             })
             return null
         } catch (error) {
@@ -221,6 +221,7 @@ export class OrderRepositoryMsql implements OrderRepository {
                     const ohp = await trx('order as o')
                         .select('p.name as name',
                             'i.url as image',
+                            'i.provider as provider',
                             'ohp.size as size',
                             'ohp.color as color',
                             'ohp.product_price as price',

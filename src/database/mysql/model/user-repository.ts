@@ -8,20 +8,14 @@ import { Address } from "../../../domain/entities/user/address";
 export class UserRepositoryMysql implements UserRepository {
 
 
-    async findByCPF(cpf: string): Promise<User | null> {
+    async findByCPF(cpf: string): Promise<User | undefined> {
 
         try {
 
-            let user = await knex('*')
-                .from("user as u")
-                .where('u.cpf', cpf)
+            const user = await knex<User>('user')
+                .where('cpf', cpf)
                 .first();
 
-            if (user) {
-                user = User.create({
-                    ...user
-                })
-            }
             return user;
 
         } catch (e) {
@@ -49,7 +43,7 @@ export class UserRepositoryMysql implements UserRepository {
     async create(user: User): Promise<null> {
 
         try {
-            await knex('user').insert({ id: uuidv4(), ...user.props });
+            await knex('user').insert(user);
         } catch (e) {
             throw new Error("Não foi possível criar o usuário!")
         }
@@ -61,9 +55,9 @@ export class UserRepositoryMysql implements UserRepository {
     async update(user: User): Promise<null> {
 
         try {
-            await knex('user as u')
-                .update({ ...user.props })
-                .where('u.id', (user.props.id as string));
+            await knex('user')
+                .update(user)
+                .where('id', user.id);
         } catch (e) {
             throw new Error("Não foi possível atualizar os dados do usuário!")
         }
@@ -72,24 +66,17 @@ export class UserRepositoryMysql implements UserRepository {
 
     }
 
-
     delete(id: string): Promise<null> {
         throw new Error("Method not implemented.");
     }
 
-    async findById(id: string): Promise<User | null> {
+    async findById(id: string): Promise<User | undefined> {
         try {
 
-            let user = await knex('*')
-                .from("user as u")
-                .where('u.id', id)
+            let user = await knex<User>('user')
+                .where('id', id)
                 .first();
 
-            if (user) {
-                user = User.create({
-                    ...user
-                })
-            }
             return user;
         } catch (e) {
             throw new Error("Não foi possível realizar a busca!")
@@ -97,19 +84,13 @@ export class UserRepositoryMysql implements UserRepository {
 
     }
 
-    async findByEmail(email: string): Promise<User | null> {
+    async findByEmail(email: string): Promise<User | undefined> {
         try {
 
-            let user = await knex('*')
-                .from("user as u")
-                .where('u.email', email)
+            let user = await knex<User>('user')
+                .where('email', email)
                 .first();
 
-            if (user) {
-                user = User.create({
-                    ...user
-                })
-            }
             return user;
         } catch (e) {
             throw new Error("Não foi possível realizar a busca!")
@@ -117,7 +98,6 @@ export class UserRepositoryMysql implements UserRepository {
 
 
     }
-
 
     async getAllUsers(page: number, limit: number,): Promise<User[]> {
         try {
@@ -144,7 +124,6 @@ export class UserRepositoryMysql implements UserRepository {
         }
     }
 
-
     async getAddresses(user_id: string): Promise<Address[]> {
         try {
 
@@ -161,7 +140,7 @@ export class UserRepositoryMysql implements UserRepository {
     async getAddress(id: string, user_id: string): Promise<Address> {
         try {
 
-            let address = await knex('address')
+            let address = await knex<Address>('address')
                 .where("address.user_id", user_id)
                 .andWhere("address.id", id)
                 .first();
@@ -180,7 +159,7 @@ export class UserRepositoryMysql implements UserRepository {
         try {
 
             await knex('address')
-                .insert(address.props)
+                .insert(address)
 
             return null;
         } catch (e) {
@@ -189,14 +168,13 @@ export class UserRepositoryMysql implements UserRepository {
 
     }
 
-
     async updateAddress(address: Address): Promise<null> {
         try {
 
             await knex('address')
-                .update(address.props)
-                .where("address.user_id", address.props.user_id)
-                .andWhere("address.id", (address.props.id as string))
+                .update(address)
+                .where("address.user_id", address.user_id)
+                .andWhere("address.id", (address.id))
 
             return null;
         } catch (e) {
@@ -204,7 +182,6 @@ export class UserRepositoryMysql implements UserRepository {
         }
 
     }
-
 
     async passwordRecovery(user_id: string): Promise<string> {
         try {
@@ -250,7 +227,6 @@ export class UserRepositoryMysql implements UserRepository {
         }
     }
 
-
     async updatePassword(recovery_id: string, password: string): Promise<null> {
         try {
             await knex('user')
@@ -276,9 +252,19 @@ export class UserRepositoryMysql implements UserRepository {
         return null;
     }
 
+    async exist(id: string): Promise<Boolean> {
+        try {
+            const response = await knex.first(
+                knex.raw(
+                    'exists ? as present',
+                    knex('user').select('id').where('id', '=', id).limit(1)
+                )
+            );
+            return response.present === 1;
 
-
-
-
+        } catch (error) {
+            throw new Error("Não foi possível realizar a busca!")
+        }
+    }
 
 }

@@ -33,7 +33,7 @@ export class CreateCategory {
 
 
 
-        const category = Category.create({
+        const category = new Category({
             name,
             image,
             id

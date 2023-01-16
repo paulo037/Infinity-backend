@@ -29,7 +29,7 @@ export class CreateColor {
         
 
      
-        const color = Color.create({
+        const color = new Color({
           value,
           id
         });

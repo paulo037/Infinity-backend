@@ -11,7 +11,7 @@ describe('Update User', () => {
         const UserRepository = new InMemoryUserRepository;
 
 
-        const u = User.create({
+        const u =  new User({
             first_name: "Paulo",
             last_name: "Silva",
             image: "ww.exemple.com",
@@ -49,7 +49,7 @@ describe('Update User', () => {
         const UserRepository = new InMemoryUserRepository;
 
 
-        const u = User.create({
+        const u = new User({
             first_name: "Paulo",
             last_name: "Silva",
             image: "ww.exemple.com",
@@ -92,7 +92,7 @@ describe('Update User', () => {
         const UserRepository = new InMemoryUserRepository;
 
 
-        const u = User.create({
+        const u = new User({
             first_name: "Paulo",
             last_name: "Silva",
             image: "ww.exemple.com",

@@ -1,5 +1,4 @@
 import { v4 } from "uuid";
-import { Entity } from "../../../core/domain/entities";
 
 
 type UserProps = {
@@ -13,30 +12,38 @@ type UserProps = {
     id?: string;
 }
 
-export class User extends Entity<UserProps>{
+export class User {
 
 
-    private constructor(props: UserProps) {
-        super(props);
+    public id: string;
+    public first_name: string;
+    public last_name: string;
+    public email: string;
+    public password: string;
+    public cpf: string;
+    public image?: string;
+    public admin: boolean;
+
+
+    constructor(
+        {
+            id,
+            first_name,
+            last_name,
+            email,
+            password,
+            cpf,
+            image,
+            admin }: UserProps
+    ) {
+        this.id = id ?? v4()
+        this.first_name = first_name
+        this.last_name = last_name
+        this.email = email
+        this.password = password
+        this.cpf = cpf
+        this.image = image
+        this.admin = admin ?? false
     }
-
-    public get email(): string {
-        return this.props.email;
-    }
-
-    public get id() {
-        return this.props.id;
-    }
-
-    public get first_name() {
-        return this.props.first_name;
-    }
-
-    static create(props: UserProps) {
-        props.id = props.id ? props.id : v4()
-
-        const user = new User(props)
-
-        return user;
-    }
+    
 }

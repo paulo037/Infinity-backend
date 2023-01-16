@@ -1,4 +1,4 @@
-import { OrderHasProduct } from "../../../domain/entities/order/order_has_product";
+import { OrderHasProduct, OrderHasProductProps } from "../../../domain/entities/order/order_has_product";
 import { ProductRepository } from "../../repositories/ProductRepository";
 import { GetProductById } from "../product/get-product-by-id";
 
@@ -11,6 +11,7 @@ export type CreateOrderHasProductRequest = {
     product_id: string,
     size: string,
     color: string,
+    order_id: string,
 }
 
 
@@ -22,28 +23,30 @@ export class CreateOrderHasProduct {
 
 
     constructor(
-        private productRepository: ProductRepository,
-        private findProductById = new GetProductById(productRepository)
+        private productRepository: ProductRepository
     ) { }
 
 
 
-    async execute(props: CreateOrderHasProductRequest) {
+    async execute(request: CreateOrderHasProductRequest) {
 
-        const product = await this.findProductById.execute(props.product_id)
-        
+        const product = await this.productRepository.get(request.product_id)
 
-        const order_has_product = OrderHasProduct.create({
-            ...props,
+        if (!product) throw new Error("Produto não encontrado!")
+
+        const props: OrderHasProductProps = {
+            ...request,
             product_name: product.name,
             product_price: product.price,
             product_id: product.id as string,
 
-        })
+        }
+        
+        const order_has_product = new OrderHasProduct(props)
 
         const quantity = await this.productRepository.have(order_has_product);
 
-        if(order_has_product.props.quantity > quantity ){
+        if (order_has_product.quantity > quantity) {
             throw new Error(`Não foi possível criar o pedido! pois a quantidade de ${product.name} disponível no estoque é de apenas ${quantity} unidade(s)`)
         }
 

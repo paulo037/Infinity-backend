@@ -10,13 +10,13 @@ describe('Get Product', () => {
         const productRepository = new InMemoryProductRepository;
         const categoryRepository = new InMemoryCategoryRepository;
 
-        const category = Category.create({
+        const category = new Category({
             name: 'Blusa',
             image: 'www.exemple.com',
             id: "1"
         });
 
-        const product = Product.create({
+        const product = new Product({
             name: "Paulo",
             price: 20.5,
             id: "1"
@@ -39,13 +39,13 @@ describe('Get Product', () => {
         const productRepository = new InMemoryProductRepository;
         const categoryRepository = new InMemoryCategoryRepository;
     
-        const category = Category.create({
+        const category = new Category({
             name: 'Blusa',
             image: 'www.exemple.com',
             id: "1",
         });
     
-        const product = Product.create({
+        const product = new Product({
             name: "Paulo",
             price: 20.5,
             id: "2",

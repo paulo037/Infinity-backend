@@ -7,8 +7,6 @@ import { FindUserByEmail } from "../../../application/services/user/find-user-by
 import { GetAllUsers } from "../../../application/services/user/get-all-users";
 import { ChangeAdminPermission } from "../../../application/services/user/change-admin-permission";
 import { Address } from "../../../domain/entities/user/address";
-import { Entity } from "../../../core/domain/entities";
-import { logger } from "../../../logger";
 import { UpdateUserPassword, UpdateUserPasswordRequest } from "../../../application/services/user/update-user -password";
 import { Mailer, SendWelcomeRequest } from "../../../application/config/nodemailer";
 import { UpdatePassword } from "../../../application/services/user/update-password";
@@ -58,11 +56,11 @@ export class UserController {
             const user = await this.findByEmail.execute(userLog.email);
             let userResponse = {} as UserResponse
 
-            userResponse.first_name = user.props.first_name
-            userResponse.last_name = user.props.last_name
-            userResponse.image = user.props.image
-            userResponse.email = user.props.email
-            userResponse.cpf = user.props.cpf
+            userResponse.first_name = user.first_name
+            userResponse.last_name = user.last_name
+            userResponse.image = user.image
+            userResponse.email = user.email
+            userResponse.cpf = user.cpf
 
 
 
@@ -97,7 +95,7 @@ export class UserController {
             const userLog = request.user as JwtPayload
             if (userLog == undefined) return response.status(401).send("Não autorizado!");
 
-            let props = request.body.props as UpdateUserPasswordRequest
+            let props = request.body as UpdateUserPasswordRequest
 
             props.id = userLog.id
 
@@ -124,7 +122,7 @@ export class UserController {
 
             const id = await this.repository.passwordRecovery(user.id as string);
             await Mailer.passwordRecovery({
-                first_name: user.props.first_name,
+                first_name: user.first_name,
                 id,
                 to: user.email
             })
@@ -164,10 +162,6 @@ export class UserController {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
-
-
-
-
 
 
 
@@ -224,9 +218,9 @@ export class UserController {
             if (userLog == undefined) return response.status(401).send("Não autorizado!")
             let addressProps = request.body.address
             addressProps.user_id = userLog.id
-            const address = Address.create(addressProps)
+            const address = new Address(addressProps)
 
-            if (userLog.id != address.props.user_id) return response.status(401).send("Não autorizado!")
+            if (userLog.id != address.user_id) return response.status(401).send("Não autorizado!")
 
             await this.repository.createAddress(address);
             return response.status(200).send("Endereço criado com sucesso!");
@@ -243,9 +237,9 @@ export class UserController {
 
             if (userLog == undefined) return response.status(401).send("Não autorizado!")
 
-            const address = Address.create(request.body.address)
+            const address = new Address(request.body.address)
 
-            if (userLog.id != address.props.user_id) return response.status(401).send("Não autorizado!")
+            if (userLog.id != address.user_id) return response.status(401).send("Não autorizado!")
 
             await this.repository.updateAddress(address);
             return response.status(200).send("Endereço atualizado com sucesso!");

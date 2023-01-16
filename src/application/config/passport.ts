@@ -26,8 +26,7 @@ const params = {
 
 passport.use(new Strategy(params, async function (payload, done) {
     try {
-
-        const user = await repository.findById(payload.id)
+        const user = await repository.exist(payload.id)
         if (user) {
             return done(undefined, { ...payload })
         } else {
@@ -50,7 +49,6 @@ export class Passport {
         try {
             passport.authenticate('jwt', function (err, user, info) {
                 if (err) {
-
                     return response.status(401).send('Não autorizado!')
                 }
                 if (!user) {

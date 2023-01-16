@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import { ProductController } from "./database/mysql/controllers/product-controller";
 import SizeController from "./database/mysql/controllers/size-controller";
 import { multerConfig } from "./application/config/multer";
-import { uploadImage } from "./database/firebase/firebase";
+import { uploadImage } from "./application/config/cloudinary/uploader";
 import { CategoryController } from "./database/mysql/controllers/category-controller";
 import { UserController } from "./database/mysql/controllers/user-controller";
 import { ColorController } from "./database/mysql/controllers/color-controller";
@@ -77,8 +77,9 @@ router.route("/product/image")
 
 
 router.route('/product/:id')
-    .put(passport.authenticate, admin(productController.updateProduct))
-    .delete(passport.authenticate, admin(productController.delete))
+    .all(passport.authenticate)
+    .put(admin(multer(multerConfig).array('uploadImages', 10)), admin(uploadImage), admin(productController.updateProduct))
+    .delete(admin(productController.delete))
     .get(productController.getProductById)
 
 
@@ -87,7 +88,7 @@ router.route('/product-id/:name')
 
 router.route('/product')
     .all(passport.authenticate)
-    .post(admin(productController.createProduct))
+    .post(admin(multer(multerConfig).array('uploadImages', 10)), admin(uploadImage), admin(productController.createProduct))
     .get(admin(productController.getAll));
 
 router.route('/product/category/:name')

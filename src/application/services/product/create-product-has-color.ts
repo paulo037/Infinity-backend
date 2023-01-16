@@ -4,7 +4,7 @@ import { Validation } from "../../../domain/validation/validation";
 import { ProductRepository } from "../../repositories/ProductRepository";
 import { SizeRepository } from "../../repositories/SizeRepository";
 
-type CreateProductHasColorRequest = {
+export type CreateProductHasColorRequest = {
     size_id: string;
     color_id: string;
     product_id: string;
@@ -16,7 +16,6 @@ export class CreateProductHasColor {
 
     constructor(
         private SizeRepository: SizeRepository,
-        private ProductRepository: ProductRepository,
     ) { }
 
 
@@ -28,16 +27,14 @@ export class CreateProductHasColor {
         quantity }: CreateProductHasColorRequest) {
 
         let SizeExist = await this.SizeRepository.findById(size_id)
-        const ProductExist = await this.ProductRepository.findById(product_id)
 
 
-        Validation.existOrError(SizeExist, "Tamanho não existe");
-        Validation.existOrError(ProductExist, "Produto não existe");
-        Validation.validPositiveOrError(quantity, "Quantidade menor que 1")
+        Validation.existOrError(SizeExist, "Tamanho não existe!");
+        Validation.validPositiveOrError(quantity, "Quantidade menor que 1 !")
 
         SizeExist = SizeExist as Size
 
-        const size = ProductHasColor.create({
+        const size = new ProductHasColor({
             size_id,
             color_id,
             product_id,

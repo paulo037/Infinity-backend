@@ -7,7 +7,7 @@ import knex from "../connection";
 export class SizeRepositoryMsql implements SizeRepository {
     async create(size: Size): Promise<null> {
         try {
-            await knex('size').insert(size.props);
+            await knex('size').insert(size);
         } catch (error) {
             throw new Error("Não foi possível criar o tamanho!")
         }
@@ -16,7 +16,7 @@ export class SizeRepositoryMsql implements SizeRepository {
 
     async update(size: Size): Promise<null> {
         try {
-            await knex('size').update(size.props).where("id", size.id);
+            await knex('size').update(size).where("id", size.id);
         } catch (error) {
             throw new Error("Não foi possível atualizar o tamanho!")
         }

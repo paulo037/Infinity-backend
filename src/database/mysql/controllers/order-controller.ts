@@ -1,20 +1,14 @@
 import axios from "axios";
-import e, { Response, Request } from "express";
-import Mail from "nodemailer/lib/mailer";
+import { Response, Request } from "express";
 import { JwtPayload } from "../../../application/config/auth";
 import { mercadopago } from "../../../application/config/mercadopago";
 import { Mailer } from "../../../application/config/nodemailer";
-import { CreateItemPreference, CreateItemPreferenceRequest, ItemPreference } from "../../../application/services/order/create-item-preference";
-import { CreateOrder, CreateOrderRequest, OrderHasProductRequest } from "../../../application/services/order/create-order";
-import { CreateOrderHasProduct, CreateOrderHasProductRequest } from "../../../application/services/order/create-order-has-product";
+import { CreateItemPreference, ItemPreference } from "../../../application/services/order/create-item-preference";
+import { CreateOrder, OrderItem } from "../../../application/services/order/create-order";
+import { CreateOrderHasProduct } from "../../../application/services/order/create-order-has-product";
 import { CreatePreference, Preference } from "../../../application/services/order/create-preference";
-import { CreateAddress } from "../../../application/services/user/create-address";
-import { FindUserByEmail } from "../../../application/services/user/find-user-by-email ";
-import { OrderHasProduct } from "../../../domain/entities/order/order_has_product";
+import { CreateAddress, CreateAddressRequest } from "../../../application/services/user/create-address";
 import { Status } from "../../../domain/entities/order/status";
-import { AddressProps } from "../../../domain/entities/user/address";
-import { User } from "../../../domain/entities/user/user";
-import { logger } from "../../../logger";
 import { CartRepositoryMysql } from "../model/cart-repository";
 import { OrderRepositoryMsql } from "../model/order-repository";
 import { ProductRepositoryMsql } from "../model/product-repository";
@@ -30,9 +24,9 @@ export class OrderController {
         private cartRepository = new CartRepositoryMysql(),
         private userRepository = new UserRepositoryMysql(),
         private productRepository = new ProductRepositoryMsql(),
-        private findUserByEmail = new FindUserByEmail(userRepository),
+        
         private createAddress = new CreateAddress(userRepository),
-        private createOrder = new CreateOrder(repository),
+        private createOrder = new CreateOrder(repository, productRepository),
         private createPreference = new CreatePreference(userRepository),
         private createItemPreference = new CreateItemPreference(productRepository),
         private createOrderHasProduct = new CreateOrderHasProduct(productRepository)
@@ -82,7 +76,7 @@ export class OrderController {
 
             let orders = await this.repository.findByUserId(userLog.id, page, limit);
             const count = await this.repository.getLenghtByUserId(userLog.id);
-            return response.status(200).json({orders, count})
+            return response.status(200).json({ orders, count })
         } catch (error) {
 
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
@@ -144,52 +138,38 @@ export class OrderController {
 
     public newOrder = async (request: Request, response: Response) => {
         try {
-
-
-
             const userLog = request.user as JwtPayload
             if (userLog == undefined) return response.status(401).send('Não autorizado!')
 
-            const user = await this.findUserByEmail.execute(userLog.email)
-
-            if (user == null) return response.status(401).send('Não autorizado!')
-
-
+            
+            const order_items: OrderItem[] = request.body.items;
+            let addressRequest: CreateAddressRequest = request.body.address;
+            addressRequest.user_id = userLog.id;
+            
+            
+            
             if (request.body.type === 'cart') {
-                this.cartRepository.deleteAll(user.id as string)
+                this.cartRepository.deleteAll(userLog.id as string)
             }
+            const address = await this.createAddress.execute(addressRequest)
+            const order_id = await this.createOrder.execute({ items: order_items, address })
 
-            let order_has_products = [] as OrderHasProduct[]
+            
+            
+            let items: ItemPreference[] = []
 
-            for await (const [index, element] of request.body.items.entries()) {
-                const c = await this.createOrderHasProduct.execute(element)
-                order_has_products.push(c);
-
-            }
-
-            let items = [] as ItemPreference[]
-
-            for await (const [index, element] of request.body.items.entries()) {
+            for await (const [index, element] of order_items.entries()) {
 
                 const c = await this.createItemPreference.create(element)
                 items.push(c);
 
             }
 
-            const address = await this.createAddress.execute(request.body.address)
+            const preference = await this.createPreference.execute({ email: userLog.email, items, address, order_id })
+            const mpResponse = await mercadopago.preferences.create(preference)
 
+            return response.json({ id: mpResponse.body.id });
 
-
-            try {
-
-                const order_id = await this.createOrder.execute({ order_has_products, address })
-                const preference = await this.createPreference.execute({ email: user.props.email, items, address, order_id})
-                const id = await mercadopago.preferences.create(preference)
-                return response.json({ id: id.body.id });
-            } catch (error) {
-
-                return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
-            }
 
         } catch (error) {
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");

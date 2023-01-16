@@ -13,29 +13,29 @@ export class CartRepositoryMysql implements CartRepository {
             return await knex.transaction(async trx => {
                 const product = await trx('product_has_color')
                     .select('quantity')
-                    .where('product_id', cart.props.product_id)
-                    .andWhere('color_id', cart.props.color_id)
-                    .andWhere('size_id', cart.props.size_id)
+                    .where('product_id', cart.product_id)
+                    .andWhere('color_id', cart.color_id)
+                    .andWhere('size_id', cart.size_id)
                     .first();
 
-                if (cart.props.quantity > product.quantity) {
+                if (cart.quantity > product.quantity) {
 
                     throw new Error("Quantidade máxima já selecionada!");
 
                 }
-                if (cart.props.quantity < 1) {
+                if (cart.quantity < 1) {
 
                     throw new Error("Quantidade mínima já selecionada!");
                 }
 
 
 
-                await trx('cart').update({ ...cart.props })
-                    .where('product_id', cart.props.product_id)
-                    .where('user_id', cart.props.user_id)
+                await trx('cart').update({ ...cart })
+                    .where('product_id', cart.product_id)
+                    .where('user_id', cart.user_id)
 
-                    .andWhere('color_id', cart.props.color_id)
-                    .andWhere('size_id', cart.props.size_id)
+                    .andWhere('color_id', cart.color_id)
+                    .andWhere('size_id', cart.size_id)
 
                 return null;
             })
@@ -49,10 +49,10 @@ export class CartRepositoryMysql implements CartRepository {
         try {
 
             await knex('cart').delete()
-                .where('product_id', cart.props.product_id)
-                .where('user_id', cart.props.user_id)
-                .andWhere('color_id', cart.props.color_id)
-                .andWhere('size_id', cart.props.size_id)
+                .where('product_id', cart.product_id)
+                .where('user_id', cart.user_id)
+                .andWhere('color_id', cart.color_id)
+                .andWhere('size_id', cart.size_id)
 
             return null;
         } catch (error) {
@@ -112,7 +112,7 @@ export class CartRepositoryMysql implements CartRepository {
     async create(newCart: Cart): Promise<null> {
         try {
             await knex('cart')
-                .insert({ ...newCart.props })
+                .insert(newCart)
 
             return null
         } catch (e) {

@@ -6,6 +6,7 @@ export async function up(knex: Knex): Promise<void> {
         table.string('id', 36).primary()
         table.string('url', 300).notNullable();
         table.string('name', 120).notNullable();
+        table.string('provider', 120).notNullable();
         table.string('key', 300).notNullable();
         table.boolean('primary').notNullable();
         table.string('product_id', 36)

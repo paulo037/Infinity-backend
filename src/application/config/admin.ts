@@ -19,7 +19,7 @@ export = (middleware: Function) => {
                 return response.status(400).send("Não autorizado!");
             }
 
-            if (user.props.admin) {
+            if (user.admin) {
                 middleware(request, response, next)
             }
             else {

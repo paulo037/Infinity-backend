@@ -3,6 +3,9 @@ import { Address } from "../../src/domain/entities/user/address";
 import { User } from "../../src/domain/entities/user/user";
 
 export class InMemoryUserRepository implements UserRepository {
+    exist(id: string): Promise<Boolean> {
+        throw new Error("Method not implemented.");
+    }
     getLenght(): Promise<number> {
         throw new Error("Method not implemented.");
     }
@@ -36,9 +39,9 @@ export class InMemoryUserRepository implements UserRepository {
         throw new Error("Method not implemented.");
     }
 
-    async findByCPF(cpf: string): Promise<User | null> {
-        const user = this.items.find(user => user.props.cpf === cpf);
-        return user ?? null;
+    async findByCPF(cpf: string): Promise<User | undefined> {
+        const user = this.items.find(user => user.cpf === cpf);
+        return user;
     }
 
     async changeAdminPermission(id: string, adminPermission: Boolean): Promise<null> {
@@ -86,14 +89,14 @@ export class InMemoryUserRepository implements UserRepository {
         throw new Error("produto não encontrado");
     }
 
-    async findById(id: string): Promise<User | null> {
+    async findById(id: string): Promise<User | undefined> {
         const user = this.items.find(user => user.id === id);
-        return user ?? null;
+        return user;
     }
 
-    async findByEmail(email: string): Promise<User | null> {
+    async findByEmail(email: string): Promise<User | undefined> {
         const user = this.items.find(user => user.email === email);
-        return user ?? null;
+        return user;
     }
 
 

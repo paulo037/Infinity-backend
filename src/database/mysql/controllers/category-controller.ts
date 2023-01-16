@@ -1,7 +1,5 @@
 import { Response, Request } from "express";
-import { JwtPayload } from "jsonwebtoken";
 import { CreateCategory } from "../../../application/services/product/create-category";
-import { logger } from "../../../logger";
 import { CategoryRepositoryMsql } from "../model/category-repository";
 
 
@@ -30,7 +28,7 @@ export class CategoryController {
             
             const category = await this.createService.execute(props)
             await this.repository.create(category);
-            return response.status(201).json({...category.props})
+            return response.status(201).json({...category})
         } catch (error) {
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
@@ -47,7 +45,7 @@ export class CategoryController {
 
             const category = await this.createService.execute(props)
             await this.repository.update(category);
-            return response.status(200).json({...category.props})
+            return response.status(200).json({...category})
         } catch (error) {
 
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");

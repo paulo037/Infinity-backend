@@ -1,8 +1,8 @@
 import { v4 } from "uuid";
-import { Entity } from "../../../core/domain/entities";
-import { Validation } from "../../validation/validation";
 
 export type AddressProps = {
+    id?: string;
+    user_id: string;
     user_name: string;
     state: string;
     city: string;
@@ -12,30 +12,46 @@ export type AddressProps = {
     cep: number;
     telephone: number;
     number?: number;
-    user_id: string;
-    id?: string;
 
 }
-export class Address extends Entity<AddressProps>{
-    private constructor(props: AddressProps) {
-        super(props);
-    }
+export class Address {
+    public id: string;
+    public user_id: string;
+    public user_name: string;
+    public state: string;
+    public city: string;
+    public district: string;
+    public street: string;
+    public complement: string;
+    public cep: number;
+    public telephone: number;
+    public number?: number;
 
 
-    static create(props: AddressProps) {
-        Validation.existOrError(props.user_name, "Nome do endereço não foi informado")
-        Validation.existOrError(props.cep, " O CEP  não foi informado")
-        Validation.existOrError(props.state, "O estado não foi informado")
-        Validation.existOrError(props.city, "A cidade não foi informada")
-        Validation.existOrError(props.district, "O bairro não foi informado")
-        Validation.existOrError(props.street, "A rua não foi informada")
-        Validation.existOrError(props.telephone, "O número de celular não informado")
-        Validation.existOrError(props.user_id, "Usuário não informado")
-
-        props.id = props.id ? props.id : v4()
-
-        const address = new Address(props)
-
-        return address;
+    constructor(
+        {
+            id,
+            user_id,
+            user_name,
+            state,
+            city,
+            district,
+            street,
+            complement,
+            cep,
+            telephone,
+            number }: AddressProps
+    ) {
+        this.id = id ?? v4()
+        this.user_id = user_id
+        this.user_name = user_name
+        this.state = state
+        this.city = city
+        this.district = district
+        this.street = street
+        this.complement = complement
+        this.cep = cep
+        this.telephone = telephone
+        this.number = number
     }
 }

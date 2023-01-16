@@ -4,7 +4,6 @@ import { Product } from "../../../domain/entities/product/product";
 import { ProductHasColor } from "../../../domain/entities/product/product_has_color";
 import { ProductHasCategory } from "../../../domain/entities/product/product_has_category";
 import { Image } from "../../../domain/entities/product/image";
-import { v4 as uuidv4 } from "uuid"
 import { OrderHasProduct } from "../../../domain/entities/order/order_has_product";
 
 
@@ -29,7 +28,7 @@ export class ProductRepositoryMsql implements ProductRepository {
 
             const products = await knex('product as p')
                 .leftJoin('image as i', 'p.id', 'i.product_id')
-                .select('i.url as image', 'p.name as name', 'p.id  as id', 'p.price as price')
+                .select('i.url as image', 'i.provider as provider', 'p.name as name', 'p.id  as id', 'p.price as price')
                 .where('i.primary', true)
                 .orWhere('i.url', null)
                 .limit(limit).offset(page * limit - limit)
@@ -43,12 +42,31 @@ export class ProductRepositoryMsql implements ProductRepository {
 
     }
 
+    async get(id: string): Promise<Product | undefined> {
+        try {
+            let product = await knex<Product>('product')
+                .where('id', id)
+                .first();
+            return product;
 
-    async create(product: Product): Promise<null> {
+        } catch (e) {
+            throw new Error("Não foi possível realizar a busca pelo produto!")
+        }
+
+    }
+
+    async create(product: Product, colors: ProductHasColor[], categories: ProductHasCategory[], createImages: Image[]): Promise<null> {
         try {
 
+            await knex.transaction(async trx => {
 
-            await knex('product').insert({ ...product.props });
+                await knex.insert(product).into('product');
+                await this.updateCategories(categories, product.id);
+                await this.updateColor(colors, product.id);
+                if (createImages.length > 0) {
+                    await this.createImages(createImages);
+                }
+            })
             return null;
 
         } catch (e) {
@@ -56,17 +74,27 @@ export class ProductRepositoryMsql implements ProductRepository {
         }
     }
 
-    async update(product: Product): Promise<null> {
+    async update(product: Product, colors: ProductHasColor[], categories: ProductHasCategory[], createImages: Image[], deleteImages: Image[], updateImages: Image[]): Promise<null> {
         try {
 
-            await knex('product as p')
-                .update({ ...product.props })
-                .where('p.id', product.props.id as string);
-            return null;
-        } catch (e) {
-            throw new Error("Não foi possível atualizar o produto!")
-        }
+            await knex.transaction(async trx => {
 
+                await knex('product as p')
+                    .update(product)
+                    .where('p.id', product.id);
+                await this.updateCategories(categories, product.id)
+                await this.updateColor(colors, product.id)
+                await this.deleteImages(deleteImages);
+                await this.updateImages(updateImages);
+                if (createImages.length > 0) {
+                    await this.createImages(createImages);
+                }
+            })
+            return null;
+
+        } catch (e) {
+            throw new Error("Não foi possível criar o produto!")
+        }
     }
 
     async updateColor(colors: ProductHasColor[], product_id: string): Promise<null> {
@@ -78,7 +106,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                     .del();
 
                 if (colors.length > 0) {
-                    await trx.insert(colors.map(c => c.props)).into('product_has_color')
+                    await trx.insert(colors).into('product_has_color')
                 }
 
                 return null;
@@ -96,7 +124,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                     .del();
 
                 if (categories.length > 0) {
-                    await trx.insert(categories.map(c => c.props)).into('product_has_category')
+                    await trx.insert(categories).into('product_has_category')
                 }
 
 
@@ -107,36 +135,48 @@ export class ProductRepositoryMsql implements ProductRepository {
         }
     }
 
-    async updateImages(images: Image[], product_id: string): Promise<null> {
-
+    async createImages(images: Image[]): Promise<null> {
 
         try {
-            return await knex.transaction(async trx => {
-                await trx('image')
-                    .where('image.product_id', product_id)
-                    .del()
-
-
-                if (images.length > 0) {
-
-                    images = images.map((i) => {
-                        return { ...i, id: uuidv4() }
-                    }
-                    )
-
-
-                    await trx.insert(images).into('image')
-                }
-
-                return null;
-            })
+            await knex.insert(images).into('image')
+            return null;
 
         } catch (e) {
-            throw new Error("Não foi possível atualizar as imagens do produto!")
+            console.log(e)
+            throw new Error("Não foi possível criar as imagens do produto!")
+        }
+    }
+
+    async updateImages(images: Image[]): Promise<null> {
+
+        try {
+            for await (const [index, image] of images.entries()) {
+                await knex('image')
+                    .update(image)
+                    .where('id', image.id);
+            }
+            return null;
+
+        } catch (e) {
+            throw new Error("Não foi atualizar criar as imagens do produto!")
         }
     }
 
 
+    async deleteImages(images: Image[]): Promise<null> {
+
+
+        try {
+            await knex('image')
+                .del()
+                .whereIn('id', images.map(i => i.id))
+
+            return null;
+
+        } catch (e) {
+            throw new Error("Não foi possível deletear as imagens do produto!")
+        }
+    }
     async delete(id: string): Promise<null> {
         try {
 
@@ -205,10 +245,7 @@ export class ProductRepositoryMsql implements ProductRepository {
                     .where('i.product_id', id);
 
 
-                product.images = images.map((image: any) => {
-                    return { "id": image.id, "name": image.name, "url": image.url, "primary": image.primary, "key": image.key }
-                })
-
+                product.images = images;
 
 
                 product.images.sort((a: any, b: any) => a.primary - b.primary).reverse();
@@ -222,6 +259,7 @@ export class ProductRepositoryMsql implements ProductRepository {
         }
 
     }
+
     async findByName(name: string): Promise<string | null> {
         try {
             let product = await knex('product')
@@ -241,6 +279,7 @@ export class ProductRepositoryMsql implements ProductRepository {
         }
 
     }
+
     async getByCategory(id: string): Promise<Product[]> {
         try {
 
@@ -348,9 +387,8 @@ export class ProductRepositoryMsql implements ProductRepository {
         }
     }
 
-
     async have(order_has_product: OrderHasProduct): Promise<Number> {
-        const { product_id, size, color } = order_has_product.props
+        const { product_id, size, color } = order_has_product
         try {
             const phc = await knex('product_has_color as phc')
                 .join("color as c", "c.id", "phc.color_id")
@@ -370,5 +408,21 @@ export class ProductRepositoryMsql implements ProductRepository {
             throw new Error("Não foi possível realizar a busca!")
         }
     }
+
+    async exist(id: string): Promise<Boolean> {
+        try {
+            const response = await knex.first(
+                knex.raw(
+                    'exists ? as present',
+                    knex('product').select('id').where('id', '=', id).limit(1)
+                )
+            );
+            return response.present === 1;
+
+        } catch (error) {
+            throw new Error("Não foi possível realizar a busca!")
+        }
+    }
+
 
 }

@@ -55,7 +55,7 @@ export class CreateUser {
 
         password = bcrypt.hashSync(password, salt)
 
-        const user = User.create(
+        const user = new User(
             {
                 first_name,
                 last_name,

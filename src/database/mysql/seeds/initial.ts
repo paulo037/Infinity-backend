@@ -1,4 +1,4 @@
-import {Knex} from "knex";
+import { Knex } from "knex";
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from "bcrypt"
 import { Status } from "../../../domain/entities/order/status";
@@ -134,17 +134,17 @@ export async function seed(knex: Knex): Promise<void> {
     await knex("category").insert([
         {
             name: "Produtos Mais Vendidos",
-            image: "https://a-static.mlcdn.com.br/618x463/camiseta-masculina-basica-lisa-100-algodao-fio-30-1-cor-preta-tamanho-m-ritual-surf/ritualsurfstore/3ba9043af7bc11ea81aa4201ac18502e/5700a151a4ee615cafb10e2cf637708c.jpg",
+            image: "/infinity/seed/bea86738e46e6ca0af81a18ff972feafBlusa_Moletom_Casual_Masculina_Snoopy_Bolso_Canguru_Capuz__Lucas_Lunny.png",
             id: c1,
         },
         {
             name: "Lançamentos",
-            image: "https://static.netshoes.com.br/produtos/camisa-selecao-brasil-iii-1920-sn-torcedor-nike-masculina/14/HZM-0866-014/HZM-0866-014_zoom1.jpg?ts=1639673308",
+            image: "/infinity/seed/bea86738e46e6ca0af81a18ff972feafBlusa_Moletom_Casual_Masculina_Snoopy_Bolso_Canguru_Capuz__Lucas_Lunny.png",
             id: c2,
         },
         {
-            name: "Blusa Social",
-            image: "https://static.zattini.com.br/produtos/blusa-broken-rules-malha-listrada-masculina/06/E60-0565-006/E60-0565-006_zoom1.jpg?ts=1602703157&ims=544x",
+            name: "Moleton",
+            image: "/infinity/seed/844a705276f6ef011d25ccb98b257e7dD_NQ_NP_670644MLB50022598644_052022O.png",
             id: c3,
         },
 
@@ -254,27 +254,30 @@ export async function seed(knex: Knex): Promise<void> {
         {
 
             id: i1,
-            url: "https://static.netshoes.com.br/produtos/camisa-flamengo-i-2021-sn-torcedor-adidas-masculina/02/NQQ-1178-002/NQQ-1178-002_zoom1.jpg?ts=1599854677&ims=544x",
+            url: "/infinity/seed/bea86738e46e6ca0af81a18ff972feafBlusa_Moletom_Casual_Masculina_Snoopy_Bolso_Canguru_Capuz__Lucas_Lunny.png",
             name: "Frente",
             key: "f.d",
             primary: true,
             product_id: p1,
+            provider: "cloudinary"
         },
         {
             id: i2,
-            url: "https://static.netshoes.com.br/produtos/camisa-flamengo-i-2021-sn-torcedor-adidas-masculina/02/NQQ-1178-002/NQQ-1178-002_zoom2.jpg?ts=1599854677&?ims=1088x",
+            url: "/infinity/seed/f64fb2535e9466593aada9d7abea0f24WhatsApp_Image_20230112_at_5.jpg",
             name: "Atrás",
             key: "f2.d",
             primary: false,
             product_id: p1,
+            provider: "cloudinary"
         },
         {
             id: i3,
-            url: "https://a-static.mlcdn.com.br/618x463/camisa-social-ml-slim-masculina-tam-3-alfaiataria/lotustrajes/0193f6ce302311eca2074201ac185049/8fa1100a833e11d9b9f0852f59f0b2d8.jpg",
+            url: "/infinity/seed/33e1e1a5aa7469d6b308da559f64a379flamengoyreg.png",
             name: "Frente",
             key: "f55.d",
             primary: true,
             product_id: p2,
+            provider: "cloudinary"
         },
 
 
@@ -412,7 +415,7 @@ export async function seed(knex: Knex): Promise<void> {
 
             product_name: 'blusa flamengo',
 
-        },  
+        },
 
 
     ]);

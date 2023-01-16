@@ -29,7 +29,7 @@ export class CreateSize {
         
 
      
-        const size = Size.create({
+        const size = new Size({
           value,
           id
         });

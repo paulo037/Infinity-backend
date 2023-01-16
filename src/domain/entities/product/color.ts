@@ -1,28 +1,18 @@
 import { v4 } from "uuid";
-import { Entity } from "../../../core/domain/entities";
 
 type ColorProps = {
     value: string;
     id?: string;
 }
 
-export class Color extends Entity<ColorProps>{
-    private constructor(props: ColorProps) {
-        super(props);
+export class Color {
+
+    public value: string;
+    public id: string;
+
+    constructor({ value, id }: ColorProps) {
+        this.value = value
+        this.id = id ?? v4()
     }
 
-    public get value(): string {
-        return this.props.value;
-    }
-
-    public get id(): string | undefined {
-        return this.props.id;
-    }
-
-    static create(props: ColorProps) {
-        props.id = props.id ? props.id : v4()
-        const color = new Color(props)
-
-        return color;
-    }
 }

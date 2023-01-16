@@ -1,18 +1,15 @@
-import { Entity } from "../../../core/domain/entities";
 
-type ProductHasCategoryProps = {
+export type ProductHasCategoryProps = {
     category_id: string;
-    product_id: string; 
+    product_id: string;
 }
 
-export class ProductHasCategory extends Entity<ProductHasCategoryProps>{
-    private constructor(props: ProductHasCategoryProps) {
-        super(props);
-    }
+export class ProductHasCategory {
+    public category_id: string;
+    public product_id: string;
 
-    static create(props: ProductHasCategoryProps) {
-        const productHasCategory = new ProductHasCategory(props)
-
-        return productHasCategory;
+    constructor({category_id, product_id} : ProductHasCategoryProps) {
+        this.category_id = category_id
+        this.product_id = product_id
     }
 }

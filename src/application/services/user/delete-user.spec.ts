@@ -7,7 +7,7 @@ describe('Delete User', () => {
 
         const userRepository = new InMemoryUserRepository;
 
-        const user = User.create({
+        const user = new User({
             first_name: "Paulo",
             last_name: "Silva",
             image: "ww.exemple.com",
@@ -31,7 +31,7 @@ describe('Delete User', () => {
     
         const UserRepository = new InMemoryUserRepository;
     
-        const user = User.create({
+        const user = new User({
             first_name: "Paulo",
             image: "ww.exemple.com",
             password: "12345678",

@@ -7,6 +7,12 @@ import { ProductHasColor } from "../../src/domain/entities/product/product_has_c
 
 
 export class InMemoryProductRepository implements ProductRepository {
+    get(id: string): Promise<Product | undefined> {
+        throw new Error("Method not implemented.");
+    }
+    exist(id: string): Promise<Boolean> {
+        throw new Error("Method not implemented.");
+    }
     have(order_has_product: OrderHasProduct): Promise<Number> {
         throw new Error("Method not implemented.");
     }

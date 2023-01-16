@@ -1,22 +1,17 @@
 import { Response, Request } from "express";
-import { CreateProduct } from "../../../application/services/product/create-product";
+import { CreateProduct, CreateProductRequest } from "../../../application/services/product/create-product";
 import { DeleteProduct } from "../../../application/services/product/delete-product";
 import { GetProductById } from "../../../application/services/product/get-product-by-id";
-import { UpdateProduct } from "../../../application/services/product/update-product";
+import { UpdateProduct, UpdateProductRequest } from "../../../application/services/product/update-product";
 import { ProductRepositoryMsql } from "../model/product-repository";
 import { SizeRepositoryMsql } from "../model/size-repository";
-import { CreateProductHasCategory } from "../../../application/services/product/create-product-has-category";
 import { CategoryRepositoryMsql } from "../model/category-repository";
 import { GetProductByCategory } from "../../../application/services/product/get-products-by-category";
-import { CreateProductHasColor } from "../../../application/services/product/create-product-has-color";
 import { Image } from "../../../domain/entities/product/image";
-import { Category } from "../../../domain/entities/product/category";
-import { ProductHasCategory } from "../../../domain/entities/product/product_has_category";
-import { Color } from "../../../domain/entities/product/color";
-import { ProductHasColor } from "../../../domain/entities/product/product_has_color";
-import { JwtPayload } from "../../../application/config/auth";
-import { mercadopago } from "../../../application/config/mercadopago";
-import { FindUserByEmail } from "../../../application/services/user/find-user-by-email ";
+import { Product } from "../../../domain/entities/product/product";
+import { CreateProductHasColorRequest } from "../../../application/services/product/create-product-has-color";
+import { CreateProductHasCategoryRequest } from "../../../application/services/product/create-product-has-category";
+import { deleteImage } from "../../../application/config/cloudinary/uploader";
 
 export class ProductController {
 
@@ -25,107 +20,63 @@ export class ProductController {
         private repository = new ProductRepositoryMsql(),
         private sizerepository = new SizeRepositoryMsql(),
         private categoryrepository = new CategoryRepositoryMsql(),
-        private create = new CreateProduct(repository),
+
+        private create = new CreateProduct(repository, sizerepository, categoryrepository),
         private deleteProduct = new DeleteProduct(repository),
-        private createProductHasColor = new CreateProductHasColor(sizerepository, repository),
-        private createProductHasCategory = new CreateProductHasCategory(categoryrepository, repository),
-        private update = new UpdateProduct(repository),
+        private update = new UpdateProduct(repository, sizerepository, categoryrepository),
         private getProductId = new GetProductById(repository),
         private getProductByCategory = new GetProductByCategory(repository, categoryrepository)
     ) { }
 
-    private createImages = (images: Image[] | undefined, product_id: string) => {
-
-        if (images) {
-            const addProductId = images.map((img: any) => {
-                img.product_id = product_id
-                return img;
-            });
-
-            return addProductId;
-        }
-
-        return [];
-    }
-
-    private createCategories = async (categories: Category[] | undefined, product_id: string)
-        : Promise<ProductHasCategory[]> => {
-        let productHasCategory = []
-        if (categories) {
-            for await (const [index, category] of categories.entries()) {
-                const c = await this.createProductHasCategory.execute({
-                    product_id: product_id,
-                    category_name: category.name
-                });
-
-                productHasCategory.push(c);
-            }
-            return productHasCategory;
-        }
-        return [];
-
-    }
 
 
-    private createColor = async (colors: {
-        color_id: string,
-        quantity: number,
-        size_id: string
-    }[] | undefined, product_id: string)
-        : Promise<ProductHasColor[]> => {
-        let productHasColor = []
-        if (colors) {
-            for await (const [index, color] of colors.entries()) {
-                const c = await this.createProductHasColor.execute({
-                    product_id: product_id,
-                    color_id: color.color_id,
-                    quantity: color.quantity,
-                    size_id: color.size_id
-                });
 
-                productHasColor.push(c);
-            }
-            return productHasColor;
-        }
-        return [];
-
-    }
 
     public createProduct = async (request: Request, response: Response) => {
-        let product = request.body.product;
+
+        const createImages: Image[] = response.locals.createImages ?? [];
+
+        const colors: CreateProductHasColorRequest[] = request.body.colors ? JSON.parse(request.body.colors) : [];
+        const categories: CreateProductHasCategoryRequest[] = request.body.categories ? JSON.parse(request.body.categories) : [];
+        const product: Product = request.body.product;
+
+
         try {
-            product.id = await this.create.execute(product);
-
-            let images = this.createImages(product.images, product.id);
-            let categories = await this.createCategories(product.categories, product.id);
-            let colors = await this.createColor(product.colors, product.id)
-
-            await this.repository.updateImages(images, product.id);
-            await this.repository.updateColor(colors, product.id);
-            await this.repository.updateCategories(categories, product.id);
+            const createProductRequest: CreateProductRequest = { product, createImages, colors, categories };
+            console.log(createProductRequest);
+            await this.create.execute(createProductRequest);
 
         } catch (error) {
 
+            for await (const image of createImages) {
+                deleteImage(image.key).catch();
+            }
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
-        return response.status(201).send();
+        return response.status(200).send();
     }
 
     public updateProduct = async (request: Request, response: Response) => {
-        let product = request.body.product;
-       
-        try {
-            let images = this.createImages(product.images, product.id);
-            let categories = await this.createCategories(product.categories, product.id);
-            let colors = await this.createColor(product.colors, product.id)
 
-            await this.update.execute(product);
-            await this.repository.updateImages(images, product.id);
-            await this.repository.updateColor(colors, product.id);
-            await this.repository.updateCategories(categories, product.id);
+        const deleteImages: Image[] = request.body.deleteImages ? JSON.parse(request.body.deleteImages) : [];
+        const createImages: Image[] = response.locals.createImages ?? [];
+        const updateImages: Image[] = request.body.updateImages ? JSON.parse(request.body.updateImages) : [];
+        const colors: CreateProductHasColorRequest[] = request.body.colors ? JSON.parse(request.body.colors) : [];
+        const categories: CreateProductHasCategoryRequest[] = request.body.categories ? JSON.parse(request.body.categories) : [];
+        const product: Product = request.body.product;
+        console.log('imagens prontas')
+        try {
+            const updateProductRequest: UpdateProductRequest = { product, createImages, deleteImages, updateImages, colors, categories };
+           
+            await this.update.execute(updateProductRequest);
+            for await (const image of deleteImages) {
+                await deleteImage(image.key)
+            }
 
         } catch (error) {
-
+            for await (const image of createImages) {
+                deleteImage(image.key).catch();
+            }
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
         return response.status(200).send();
@@ -142,12 +93,12 @@ export class ProductController {
     }
 
     public getProductById = async (request: Request, response: Response) => {
-        let id =request.params.id;
+        let id = request.params.id;
         try {
             const product = await this.getProductId.execute(id)
             return response.json(product);
         } catch (error) {
-            
+
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
@@ -158,20 +109,20 @@ export class ProductController {
         try {
             const id = await this.repository.findByName(name)
 
-            return response.json({id: id});
+            return response.json({ id: id });
         } catch (error) {
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
 
     public getProductByCategoryName = async (request: Request, response: Response) => {
-        let name =request.params.name;
+        let name = request.params.name;
         try {
             const products = await this.getProductByCategory.execute({ name })
 
             return response.json(products);
         } catch (error) {
-           
+
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
@@ -193,12 +144,11 @@ export class ProductController {
         let search = request.params.term;
 
         try {
-            
             const products = await this.repository.search(search)
 
             return response.json(products);
         } catch (error) {
-    
+
             return response.status(400).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }

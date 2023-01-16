@@ -1,40 +1,44 @@
 import { v4 } from "uuid";
-import { Entity } from "../../../core/domain/entities";
 
-type ProductProps = {
+export type ProductProps = {
     name: string;
+    id?: string;
     description?: string;
     price: number;
     height?: number;
     width?: number;
     length?: number;
-    weight?:number;
-    id?: string;
+    weight?: number;
 }
-export class Product extends Entity<ProductProps>{
+export class Product {
 
+    public name: string;
+    public id: string;
+    public price: number;
+    public description?: string;
+    public height?: number;
+    public width?: number;
+    public length?: number;
+    public weight?: number;
+    
 
-    private constructor(props: ProductProps) {
-        super(props);
-    }
-
-    public get name(): string {
-        return this.props.name;
-    }
-
-    public get id() {
-        return this.props.id;
-    }
-
-    public get price() {
-        return this.props.price;
-    }
-
-
-    static create(props: ProductProps) {
-        props.id = props.id ? props.id : v4()
-        const product = new Product(props);
-
-        return product;
+    constructor(
+        { name,
+            id,
+            price,
+            description,
+            height,
+            width,
+            length,
+            weight }: ProductProps
+    ) {
+        this.name = name
+        this.id = id ?? v4()
+        this.price = price
+        this.description = description
+        this.height = height
+        this.width = width
+        this.length = length
+        this.weight = weight
     }
 }

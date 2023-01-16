@@ -1,5 +1,4 @@
 import { v4 } from "uuid";
-import { Entity } from "../../../core/domain/entities";
 
 type CategoryProps = {
     name: string;
@@ -7,22 +6,16 @@ type CategoryProps = {
     id?: string;
 }
 
-export class Category extends Entity<CategoryProps>{
-    private constructor(props: CategoryProps) {
-        super(props);
-    }
+export class Category{
 
-    public get name(): string {
-        return this.props.name;
-    }
-
-    public get id(): string | undefined {
-        return this.props.id;
-    }
-
-    static create(props: CategoryProps) {
-        props.id = props.id ? props.id : v4()
-        const category = new Category(props);
-        return category;
-    }
+    public name: string;
+    public image: string;
+    public id: string;
+    
+    
+    constructor({name, image, id}: CategoryProps) {
+        this.name = name
+        this.image = image
+        this.id = id ?? v4()
+    } 
 }

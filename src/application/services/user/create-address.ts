@@ -2,7 +2,7 @@ import { Address } from "../../../domain/entities/user/address";
 import { Validation } from "../../../domain/validation/validation";
 import { UserRepository } from "../../repositories/UserRepository";
 
-type CreateAddressRequest = {
+export type CreateAddressRequest = {
   
     complement: string;
     user_name: string;
@@ -25,17 +25,10 @@ export class CreateAddress {
 
 
 
-    async execute(createAddressRequest : CreateAddressRequest) {
-
-
-
-
-        const AddressWithUserIdExist = await this.userRepository.getAddresses(createAddressRequest.user_id);
-        Validation.existOrError(AddressWithUserIdExist, "O usuário para qual o endereço está sendo crido não foi encontrado!");
-
-        const address = Address.create(createAddressRequest);
+    async execute(request : CreateAddressRequest) {
 
        
+        const address = new Address(request);
         return address;
     }
 }

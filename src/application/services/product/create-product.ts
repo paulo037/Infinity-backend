@@ -1,14 +1,19 @@
-import { Product } from "../../../domain/entities/product/product"
+import { Product } from "../../../domain/entities/product/product";
 import { Validation } from "../../../domain/validation/validation";
 import { ProductRepository } from "../../repositories/ProductRepository";
+import { Image } from "../../../domain/entities/product/image";
+import { SizeRepository } from "../../repositories/SizeRepository";
+import { CategoryRepository } from "../../repositories/CategoryRepository";
+import { CreateArrayProductHasColor } from "./create-array-product-has-color";
+import { CreateArrayProductHasCategory } from "./create-array-product-has-category";
+import { CreateProductHasColorRequest } from "./create-product-has-color";
+import { CreateProductHasCategoryRequest } from "./create-product-has-category";
 
-type CreateProductRequest = {
-    name: string;
-    description?: string;
-    price: number;
-    height?: number;
-    width?: number;
-    length?: number;
+export type CreateProductRequest = {
+    product: Product;
+    createImages: Image[],
+    categories: CreateProductHasCategoryRequest[],
+    colors: CreateProductHasColorRequest[],
 }
 
 
@@ -16,31 +21,23 @@ type CreateProductRequest = {
 export class CreateProduct {
 
     constructor(
-        private productRepository: ProductRepository,
+        private repository: ProductRepository,
+        private sizeRepository: SizeRepository,
+        private categoryRepository: CategoryRepository,
+        private createArrayProductHasColor = new CreateArrayProductHasColor(sizeRepository),
+        private createArrayProductHasCategory = new CreateArrayProductHasCategory(categoryRepository),
     ) { }
 
-    async execute({ name,
-                    description,
-                    price,
-                    height,
-                    width,
-                    length}: CreateProductRequest) {
+    async execute({ product, createImages, colors, categories }: CreateProductRequest) {
 
-        // const productExist = await this.productRepository.findByName(name);
+        Validation.validPriceOrError(product.price, "Preço invalido!");
 
-        Validation.validPriceOrError(price, "Preço invalido!");
-        // Validation.notExistOrError(productExist, "<span>Um<wbr> Produto<wbr> com<wbr> esse<wbr> nome<wbr> já<wbr> existe</span>");
-        const product = Product.create({
-            name,
-            description,
-            price,
-            height,
-            width,
-            length,
-        });
 
-        await this.productRepository.create(product);
-        return product.id;
+        const product_has_color = await this.createArrayProductHasColor.execute(colors, product.id)
+
+        const product_has_category = await this.createArrayProductHasCategory.execute(categories, product.id)
+
+        await this.repository.create(product, product_has_color, product_has_category, createImages);
+
     }
 }
-

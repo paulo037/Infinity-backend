@@ -7,7 +7,7 @@ import knex from "../connection";
 export class ColorRepositoryMsql implements ColorRepository {
     async create(color: Color): Promise<null> {
         try {
-            await knex('color').insert(color.props);
+            await knex('color').insert(color);
         } catch (error) {
             throw new Error("Não foi possível criar o tamanho!")
         }
@@ -16,7 +16,7 @@ export class ColorRepositoryMsql implements ColorRepository {
 
     async update(color: Color): Promise<null> {
         try {
-            await knex('color').update(color.props).where("id", color.id);
+            await knex('color').update(color).where("id", color.id);
         } catch (error) {
             throw new Error("Não foi possível atualizar o tamanho!")
         }

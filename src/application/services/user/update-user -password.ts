@@ -38,21 +38,18 @@ export class UpdateUserPassword {
         Validation.equalsOrError(new_password, confirm_new_password, "Senhas não conferem");
         
 
-        const isMatch = bcrypt.compareSync(password, user.props.password);
+        const isMatch = bcrypt.compareSync(password, user.password);
         if (!isMatch) {
-            throw new Error("Senha atual incorreta!z");
+            throw new Error("Senha atual incorreta!");
         }
 
         const salt = bcrypt.genSaltSync(10)
 
         password = bcrypt.hashSync(new_password, salt)
 
-        const userUpdate = User.create({
-            ...user.props,
-            password
-        });
+        user.password = password;
 
-        await this.userRepository.update(userUpdate);
+        await this.userRepository.update(user);
 
     }
 }

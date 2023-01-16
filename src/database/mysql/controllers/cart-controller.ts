@@ -36,12 +36,12 @@ export class CartController {
         if (userLog == undefined) return response.status(401).send('Não autorizado!')
 
         try {
-            let cart = request.body.cart
-            cart.user_id = userLog.id;
-            const newCart = Cart.create(cart)
+            let cartProps = request.body.cart
+            cartProps.user_id = userLog.id;
 
-            await this.repository.create(newCart)
+            const cart = new Cart(cartProps)
 
+            await this.repository.create(cart)
 
             return response.status(201).send("Produto Adicionado!")
         } catch (error) {
@@ -59,11 +59,12 @@ export class CartController {
         if (userLog == undefined) return response.status(401).send('Não autorizado!')
 
         try {
-            let cart = request.body.cart
-            cart.user_id = userLog.id;
-            const newCart = Cart.create(cart)
+            let cartProps = request.body.cart
+            cartProps.user_id = userLog.id;
 
-            await this.repository.update(newCart)
+            const cart = new Cart(cartProps)
+
+            await this.repository.update(cart)
 
 
             return response.status(201).send("Produto atualizado!")
@@ -83,11 +84,12 @@ export class CartController {
         if (userLog == undefined) return response.status(401).send('Não autorizado!')
 
         try {
-            let cart = request.body.cart
-            cart.user_id = userLog.id;
-            const newCart = Cart.create(cart)
+            let cartProps = request.body.cart
+            cartProps.user_id = userLog.id;
 
-            await this.repository.delete(newCart)
+            const cart = new Cart(cartProps)
+
+            await this.repository.delete(cart)
 
 
             return response.status(200).send("Produto excluído!")
@@ -105,11 +107,8 @@ export class CartController {
         if (userLog == undefined) return response.status(401).send('Não autorizado!')
 
         try {
-           
 
             const number = await this.repository.numberOfProducts(userLog.id)
-
-
             return response.json({number}).status(200)
         } catch (error) {
 

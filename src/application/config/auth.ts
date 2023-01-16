@@ -53,17 +53,17 @@ export class Auth {
         const now = Math.floor(Date.now() / 1000);
 
         const payload = {
-            id: user.props.id,
-            first_name: user.props.first_name,
-            last_name: user.props.last_name,
-            email: user.props.email,
-            ad: user.props.admin,
+            id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            email: user.email,
+            ad: user.admin,
             iat: now,
             exp: now + (60 * 60 * 3)
         } as JwtPayload
 
         const refresh_payload = {
-            email: user.props.email,
+            email: user.email,
             iat: now,
             exp: now + (60 * 60 * 48),
         } as JwtRefresh
@@ -91,7 +91,7 @@ export class Auth {
                 return response.status(400).send("Email/Senha Inválidos!");
             }
 
-            const isMatch = bcrypt.compareSync(request.body.password, user.props.password);
+            const isMatch = bcrypt.compareSync(request.body.password, user.password);
             if (!isMatch) {
                 return response.status(401).send("Email/Senha Inválidos!");
 

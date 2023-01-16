@@ -81,25 +81,25 @@ export class CreatePreference {
                 cost: shipping_price,
             },
             payer: {
-                name: user.props.first_name,
-                surname: user.props.last_name,
-                email: user.props.email,
+                name: user.first_name,
+                surname: user.last_name,
+                email: user.email,
 
                 phone: {
-                    area_code: address.props.telephone.toString().substring(0, 2),
-                    number: parseInt(address.props.telephone.toString().substring(2, 11)),
+                    area_code: address.telephone.toString().substring(0, 2),
+                    number: parseInt(address.telephone.toString().substring(2, 11)),
 
                 },
 
                 identification: {
                     type: "CPF",
-                    number: user.props.cpf,
+                    number: user.cpf,
                 },
 
                 address: {
-                    street_name: address.props.street,
-                    street_number: address.props.number,
-                    zip_code: address.props.cep
+                    street_name: address.street,
+                    street_number: address.number,
+                    zip_code: address.cep
                 }
 
             },
