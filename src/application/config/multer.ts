@@ -32,7 +32,7 @@ const storageTypes = {
 export const multerConfig = {
 
     dest: resolve(__dirname, '..', 'tmp', 'uploads'),
-    storage: storageTypes[process.env.NODE_ENV as string],
+    storage: memoryStorage(),
     fileFilter: (req, file, cb) => {
         const allowedMimes = [
             "image/jpeg",

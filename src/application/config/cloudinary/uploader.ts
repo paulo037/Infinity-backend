@@ -7,29 +7,29 @@ import { Product, ProductProps } from "../../../domain/entities/product/product"
 
 
 const updateImage = async (image: Express.Multer.File) =>
-new Promise<cloudinary.UploadApiResponse>(async (resolve, reject) => {
+    new Promise<cloudinary.UploadApiResponse>(async (resolve, reject) => {
 
 
-    try {
+        try {
 
-        image.buffer = await sharp(image.buffer).toFormat('png').resize(1200, 1200, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 0 } }).toBuffer();
+            image.buffer = await sharp(image.buffer).toFormat('png').resize(1200, 1200, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 0 } }).toBuffer();
 
-        const buf = randomBytes(16);
-        const nomeArquivo = `${buf.toString('hex')}-${image.originalname.split('.')[0]}`.replace(/[^\w ]/g, '').replace(/ /g, '_')
+            const buf = randomBytes(16);
+            const nomeArquivo = `${buf.toString('hex')}-${image.originalname.split('.')[0]}`.replace(/[^\w ]/g, '').replace(/ /g, '_')
 
-        const uploaderResponse = await cloudinary.v2.uploader.upload(`data:image/png;base64,${image.buffer.toString('base64')}`, {
-            public_id: nomeArquivo,
-            folder: 'infinity/product',
+            const uploaderResponse = await cloudinary.v2.uploader.upload(`data:image/png;base64,${image.buffer.toString('base64')}`, {
+                public_id: nomeArquivo,
+                folder: 'infinity/product',
 
-        });
+            });
 
-        resolve({ ...uploaderResponse, provider: "cloudinary" });
+            resolve({ ...uploaderResponse, provider: "cloudinary" });
 
-    } catch (error) {
-        reject(error)
-    }
+        } catch (error) {
+            reject(error)
+        }
 
-});
+    });
 
 
 export const deleteImage = async (public_id: string) => {
@@ -48,10 +48,10 @@ export const uploadImage = async (request: Request, response: Response, next: Ne
         return next()
     }
 
-    const productProps : ProductProps = JSON.parse(request.body.product)
-    const product : Product = new Product(productProps)
+    const productProps: ProductProps = JSON.parse(request.body.product)
+    const product: Product = new Product(productProps)
     request.body.product = product;
-    
+
     const primary = JSON.parse(request.body.primary) as Array<boolean>
     let createImages: Image[] = []
 
@@ -64,35 +64,23 @@ export const uploadImage = async (request: Request, response: Response, next: Ne
 
 
 
-    if (files[0].destination) {
 
-        for (let index = 0; index < (files.length as unknown as number); index++) {
-            createImages.push(new Image({
-                url: process.env.BASE_API_IMAGE + files[index].filename,
-                name: files[index].originalname,
-                key: files[index].filename,
-                primary: primary[index],
-                provider: 'local',
-                product_id: product.id
-            }));
-        };
-    } else {
 
-        for (let index = 0; index < (files.length as unknown as number); index++) {
-            await updateImage(files[index])
-                .then(img => {
-                    createImages.push(new Image({
-                        url: img.public_id,
-                        key: img.public_id,
-                        provider: img.provider,
-                        primary: primary[index],
-                        name: files[index].originalname,
-                        product_id: product.id
-                    }))
-                })
-                .catch(err => console.error(err))
-        };
-    }
+    for (let index = 0; index < (files.length as unknown as number); index++) {
+        await updateImage(files[index])
+            .then(img => {
+                createImages.push(new Image({
+                    url: img.public_id,
+                    key: img.public_id,
+                    provider: img.provider,
+                    primary: primary[index],
+                    name: files[index].originalname,
+                    product_id: product.id
+                }))
+            })
+            .catch(err => console.error(err))
+    };
+    
 
     response.locals.createImages = createImages;
     return next()

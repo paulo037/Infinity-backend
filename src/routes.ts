@@ -77,7 +77,8 @@ router.route("/product/image")
 
 
 router.route('/product/:id')
-    .all(passport.authenticate)
+    .put(passport.authenticate)
+    .delete(passport.authenticate)
     .put(admin(multer(multerConfig).array('uploadImages', 10)), admin(uploadImage), admin(productController.updateProduct))
     .delete(admin(productController.delete))
     .get(productController.getProductById)
