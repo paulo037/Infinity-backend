@@ -7,6 +7,12 @@ import { ProductHasColor } from "../../src/domain/entities/product/product_has_c
 
 
 export class InMemoryProductRepository implements ProductRepository {
+    createImages(images: Image[]): Promise<null> {
+        throw new Error("Method not implemented.");
+    }
+    deleteImages(images: Image[]): Promise<null> {
+        throw new Error("Method not implemented.");
+    }
     get(id: string): Promise<Product | undefined> {
         throw new Error("Method not implemented.");
     }
