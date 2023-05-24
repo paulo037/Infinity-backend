@@ -43,46 +43,52 @@ export const deleteImage = async (public_id: string) => {
 
 
 export const uploadImage = async (request: Request, response: Response, next: NextFunction) => {
-    if (!request.files && !request.file) {
-        response.locals.createImages = [];
-        return next()
+    try {
+
+        if (!request.files && !request.file) {
+            response.locals.createImages = [];
+            return next()
+        }
+
+        const productProps: ProductProps = JSON.parse(request.body.product)
+        const product: Product = new Product(productProps)
+        request.body.product = product;
+
+        let createImages: Image[] = []
+        
+        let files = request.files ? request.files as unknown as Express.Multer.File[] : [request.file] as unknown as Express.Multer.File[];
+        const primary = request.body.primary ? JSON.parse(request.body.primary) as Array<boolean> : [true] as Array<boolean> 
+
+        if (0 === (files.length as unknown as number)) {
+            response.locals.images = [];
+            return next()
+        }
+
+
+
+
+
+        for (let index = 0; index < (files.length as unknown as number); index++) {
+            await updateImage(files[index])
+                .then(img => {
+                    createImages.push(new Image({
+                        url: img.public_id,
+                        key: img.public_id,
+                        provider: img.provider,
+                        primary: primary[index],
+                        name: files[index].originalname,
+                        product_id: product.id
+                    }))
+                })
+                .catch(err => console.error(err))
+        };
+
+
+        response.locals.createImages = createImages;
+
+    } catch (error) {
+         return next();
     }
-
-    const productProps: ProductProps = JSON.parse(request.body.product)
-    const product: Product = new Product(productProps)
-    request.body.product = product;
-
-    const primary = JSON.parse(request.body.primary) as Array<boolean>
-    let createImages: Image[] = []
-
-    let files = request.files ? request.files as unknown as Express.Multer.File[] : [request.file] as unknown as Express.Multer.File[];
-
-    if (0 === (files.length as unknown as number)) {
-        response.locals.images = [];
-        return next()
-    }
-
-
-
-
-
-    for (let index = 0; index < (files.length as unknown as number); index++) {
-        await updateImage(files[index])
-            .then(img => {
-                createImages.push(new Image({
-                    url: img.public_id,
-                    key: img.public_id,
-                    provider: img.provider,
-                    primary: primary[index],
-                    name: files[index].originalname,
-                    product_id: product.id
-                }))
-            })
-            .catch(err => console.error(err))
-    };
-    
-
-    response.locals.createImages = createImages;
-    return next()
+    return next();
 
 }
