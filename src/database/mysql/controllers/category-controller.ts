@@ -24,7 +24,7 @@ export class CategoryController {
 
     public createNewCategory = async (request: Request, response: Response) => {
         try {
-            let props = { name: request.body.name, image: response.locals.images[0].url };
+            let props = { name: request.body.name, image: response.locals.url };
             
             const category = await this.createService.execute(props)
             await this.repository.create(category);
@@ -40,7 +40,7 @@ export class CategoryController {
 
             let props = { name: request.body.name, id: request.body.id, image: request.body.image };
             if (response.locals.images) {
-                props.image = response.locals.images.length > 0 ? response.locals.images[0].url : props.image
+                props.image = response.locals.url
             }
 
             const category = await this.createService.execute(props)

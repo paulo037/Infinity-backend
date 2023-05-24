@@ -92,3 +92,26 @@ export const uploadImage = async (request: Request, response: Response, next: Ne
     return next();
 
 }
+
+
+export const uploadCategoryImage = async (request: Request, response: Response, next: NextFunction) => {
+    try {
+
+        if (!request.file) {
+            response.locals.url = 'noImage';
+            return next()
+        }
+        
+        let file = request.file as Express.Multer.File;
+
+        const img = await updateImage(file);
+        const url = img.public_id
+
+        response.locals.url = url;
+
+    } catch (error) {
+         return next();
+    }
+    return next();
+
+}
