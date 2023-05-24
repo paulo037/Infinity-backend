@@ -38,11 +38,7 @@ export class CategoryController {
     public updateCategory = async (request: Request, response: Response) => {
         try {
 
-            let props = { name: request.body.name, id: request.body.id, image: request.body.image };
-            if (response.locals.images) {
-                props.image = response.locals.url
-            }
-
+            let props = { name: request.body.name, id: request.body.id, image: response.locals.url };
             const category = await this.createService.execute(props)
             await this.repository.update(category);
             return response.status(200).json({...category})
