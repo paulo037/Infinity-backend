@@ -164,6 +164,7 @@ export class OrderRepositoryMsql implements OrderRepository {
                     .select('ohp.id as id')
                     .join('order_has_product as ohp', 'ohp.order_id', 'o.id')
                     .where("o.id", id)
+                    .andWhere("o.status", '<=', Status.PAYMENT_PENDING)
                     .andWhere('o.user_id', user_id);
 
                 ohp = ohp.map((o: any) => o.id)

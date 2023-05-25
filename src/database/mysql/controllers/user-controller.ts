@@ -7,7 +7,7 @@ import { FindUserByEmail } from "../../../application/services/user/find-user-by
 import { GetAllUsers } from "../../../application/services/user/get-all-users";
 import { ChangeAdminPermission } from "../../../application/services/user/change-admin-permission";
 import { Address } from "../../../domain/entities/user/address";
-import { UpdateUserPassword, UpdateUserPasswordRequest } from "../../../application/services/user/update-user -password";
+import { UpdateUserPassword, UpdateUserPasswordRequest } from "../../../application/services/user/update-user-password";
 import { Mailer, SendWelcomeRequest } from "../../../application/config/nodemailer";
 import { UpdatePassword } from "../../../application/services/user/update-password";
 export class UserController {
@@ -95,7 +95,7 @@ export class UserController {
             const userLog = request.user as JwtPayload
             if (userLog == undefined) return response.status(401).send("Não autorizado!");
 
-            let props = request.body as UpdateUserPasswordRequest
+            let props = request.body.props as UpdateUserPasswordRequest
 
             props.id = userLog.id
 

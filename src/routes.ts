@@ -148,7 +148,7 @@ router.route('/order/:id')
     .all(passport.authenticate)
     .get(orderController.getbyId)
     .put(admin(orderController.update))
-    .delete(admin(orderController.delete))
+    .delete(orderController.delete)
 
 router.route('/cart')
     .all(passport.authenticate)

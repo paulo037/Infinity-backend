@@ -28,7 +28,12 @@ export class UpdateUserPassword {
         new_password,
         confirm_new_password,
         password }: UpdateUserPasswordRequest) {
-
+        
+        console.log({
+                id,
+                new_password,
+                confirm_new_password,
+                password })
         const user = await this.userRepository.findById(id) as User;
 
         Validation.existOrError(user, "Usuário não existe!");

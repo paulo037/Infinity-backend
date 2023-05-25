@@ -96,9 +96,12 @@ export class CreatePreference {
                     number: user.cpf,
                 },
 
-                address: {
+                address: address.number ? {
                     street_name: address.street,
                     street_number: address.number,
+                    zip_code: address.cep
+                } : {
+                    street_name: address.street,
                     zip_code: address.cep
                 }
 
