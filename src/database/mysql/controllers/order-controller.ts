@@ -13,6 +13,7 @@ import { CartRepositoryMysql } from "../model/cart-repository";
 import { OrderRepositoryMsql } from "../model/order-repository";
 import { ProductRepositoryMsql } from "../model/product-repository";
 import { UserRepositoryMysql } from "../model/user-repository";
+import url from 'url';
 
 const dotenv = require('dotenv')
 dotenv.config()
@@ -178,8 +179,10 @@ export class OrderController {
 
     public webhook = async (request: Request, response: Response) => {
         try {
+            const parsedUrl = url.parse(request.url!, true);
+            const queryData = parsedUrl.query;
 
-            const id = request.body.data.id
+            const id = queryData['data.id'];
 
             const config = {
                 headers: {
@@ -201,7 +204,7 @@ export class OrderController {
             const order = await this.repository.getBasic(external_reference) as any;
             switch (status) {
                 case "approved":
-                    await this.repository.update(external_reference, Status.PAYMENT_APPROVED)
+                    await this.repository.update(external_reference, Status.PAYMENT_APPROVED);
                     await Mailer.orderStatusApproved({ first_name: order.first_name, to: order.email });
                     await Mailer.newOrder({ city: order.city, state: order.state, id: external_reference, price: order.price });
                     break;

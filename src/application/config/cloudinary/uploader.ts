@@ -87,7 +87,7 @@ export const uploadImage = async (request: Request, response: Response, next: Ne
         response.locals.createImages = createImages;
 
     } catch (error) {
-         return next();
+        return next();
     }
     return next();
 

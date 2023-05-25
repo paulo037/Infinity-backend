@@ -163,7 +163,8 @@ export class Mailer {
     public static newOrder = async ({ id, price, city, state }: SendNewOrder) => {
         let html = fs.readFileSync(__dirname + '/new_order.html', 'utf8')
 
-        const to = process.env.EMAIL_ORDER;
+        const to1 = process.env.EMAIL_ORDER1;
+        const to2 = process.env.EMAIL_ORDER2;
         const link = `${process.env.BASE_FRONT}/admin/order/${id}`;
         const price_string = 'R$ ' + price.toFixed(2).toString().replace('.', ',');
         const location = `${city}, ${state}`
@@ -173,8 +174,17 @@ export class Mailer {
 
         await transport.sendMail({
             from: `Infinity Modas <${user}>`,
-            to,
-            subject: "Novo pedido",
+            to:to1,
+            subject: "Novo pedido! 💲💲🤑",
+            html: html
+        }).catch(() => {
+            throw new Error("Não foi possível enviar o email de novo pedido!")
+        })
+
+        await transport.sendMail({
+            from: `Infinity Modas <${user}>`,
+            to:to2,
+            subject: "Novo pedido! 💲💲🤑",
             html: html
         }).catch(() => {
             throw new Error("Não foi possível enviar o email de novo pedido!")

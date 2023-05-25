@@ -117,12 +117,17 @@ export class OrderRepositoryMsql implements OrderRepository {
             await knex.transaction(async trx => {
                 await trx('order').update({ 'status': status }).where('id', id)
                 if (status == Status.PAYMENT_APPROVED) {
-                    await trx('order_has_product as ohc')
-                        .join('color as c', 'c.value', 'ohc.color')
-                        .join('size as s', 's.value', 'ohc.size')
-                        .join('product_has_color as phc', { 'phc.product_id': 'ohc.product_id', 'phc.size_id': 's.id', 'phc.color_id': 'c.id' })
-                        .update({ 'phc.quantity': '(phc.quantity - ohp.quantity)' })
-                        .where('ohc.order_id', id)
+                    await trx('order_has_product as ohp')
+                        .join('color as c', 'c.value', 'ohp.color')
+                        .join('size as s', 's.value', 'ohp.size')
+                        .join('product_has_color as phc', function () {
+                            this.on('phc.product_id', '=', 'ohp.product_id')
+                                .andOn('phc.size_id', '=', 's.id')
+                                .andOn('phc.color_id', '=', 'c.id');
+                        })
+                        .where('ohp.order_id', id)
+                        .update('phc.quantity', trx.raw('phc.quantity - ohp.quantity'));
+
                 }
             })
             if (tracking_code) {
@@ -240,7 +245,7 @@ export class OrderRepositoryMsql implements OrderRepository {
                             this.where('i.primary', true).orWhere('i.primary', null)
                         })
                         .andWhere('o.id', order.id);
-                        
+
 
                     order.products = ohp;
                     ordersWithProducts.push(order);
