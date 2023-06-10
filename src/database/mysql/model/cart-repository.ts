@@ -142,7 +142,7 @@ export class CartRepositoryMysql implements CartRepository {
 
     }
 
-    async numberOfProducts(user_id: string): Promise<Number> {
+    async numberOfProducts(user_id: string): Promise<number> {
         try {
             const number = await knex('cart')
                 .count("* as value")

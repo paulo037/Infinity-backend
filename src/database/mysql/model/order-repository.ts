@@ -152,7 +152,7 @@ export class OrderRepositoryMsql implements OrderRepository {
         return null;
     }
 
-    async updateRating(id: string, rating: Number, user_id: string): Promise<null> {
+    async updateRating(id: string, rating: number, user_id: string): Promise<null> {
         try {
 
             await knex('order_has_product as ohp')

@@ -19,7 +19,7 @@ export class InMemoryProductRepository implements ProductRepository {
     exist(id: string): Promise<Boolean> {
         throw new Error("Method not implemented.");
     }
-    have(order_has_product: OrderHasProduct): Promise<Number> {
+    have(order_has_product: OrderHasProduct): Promise<number> {
         throw new Error("Method not implemented.");
     }
 
