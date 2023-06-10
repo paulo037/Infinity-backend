@@ -11,6 +11,7 @@ import { Auth } from "./application/config/auth";
 import { Passport } from "./application/config/passport";
 import admin from "./application/config/admin";
 import { CartController } from "./database/mysql/controllers/cart-controller";
+import { PromotionController } from "./database/mysql/controllers/promotion-controller"
 import axios from "axios";
 import nodemailer from 'nodemailer'
 import fs from 'fs'
@@ -24,6 +25,7 @@ const colorController = new ColorController()
 const categoryController = new CategoryController()
 const orderController = new OrderController()
 const cartController = new CartController()
+const promotionController = new PromotionController()
 const auth = new Auth()
 const passport = new Passport()
 
@@ -132,6 +134,22 @@ router.route('/category/:id')
     .all(passport.authenticate)
     .delete(admin(categoryController.deleteCategory))
 
+
+
+router.route('/promotion')
+    .all(passport.authenticate)
+    .post(admin(promotionController.createPromotion))
+    .get(admin(promotionController.getAll))
+    .put(admin(promotionController.update))
+
+router.route('/promotions')
+    .get(promotionController.getbyDate)
+
+
+router.route('/promotion/:id')
+    .all(passport.authenticate)
+    .delete(admin(promotionController.delete))
+
 router.route('/orders')
     .all(passport.authenticate)
     .get(admin(orderController.getAll))
@@ -146,7 +164,7 @@ router.route('/order/rating/:id')
 
 router.route('/order/:id')
     .all(passport.authenticate)
-    .get(orderController.getbyId)
+    .get(admin(orderController.getbyId))
     .put(admin(orderController.update))
     .delete(orderController.delete)
 
@@ -160,8 +178,6 @@ router.route('/cart')
 router.route('/cart/products-number')
     .all(passport.authenticate)
     .get(cartController.getNumberofProducts)
-
-
 
 
 router.route('/addresses')

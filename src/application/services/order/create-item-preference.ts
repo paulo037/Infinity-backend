@@ -4,6 +4,7 @@ import { ProductRepository } from "../../repositories/ProductRepository";
 import { UserRepository } from "../../repositories/UserRepository";
 import { GetProductById } from "../product/get-product-by-id";
 import { FindUserByEmail } from "../user/find-user-by-email ";
+import { Promotion } from "../../../domain/entities/promotion/promotion";
 
 const dotenv = require('dotenv')
 dotenv.config()
@@ -15,7 +16,11 @@ export type CreateItemPreferenceRequest = {
 
 }
 
-
+export type CreateItemPreferencePromotionRequest = {
+    promotion: Promotion,
+    quantity: number,
+    price: number,
+}
 
 type ItemPreferenceProps = {
     id: string;
@@ -79,6 +84,28 @@ export class CreateItemPreference {
             picture_url: product.images[0].url,
             description: product.name,
             unit_price: parseFloat(product.price),
+        }
+
+        const itemPreference = new ItemPreference(itemPreferenceProps)
+
+        return itemPreference;
+
+    }
+
+
+    async createDisccount(props: CreateItemPreferencePromotionRequest) {
+
+        
+        const currence = "BRL"
+       
+        const itemPreferenceProps = {
+            id: props.promotion.id,
+            quantity: props.quantity,
+            title: props.promotion.name,
+            currency_id: currence,
+            picture_url: undefined,
+            description: props.promotion.name,
+            unit_price: -props.price,
         }
 
         const itemPreference = new ItemPreference(itemPreferenceProps)

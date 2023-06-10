@@ -43,7 +43,7 @@ export class ProductController {
 
         try {
             const createProductRequest: CreateProductRequest = { product, createImages, colors, categories };
-            console.log(createProductRequest);
+     
             await this.create.execute(createProductRequest);
 
         } catch (error) {
@@ -64,7 +64,7 @@ export class ProductController {
         const colors: CreateProductHasColorRequest[] = request.body.colors ? JSON.parse(request.body.colors) : [];
         const categories: CreateProductHasCategoryRequest[] = request.body.categories ? JSON.parse(request.body.categories) : [];
         const product: Product = request.body.product;
-        console.log('imagens prontas')
+
         try {
             const updateProductRequest: UpdateProductRequest = { product, createImages, deleteImages, updateImages, colors, categories };
            
@@ -164,7 +164,7 @@ export class ProductController {
     }
 
     public uploadImage = async (request: Request, response: Response) => {
-        const image = response.locals.images
+        const image = response.locals.createImages
         return response.json(image)
     }
 

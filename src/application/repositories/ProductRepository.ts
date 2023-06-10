@@ -17,11 +17,11 @@ export interface ProductRepository {
     getAllNames(): Promise<string[]>
     getAll(page: number, limit: number): Promise<Product[]>
     getLenght(): Promise<number>
-    updateColor(colors: ProductHasColor[], product_id: string): Promise<null> 
-    updateCategories(categories: ProductHasCategory[], product_id: string): Promise<null> 
-    createImages(images: Image[]): Promise<null>
-    deleteImages(images: Image[]): Promise<null>
-    have(order_has_product : OrderHasProduct): Promise<Number>
+    // updateColor(colors: ProductHasColor[], product_id: string): Promise<null> 
+    // updateCategories(categories: ProductHasCategory[], product_id: string): Promise<null> 
+    // createImages(images: Image[]): Promise<null>
+    // deleteImages(images: Image[]): Promise<null>
+    have(order_has_product : OrderHasProduct): Promise<number>
     getLenght(): Promise<number>
     exist(id: string): Promise<Boolean>
 }

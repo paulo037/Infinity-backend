@@ -5,8 +5,7 @@ import { ProductHasColor } from "../../../domain/entities/product/product_has_co
 import { ProductHasCategory } from "../../../domain/entities/product/product_has_category";
 import { Image } from "../../../domain/entities/product/image";
 import { OrderHasProduct } from "../../../domain/entities/order/order_has_product";
-
-
+import { Knex } from "knex";
 
 
 export class ProductRepositoryMsql implements ProductRepository {
@@ -60,11 +59,11 @@ export class ProductRepositoryMsql implements ProductRepository {
 
             await knex.transaction(async trx => {
 
-                await knex.insert(product).into('product');
-                await this.updateCategories(categories, product.id);
-                await this.updateColor(colors, product.id);
+                await trx('product').insert(product);
+                await this.updateCategories(categories, product.id, trx);
+                await this.updateColor(colors, product.id, trx);
                 if (createImages.length > 0) {
-                    await this.createImages(createImages);
+                    await this.createImages(createImages, trx);
                 }
             })
             return null;
@@ -73,22 +72,22 @@ export class ProductRepositoryMsql implements ProductRepository {
             throw new Error("Não foi possível criar o produto!")
         }
     }
+
 
     async update(product: Product, colors: ProductHasColor[], categories: ProductHasCategory[], createImages: Image[], deleteImages: Image[], updateImages: Image[]): Promise<null> {
         try {
 
             await knex.transaction(async trx => {
 
-                await knex('product as p')
+                await trx('product as p')
                     .update(product)
                     .where('p.id', product.id);
-                await this.updateCategories(categories, product.id)
-                await this.updateColor(colors, product.id)
-                await this.deleteImages(deleteImages);
-                await this.updateImages(updateImages);
-                if (createImages.length > 0) {
-                    await this.createImages(createImages);
-                }
+                await this.updateCategories(categories, product.id, trx)
+                await this.updateColor(colors, product.id, trx)
+                await this.deleteImages(deleteImages, trx);
+                await this.updateImages(updateImages, trx);
+                await this.createImages(createImages, trx);
+
             })
             return null;
 
@@ -97,61 +96,50 @@ export class ProductRepositoryMsql implements ProductRepository {
         }
     }
 
-    async updateColor(colors: ProductHasColor[], product_id: string): Promise<null> {
+    async updateColor(colors: ProductHasColor[], product_id: string, trx: Knex.Transaction): Promise<null> {
         try {
-            return await knex.transaction(async trx => {
 
-                await trx('product_has_color as phc')
-                    .where('phc.product_id', product_id)
-                    .del();
 
-                if (colors.length > 0) {
-                    await trx.insert(colors).into('product_has_color')
-                }
+            await trx('product_has_color as phc')
+                .where('phc.product_id', product_id)
+                .del();
 
-                return null;
-            })
+            if (colors.length == 0) return null;
+
+            await trx('product_has_color').insert(colors)
+
+
+            return null;
+
         } catch (e) {
             throw new Error("Não foi possível atualizar as cores do produto!")
         }
     }
 
-    async updateCategories(categories: ProductHasCategory[], product_id: string): Promise<null> {
+    async updateCategories(categories: ProductHasCategory[], product_id: string, trx: Knex.Transaction): Promise<null> {
         try {
-            return await knex.transaction(async trx => {
-                await trx('product_has_category as phc')
-                    .where('phc.product_id', product_id)
-                    .del();
+            await trx('product_has_category as phc')
+                .where('phc.product_id', product_id)
+                .del();
 
-                if (categories.length > 0) {
-                    await trx.insert(categories).into('product_has_category')
-                }
+            if (categories.length == 0) return null;
+
+            await trx('product_has_category').insert(categories)
 
 
-                return null;
-            })
+            return null;
+
         } catch (e) {
             throw new Error("Não foi possível atualizar as categorias do produto!")
         }
     }
 
-    async createImages(images: Image[]): Promise<null> {
+    async updateImages(images: Image[], trx: Knex.Transaction): Promise<null> {
 
         try {
-            await knex.insert(images).into('image')
-            return null;
-
-        } catch (e) {
-            console.log(e)
-            throw new Error("Não foi possível criar as imagens do produto!")
-        }
-    }
-
-    async updateImages(images: Image[]): Promise<null> {
-
-        try {
+            if (images.length == 0) return null;
             for await (const [index, image] of images.entries()) {
-                await knex('image')
+                await trx('image')
                     .update(image)
                     .where('id', image.id);
             }
@@ -162,12 +150,59 @@ export class ProductRepositoryMsql implements ProductRepository {
         }
     }
 
+    async createImages(images: Image[], trx: Knex.Transaction): Promise<null> {
 
-    async deleteImages(images: Image[]): Promise<null> {
+        try {
+            if (images.length == 0) return null;
+            await trx('image').insert(images)
+            return null;
+
+        } catch (e) {
+            throw new Error("Não foi possível criar as imagens do produto!")
+        }
+    }
+
+    async getCategoryFrequence(ids: string[]): Promise<String[]> {
+        try {
+            var products = await knex.transaction(async (trx) => {
+                const products = await trx('product as p')
+                    .join('product_has_category as phc', 'phc.product_id', 'p.id')
+                    .select('p.id as product_id',
+                        'p.price as price',
+                        knex.raw('GROUP_CONCAT(phc.category_id) as categories')
+                    )
+                    .whereIn('p.id', ids)
+                    .groupBy('p.id');
+
+                let productsMap: any = {};
+
+                return products.map((product) => {
+                    return {
+                        categories: product.categories ? product.categories.split(',') : [],
+                        price: product.price,
+                        product_id: product.product_id,
+                    }
+                });
+
+
+                
+            });
+
+
+        } catch (e) {
+            throw new Error("Não foi possível encontrar o carrinho!")
+        }
+        return products as unknown as String[];
+    }
+
+
+
+    async deleteImages(images: Image[], trx: Knex.Transaction): Promise<null> {
 
 
         try {
-            await knex('image')
+            if (images.length == 0) return null;
+            await trx('image')
                 .del()
                 .whereIn('id', images.map(i => i.id))
 
@@ -177,6 +212,7 @@ export class ProductRepositoryMsql implements ProductRepository {
             throw new Error("Não foi possível deletear as imagens do produto!")
         }
     }
+
     async delete(id: string): Promise<null> {
         try {
 
@@ -387,7 +423,7 @@ export class ProductRepositoryMsql implements ProductRepository {
         }
     }
 
-    async have(order_has_product: OrderHasProduct): Promise<Number> {
+    async have(order_has_product: OrderHasProduct): Promise<number> {
         const { product_id, size, color } = order_has_product
         try {
             const phc = await knex('product_has_color as phc')

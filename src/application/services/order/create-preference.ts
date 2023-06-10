@@ -70,7 +70,6 @@ export class CreatePreference {
         })
 
 
-
         const shipping_price = price >= 200 ? 0 : 25
 
 

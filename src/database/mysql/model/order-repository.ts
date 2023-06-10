@@ -3,8 +3,10 @@
  * @type {Knex}
  */
 import { OrderRepository } from "../../../application/repositories/OrderRepository";
+import { Disccount } from "../../../application/services/order/create-order";
 import { Order } from "../../../domain/entities/order/order";
 import { OrderHasProduct } from "../../../domain/entities/order/order_has_product";
+import { OrderHasPromotion } from "../../../domain/entities/order/order_has_promotion";
 import { Status } from "../../../domain/entities/order/status";
 import knex from "../connection";
 
@@ -32,7 +34,8 @@ export class OrderRepositoryMsql implements OrderRepository {
         try {
             const order = await knex('order')
                 .count('* as count')
-                .where('user_id', user_id).first() as any;
+                .where('status', '>=',Status.PAYMENT_APPROVED)
+                .andWhere('user_id', user_id).first() as any;
             return order.count as number;
 
         } catch (e) {
@@ -58,9 +61,8 @@ export class OrderRepositoryMsql implements OrderRepository {
                         'ohp.product_price as price',
                         'ohp.quantity as quantity',
                         'ohp.product_id as product_id',
-
-
                     )
+
                     .join('order_has_product as ohp', 'ohp.order_id', 'o.id')
                     .join('product as p', 'ohp.product_id', 'p.id')
                     .leftJoin('image as i', 'p.id', 'i.product_id')
@@ -70,9 +72,16 @@ export class OrderRepositoryMsql implements OrderRepository {
                     .andWhere('o.id', order.id)
                     .orderBy('o.created_at', 'desc');
 
-                const user = await trx('user as u').select("cpf", "first_name", "last_name", "id").first();
+                const ohpr = await trx('order_has_promotion')
+                    .select('promotion_id', 'price', 'quantity')
+                    .where('order_id', order.id);
+
+                const user = await trx('user as u')
+                    .select("cpf", "first_name", "last_name", "id")
+                    .where("u.id", order.user_id).first();
 
                 order.products = ohp;;
+                order.promotions = ohpr;
                 order.user = user;
 
                 return order;
@@ -99,15 +108,19 @@ export class OrderRepositoryMsql implements OrderRepository {
         }
     }
 
+    async create(order: Order, orderHasProducts: OrderHasProduct[], orderHasPromotions: OrderHasPromotion[]): Promise<null> {
 
-    async create(order: Order, orderHasProducts: OrderHasProduct[]): Promise<null> {
         try {
             await knex.transaction(async trx => {
                 await trx('order').insert(order)
                 await trx('order_has_product').insert(orderHasProducts)
+                if (orderHasPromotions.length > 0) {
+                    await trx('order_has_promotion').insert(orderHasPromotions)
+                }
             })
             return null
         } catch (error) {
+            console.log(error)
             throw new Error("Não foi possível criar pedido!");
         }
     }
@@ -172,8 +185,20 @@ export class OrderRepositoryMsql implements OrderRepository {
                 if (ohp.length == 0) throw new Error("Erro ao apagar pedido!");
 
 
+                let ohpromotion = await trx('order as o')
+                    .select('ohpromotion.id as id')
+                    .join('order_has_promotion as ohpromotion', 'ohpromotion.order_id', 'o.id')
+                    .where("o.id", id);
+
+                ohpromotion = ohpromotion.map((o: any) => o.id)
+
+
                 await trx('order_has_product as ohp')
                     .whereIn('id', ohp)
+                    .delete();
+
+                await trx('order_has_promotion')
+                    .whereIn('id', ohpromotion)
                     .delete();
 
                 await trx('order')
@@ -182,7 +207,7 @@ export class OrderRepositoryMsql implements OrderRepository {
                     .delete();
             })
         } catch (error) {
-
+            console.log(error)
             throw new Error("Erro ao apagar pedido!");
         }
 
@@ -219,12 +244,13 @@ export class OrderRepositoryMsql implements OrderRepository {
                         'tracking_code',
                         'id',)
                     .where('o.user_id', user_id)
+                    .andWhere('o.status', '>=', Status.PAYMENT_APPROVED)
                     .orderBy('o.created_at', 'desc')
                     .limit(limit).offset(page * limit - limit);
 
                 let ordersWithProducts = []
                 for await (const [index, order] of ordens.entries()) {
-                    const ohp = await trx('order as o')
+                    let ohp = await trx('order as o')
                         .select('p.name as name',
                             'i.url as image',
                             'i.provider as provider',
@@ -234,21 +260,27 @@ export class OrderRepositoryMsql implements OrderRepository {
                             'ohp.quantity as quantity',
                             'ohp.product_id as product_id',
                             'ohp.rating as rating',
-                            'ohp.id as id'
-
-
-
+                            'ohp.id as id',
+                            knex.raw('GROUP_CONCAT(phc.category_id) as categories')
                         )
                         .join('order_has_product as ohp', 'ohp.order_id', 'o.id')
                         .join('product as p', 'ohp.product_id', 'p.id')
+                        .join('product_has_category as phc', 'phc.product_id', 'p.id')
                         .leftJoin('image as i', 'p.id', 'i.product_id')
                         .where(function () {
                             this.where('i.primary', true).orWhere('i.primary', null)
                         })
-                        .andWhere('o.id', order.id);
+                        .andWhere('o.id', order.id)
+                        .groupBy('p.id', 'i.url', 'i.provider', 'ohp.size', 'ohp.color', 'ohp.product_price', 'ohp.quantity', 'ohp.rating', 'ohp.id');
 
 
-                    order.products = ohp;
+                    order.products = ohp.map((oh) => {
+                        return {
+                            ...oh,
+                            categories: oh.categories ? oh.categories.split(',') : [],
+
+                        }
+                    });
                     ordersWithProducts.push(order);
                 }
 
@@ -256,6 +288,7 @@ export class OrderRepositoryMsql implements OrderRepository {
             })
 
         } catch (error) {
+            console.log(error)
             throw new Error("Erro ao buscar pedidos!");
 
         }

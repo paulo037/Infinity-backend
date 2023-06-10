@@ -4,7 +4,7 @@ import { JwtPayload } from "../../../application/config/auth";
 import { mercadopago } from "../../../application/config/mercadopago";
 import { Mailer } from "../../../application/config/nodemailer";
 import { CreateItemPreference, ItemPreference } from "../../../application/services/order/create-item-preference";
-import { CreateOrder, OrderItem } from "../../../application/services/order/create-order";
+import { CreateOrder, Disccount, OrderItem } from "../../../application/services/order/create-order";
 import { CreateOrderHasProduct } from "../../../application/services/order/create-order-has-product";
 import { CreatePreference, Preference } from "../../../application/services/order/create-preference";
 import { CreateAddress, CreateAddressRequest } from "../../../application/services/user/create-address";
@@ -14,6 +14,7 @@ import { OrderRepositoryMsql } from "../model/order-repository";
 import { ProductRepositoryMsql } from "../model/product-repository";
 import { UserRepositoryMysql } from "../model/user-repository";
 import url from 'url';
+import { PromotionRepositoryMsql } from "../model/promotion-repository";
 
 const dotenv = require('dotenv')
 dotenv.config()
@@ -26,8 +27,9 @@ export class OrderController {
         private userRepository = new UserRepositoryMysql(),
         private productRepository = new ProductRepositoryMsql(),
         
+        private promotionsRepository = new PromotionRepositoryMsql(),
         private createAddress = new CreateAddress(userRepository),
-        private createOrder = new CreateOrder(repository, productRepository),
+        private createOrder = new CreateOrder(repository, productRepository, promotionsRepository),
         private createPreference = new CreatePreference(userRepository),
         private createItemPreference = new CreateItemPreference(productRepository),
         private createOrderHasProduct = new CreateOrderHasProduct(productRepository)
@@ -61,9 +63,11 @@ export class OrderController {
             const id = request.params.id;
             const order = await this.repository.get(id) as any;
             if ((userLog.id != order.user.id) && !userLog.ad) return response.status(401).send('Não autorizado!')
+            console.log(order)
             return response.status(200).json(order);
 
         } catch (error) {
+            console.log(error)
             return response.status(500).send(error instanceof Error ? error.message : "Houve um erro inesperado");
         }
     }
@@ -153,7 +157,9 @@ export class OrderController {
                 this.cartRepository.deleteAll(userLog.id as string)
             }
             const address = await this.createAddress.execute(addressRequest)
-            const order_id = await this.createOrder.execute({ items: order_items, address })
+           
+
+            const {order_id , disccounts} = await this.createOrder.execute({ items: order_items, address })
 
             
             
@@ -164,6 +170,11 @@ export class OrderController {
                 const c = await this.createItemPreference.create(element)
                 items.push(c);
 
+            }
+
+            for await (const [index, element] of disccounts.entries()) {
+                const c = await this.createItemPreference.createDisccount(element)
+                items.push(c);
             }
 
             const preference = await this.createPreference.execute({ email: userLog.email, items, address, order_id })
